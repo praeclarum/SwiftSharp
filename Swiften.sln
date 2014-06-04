@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Swiften", "Swiften\Swiften.shproj", "{4B741A1C-C6E1-4E97-8CE0-1B5E442CE6FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Swiften.Compiler", "Swiften.Compiler\Swiften.Compiler.csproj", "{BC7CF665-75F6-4E14-B1FA-687D8591D94F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4B741A1C-C6E1-4E97-8CE0-1B5E442CE6FA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4B741A1C-C6E1-4E97-8CE0-1B5E442CE6FA}.Release|x86.ActiveCfg = Release|Any CPU
+		{BC7CF665-75F6-4E14-B1FA-687D8591D94F}.Debug|x86.ActiveCfg = Debug|x86
+		{BC7CF665-75F6-4E14-B1FA-687D8591D94F}.Debug|x86.Build.0 = Debug|x86
+		{BC7CF665-75F6-4E14-B1FA-687D8591D94F}.Release|x86.ActiveCfg = Release|x86
+		{BC7CF665-75F6-4E14-B1FA-687D8591D94F}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Swiften.Compiler\Swiften.Compiler.csproj
+	EndGlobalSection
+EndGlobal

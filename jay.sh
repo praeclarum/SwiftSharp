@@ -1,0 +1,1 @@
+./Lib/jay -c -v Swiften/SwiftParser.jay < ./Lib/skeleton.cs > Swiften/SwiftParser.cs
