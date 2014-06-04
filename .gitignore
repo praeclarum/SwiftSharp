@@ -4,3 +4,6 @@ y.output
 
 bin
 obj
+
+*.userprefs
+

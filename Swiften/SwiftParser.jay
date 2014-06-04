@@ -31,6 +31,13 @@ namespace Swiften
 %%
 
 //
+// Based on:
+//
+//   "The Swift Programming Language" Jun 2, 2014
+//   https://itunes.apple.com/us/book/swift-programming-language/id881256329?mt=11
+//
+
+//
 // STATEMENTS
 //
 
