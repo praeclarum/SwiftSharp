@@ -31,8 +31,15 @@ namespace Swiften
 %token EXTENSION
 %token SUBSCRIPT
 %token OPERATOR PREFIX POSTFIX INFIX PRECEDENCE ASSOCIATIVITY LEFT RIGHT NONE
+%token IS AS
+%token BALANCED_TEXT
+%token FILE_DEFINE LINE_DEFINE COLUMN_DEFINE FUNCTION_DEFINE
+%token SELF SUPER
+%token DYNAMICTYPE
+%token UTYPE UPROTOCOL
+%token INTEGER_LITERAL FLOATING_POINT_LITERAL STRING_LITERAL
 
-%start statements
+%start top_level_declaration
 %%
 
 //
@@ -187,7 +194,7 @@ statement_label
 	;
 
 label_name
-	: IDENTIFIER
+	: identifier
 	;
 
 control_transfer_statement
@@ -320,6 +327,7 @@ declaration_specifier
 
 top_level_declaration
 	: statements
+	|
 	;
 
 code_block
@@ -350,7 +358,7 @@ import_path
 	;
 
 import_path_identifier
-	: IDENTIFIER
+	: identifier
 	| operator_
 	;
 
@@ -392,7 +400,7 @@ variable_declaration_head
 	;
 
 variable_name
-	: IDENTIFIER
+	: identifier
 	;
 
 getter_setter_block
@@ -414,7 +422,7 @@ setter_clause
 	;
 
 setter_name
-	: '(' IDENTIFIER ')'
+	: '(' identifier ')'
 	;
 
 getter_setter_keyword_block
@@ -462,7 +470,7 @@ typealias_head
 	;
 
 typealias_name
-	: IDENTIFIER
+	: identifier
 	;
 
 typealias_assignment
@@ -482,7 +490,7 @@ function_head
 	;
 
 function_name
-	: IDENTIFIER
+	: identifier
 	| operator_
 	;
 
@@ -542,12 +550,12 @@ parameter_head
 	;
 
 parameter_name
-	: IDENTIFIER
+	: identifier
 	| '_'
 	;
 
 local_parameter_name
-	: IDENTIFIER
+	: identifier
 	| '_'
 	;
 
@@ -597,11 +605,11 @@ union_style_enum_case
 	;
 
 enum_name
-	: IDENTIFIER
+	: identifier
 	;
 
 enum_case_name
-	: IDENTIFIER
+	: identifier
 	;
 
 raw_value_style_enum
@@ -652,7 +660,7 @@ struct_declaration
 	;
 
 struct_name
-	: IDENTIFIER
+	: identifier
 	;
 
 struct_body
@@ -672,7 +680,7 @@ class_declaration
 	;
 
 class_name
-	: IDENTIFIER
+	: identifier
 	;
 
 class_body
@@ -688,7 +696,7 @@ protocol_declaration
 	;
 
 protocol_name
-	: IDENTIFIER
+	: identifier
 	;
 
 protocol_body
@@ -788,16 +796,16 @@ operator_declaration
 	;
 
 prefix_operator_declaration
-	: OPERATOR PREFIX operator '{' '}'
+	: OPERATOR PREFIX operator_ '{' '}'
 	;
 
 postfix_operator_declaration
-	: OPERATOR POSTFIX operator '{' '}'
+	: OPERATOR POSTFIX operator_ '{' '}'
 	;
 
 infix_operator_declaration
-	: OPERATOR INFIX operator '{' infix_operator_attributes '}'
-	| OPERATOR INFIX operator '{' '}'
+	: OPERATOR INFIX operator_ '{' infix_operator_attributes '}'
+	| OPERATOR INFIX operator_ '{' '}'
 	;
 
 infix_operator_attributes
@@ -820,24 +828,491 @@ associativity_value
 	| NONE
 	;
 
+
+//
+// TYPES
+//
+
+type
+	: array_type
+	| function_type
+	| type_identifier
+	| tuple_type
+	| optional_type
+	| implicitly_unwrapped_optional_type
+	| protocol_composition_type
+	| metatype_type
+	;
+
+type_annotation
+	: attributes type
+	| type
+	;
+
+type_identifier
+	: type_name generic_argument_clause
+	| type_name
+	| type_name generic_argument_clause '.' type_identifier
+	| type_name '.' type_identifier
+	;
+
+type_name
+	: identifier
+	;
+
+tuple_type
+	: '(' tuple_type_body ')'
+	| '(' ')'
+	;
+
+tuple_type_body
+	: tuple_type_element_list DOTDOTDOT_OP
+	| tuple_type_element_list
+	;
+
+tuple_type_element_list
+	: tuple_type_element
+	| tuple_type_element ',' tuple_type_element_list
+	;
+
+tuple_type_element
+	: attributes INOUT type
+	| attributes type
+	| INOUT type
+	| type
+	| INOUT element_name type_annotation
+	| element_name type_annotation
+	;
+
+element_name
+	: identifier
+	;
+
+function_type
+	: type ARROW_OP type
+	;
+
+array_type
+	: type '[' ']'
+	| array_type '[' ']'
+	;
+
+optional_type
+	: type '?'
+	;
+
+implicitly_unwrapped_optional_type
+	: type '!'
+	;
+
+protocol_composition_type
+	: PROTOCOL '<' protocol_identifier_list '>'
+	| PROTOCOL '<' '>'
+	;
+
+protocol_identifier_list
+	: protocol_identifier
+	| protocol_identifier ',' protocol_identifier_list
+	;
+
+protocol_identifier
+	: type_identifier
+	;
+
+metatype_type
+	: type '.' UTYPE
+	| type '.' UPROTOCOL
+	;
+
+type_inheritance_clause
+	: ':' type_inheritance_list
+	;
+
+type_inheritance_list
+	: type_identifier
+	| type_identifier ',' type_inheritance_list
+	;
+
+
+//
+// PATTERNS
+//
+
+pattern
+	: wildcard_pattern type_annotation
+	| wildcard_pattern
+	| identifier_pattern type_annotation
+	| identifier_pattern
+	| value_binding_pattern
+	| tuple_pattern type_annotation
+	| tuple_pattern
+	| enum_case_pattern
+	| type_casting_pattern
+	| expression_pattern
+	;
+
+wildcard_pattern
+	: '_'
+	;
+
+identifier_pattern
+	: identifier
+	;
+
+value_binding_pattern
+	: VAR pattern
+	| LET pattern
+	;
+
+tuple_pattern
+	: '(' tuple_pattern_element_list ')'
+	| '(' ')'
+	;
+
+tuple_pattern_element_list
+	: tuple_pattern_element
+	| tuple_pattern_element ',' tuple_pattern_element_list
+	;
+
+tuple_pattern_element
+	: pattern
+	;
+
+enum_case_pattern
+	: type_identifier '.' enum_case_name tuple_pattern
+	| type_identifier '.' enum_case_name
+	| '.' enum_case_name tuple_pattern
+	| '.' enum_case_name
+	;
+
+type_casting_pattern
+	: is_pattern
+	| as_pattern
+	;
+
+is_pattern
+	: IS type
+	;
+
+as_pattern
+	: pattern AS type
+	;
+
+expression_pattern
+	: expression
+	;
+
+
+//
+// ATTRIBUTES
+//
+
+attribute
+	: '@' attribute_name attribute_argument_clause
+	| '@' attribute_name
+	;
+
+attribute_name
+	: identifier
+	;
+
+attribute_argument_clause
+	: '(' balanced_tokens ')'
+	| '(' ')'
+	;
+
+attributes
+	: attribute
+	| attribute attributes
+	;
+
+balanced_tokens
+	: balanced_token
+	| balanced_token balanced_tokens
+	;
+
+balanced_token
+	: '(' balanced_tokens ')'
+	| '(' ')'
+	| '[' balanced_tokens ']'
+	| '[' ']'
+	| '{' balanced_tokens '}'
+	| '{' '}'
+	| BALANCED_TEXT
+	;
+
+
+//
+// EXPRESSIONS
+//
+
+expression
+	: prefix_expression binary_expressions
+	| prefix_expression
+	;
+
+expression_list
+	: expression
+	| expression ',' expression_list
+	;
+
+prefix_expression
+	: prefix_operator postfix_expression
+	| in_out_expression
+	;
+
+in_out_expression
+	: '&' identifier
+	;
+
+binary_expression
+	: binary_operator prefix_expression
+	| assignment_operator prefix_expression
+	| conditional_operator prefix_expression
+	| type_casting_operator
+	;
+
+binary_expressions
+	: binary_expression
+	| binary_expression binary_expressions
+	;
+
+assignment_operator
+	: '='
+	;
+
+conditional_operator
+	: '?' expression ':'
+	;
+
+type_casting_operator
+	: IS type
+	| AS '?' type
+	| AS type
+	;
+
+primary_expression
+	: identifier generic_argument_clause
+	| identifier
+	| literal_expression
+	| self_expression
+	| superclass_expression
+	| closure_expression
+	| parenthesized_expression
+	| implicit_member_expression
+	| wildcard_expression
+	;
+
+literal_expression
+	: literal
+	| array_literal
+	| dictionary_literal
+	| FILE_DEFINE
+	| LINE_DEFINE
+	| COLUMN_DEFINE
+	| FUNCTION_DEFINE
+	;
+
+array_literal
+	: '[' array_literal_items ']'
+	| '[' ']'
+	;
+
+array_literal_items
+	: array_literal_item ','
+	| array_literal_item
+	| array_literal_item ',' array_literal_items
+	;
+
+array_literal_item
+	: expression
+	;
+
+dictionary_literal
+	: '[' dictionary_literal_items ']'
+	| '[' ':' ']'
+	;
+
+dictionary_literal_items
+	: dictionary_literal_item ','
+	| dictionary_literal_item
+	| dictionary_literal_item ',' dictionary_literal_items
+	;
+
+dictionary_literal_item
+	: expression ':' expression
+	;
+
+self_expression
+	: SELF
+	| SELF '.' identifier
+	| SELF '[' expression ']'
+	| SELF '.' INIT
+	;
+
+superclass_expression
+	: superclass_method_expression
+	| superclass_subscript_expression
+	| superclass_initializer_expression
+	;
+
+superclass_method_expression
+	: SUPER '.' identifier
+	;
+
+superclass_subscript_expression
+	: SUPER '[' expression ']'
+	;
+
+superclass_initializer_expression
+	: SUPER '.' INIT
+	;
+
+closure_expression
+	: '{' closure_signature statements '}'
+	| '{' statements '}'
+	;
+
+closure_signature
+	: parameter_clause function_result IN
+	| parameter_clause IN
+	| identifier_list function_result IN
+	| identifier_list IN
+	| capture_list parameter_clause function_result IN
+	| capture_list parameter_clause IN
+	| capture_list identifier_list function_result IN
+	| capture_list identifier_list IN
+	| capture_list IN
+	;
+
+capture_list
+	: '[' capture_specifier expression ']'
+	;
+
+capture_specifier
+	: WEAK
+	| UNOWNED
+	| UNOWNED_SAFE
+	| UNOWNED_UNSAFE
+	;
+
+
+implicit_member_expression
+	: '.' identifier
+	;
+
+parenthesized_expression
+	: '(' expression_element_list ')'
+	| '(' ')'
+	;
+
+expression_element_list
+	: expression_element
+	| expression_element ',' expression_element_list
+	;
+
+expression_element
+	: expression
+	| identifier ':' expression
+	;
+
+wildcard_expression
+	: '_'
+	;
+
+postfix_expression
+	: primary_expression
+	| postfix_expression postfix_operator
+	| function_call_expression
+	| initializer_expression
+	| explicit_member_expression
+	| postfix_self_expression
+	| dynamic_type_expression
+	| subscript_expression
+	| forced_value_expression
+	| optional_chaining_expression
+	;
+
+function_call_expression
+	: postfix_expression parenthesized_expression
+	| postfix_expression parenthesized_expression trailing_closure
+	| postfix_expression trailing_closure
+	;
+
+trailing_closure
+	: closure_expression
+	;
+
+initializer_expression
+	: postfix_expression '.' INIT
+	;
+
+explicit_member_expression
+	: postfix_expression '.' NUMBER
+	| postfix_expression '.' identifier generic_argument_clause
+	| postfix_expression '.' identifier
+	;
+
+postfix_self_expression
+	: postfix_expression '.' SELF
+	;
+
+dynamic_type_expression
+	: postfix_expression '.' DYNAMICTYPE
+	;
+
+subscript_expression
+	: postfix_expression '[' expression_list ']'
+	;
+
+forced_value_expression
+	: postfix_expression '!'
+	;
+
+optional_chaining_expression
+	: postfix_expression '?'
+	;
+
+
+//
+// LEXICAL
+//
+
+identifier
+	: IDENTIFIER
+	| '$' NUMBER
+	;
+
+identifier_list
+	: identifier
+	| identifier ',' identifier_list
+	;
+
+literal
+	: INTEGER_LITERAL
+	| FLOATING_POINT_LITERAL
+	| STRING_LITERAL
+	;
+
+operator_
+	: OPERATOR
+	;
+
+binary_operator
+	: operator_
+	;
+
+prefix_operator
+	: operator_
+	;
+
+postfix_operator
+	: operator_
+	;
+
 %%
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
