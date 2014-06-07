@@ -1,13 +1,22 @@
 # Swiften
 
-Swiften is the [Swift](https://developer.apple.com/swift) to .NET compiler.
+Swiften is the [Swift](https://developer.apple.com/swift) .NET compiler.
+
+## Status
+
+I just finished typing in the 1,300 lines of Swift grammar from the book and am now starting to write the compiler.
+
+In other words, it's not production ready yet.
 
 ## Project Structure
 
 * `Swiften` is the core parser and compiler code as a Shared Project.
 * `Swiften.Compiler` is the command line compiler.
 
-## Why?
+# So, this is what you've been doing with your down time, huh?
 
-Why not?
+Everyone needs a hobby.
 
+# License
+
+Licensed under the Apache License, Version 2.0.
