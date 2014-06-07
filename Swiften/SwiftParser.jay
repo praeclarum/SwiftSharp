@@ -13,12 +13,12 @@ namespace Swiften
 		const int yacc_verbose_flag = 1;
 %}
 
+%token IDENTIFIER NUMBER
 %token NEWLINE
 %token FOR IN DO WHILE
 %token IF ELSE
 %token SWITCH CASE DEFAULT
 %token WHERE
-%token IDENTIFIER
 %token BREAK CONTINUE FALLTHROUGH RETURN
 %token EQEQ_OP
 %token CLASS MUTATING NONMUTATING OVERRIDE STATIC UNOWNED UNOWNED_SAFE UNOWNED_UNSAFE WEAK
@@ -26,6 +26,11 @@ namespace Swiften
 %token LET
 %token GET SET WILLSET DIDSET
 %token TYPEALIAS
+%token ARROW_OP DOTDOTDOT_OP INOUT
+%token CONVENIENCE INIT DEINIT
+%token EXTENSION
+%token SUBSCRIPT
+%token OPERATOR PREFIX POSTFIX INFIX PRECEDENCE ASSOCIATIVITY LEFT RIGHT NONE
 
 %start statements
 %%
@@ -315,7 +320,6 @@ declaration_specifier
 
 top_level_declaration
 	: statements
-	|
 	;
 
 code_block
@@ -465,6 +469,356 @@ typealias_assignment
 	: '=' type
 	;
 
+function_declaration
+	: function_head function_name generic_parameter_clause function_signature function_body
+	| function_head function_name function_signature function_body
+	;
+
+function_head
+	: attributes declaration_specifiers FUNC
+	| attributes FUNC
+	| declaration_specifiers FUNC
+	| FUNC
+	;
+
+function_name
+	: IDENTIFIER
+	| operator_
+	;
+
+function_signature
+	: parameter_clauses function_result
+	| parameter_clauses
+	;
+
+function_result
+	: ARROW_OP attributes type
+	| ARROW_OP type
+	;
+
+function_body
+	: code_block
+	;
+
+parameter_clauses
+	: parameter_clause
+	| parameter_clause parameter_clauses
+	;
+
+parameter_clause
+	: '(' ')'
+	| '(' parameter_list DOTDOTDOT_OP ')'
+	| '(' parameter_list ')'
+	;
+
+parameter_list
+	: parameter
+	| parameter ',' parameter_list
+	;
+
+parameter
+	: parameter_head local_parameter_name type_annotation default_argument_clause
+	| parameter_head local_parameter_name type_annotation
+	| parameter_head type_annotation default_argument_clause
+	| parameter_head type_annotation
+	| attributes type
+	| type
+	;
+
+// FAK: Introduced to keep parameter's declaration concise
+parameter_head
+	: INOUT LET '#' parameter_name
+	| INOUT LET parameter_name
+	| INOUT '#' parameter_name
+	| INOUT parameter_name
+	| LET '#' parameter_name
+	| LET parameter_name
+	| '#' parameter_name
+	| parameter_name
+	| INOUT VAR '#' parameter_name
+	| INOUT VAR parameter_name
+	| VAR '#' parameter_name
+	| VAR parameter_name
+	;
+
+parameter_name
+	: IDENTIFIER
+	| '_'
+	;
+
+local_parameter_name
+	: IDENTIFIER
+	| '_'
+	;
+
+default_argument_clause
+	: expression
+	;
+
+// FAK: The grammar makes no mention of the ENUM token, but it's
+// obviously needed. This seems to be a bug in the book.
+enum_declaration
+	: attributes ENUM union_style_enum
+	| ENUM union_style_enum
+	| attributes ENUM raw_value_style_enum
+	| ENUM raw_value_style_enum
+	;
+
+union_style_enum
+	: enum_name generic_parameter_clause '{' union_style_enum_members '}'
+	| enum_name generic_parameter_clause '{' '}'
+	| enum_name '{' union_style_enum_members '}'
+	| enum_name '{' '}'
+	;
+
+union_style_enum_members
+	: union_style_enum_member
+	| union_style_enum_member union_style_enum_members
+	;
+
+union_style_enum_member
+	: declaration
+	| union_style_enum_case_clause
+	;
+
+union_style_enum_case_clause
+	: attributes CASE union_style_enum_case_list
+	| CASE union_style_enum_case_list
+	;
+
+union_style_enum_case_list
+	: union_style_enum_case
+	| union_style_enum_case ',' union_style_enum_case_list
+	;
+
+union_style_enum_case
+	: enum_case_name tuple_type
+	| enum_case_name
+	;
+
+enum_name
+	: IDENTIFIER
+	;
+
+enum_case_name
+	: IDENTIFIER
+	;
+
+raw_value_style_enum
+	: enum_name generic_parameter_clause ':' type_identifier '{' raw_value_style_enum_members '}'
+	| enum_name generic_parameter_clause ':' type_identifier '{' '}'
+	| enum_name ':' type_identifier '{' raw_value_style_enum_members '}'
+	| enum_name ':' type_identifier '{' '}'
+	;
+
+raw_value_style_enum_members
+	: raw_value_style_enum_member
+	| raw_value_style_enum_member raw_value_style_enum_members
+	;
+
+raw_value_style_enum_member
+	: declaration
+	| raw_value_style_enum_case_clause
+	;
+
+raw_value_style_enum_case_clause
+	: attributes CASE raw_value_style_enum_case_list
+	| CASE raw_value_style_enum_case_list
+	;
+
+raw_value_style_enum_case_list
+	: raw_value_style_enum_case
+	| raw_value_style_enum_case ',' raw_value_style_enum_case_list
+	;
+
+raw_value_style_enum_case
+	: enum_case_name raw_value_assignment
+	| enum_case_name
+	;
+
+raw_value_assignment
+	: '=' literal
+	;
+
+struct_declaration
+	: attributes STRUCT struct_name generic_parameter_clause type_inheritance_clause struct_body
+	| attributes STRUCT struct_name generic_parameter_clause struct_body
+	| attributes STRUCT struct_name type_inheritance_clause struct_body
+	| attributes STRUCT struct_name struct_body
+	| STRUCT struct_name generic_parameter_clause type_inheritance_clause struct_body
+	| STRUCT struct_name generic_parameter_clause struct_body
+	| STRUCT struct_name type_inheritance_clause struct_body
+	| STRUCT struct_name struct_body
+	;
+
+struct_name
+	: IDENTIFIER
+	;
+
+struct_body
+	: '{' declarations '}'
+	| '{' '}'
+	;
+
+class_declaration
+	: attributes CLASS class_name generic_parameter_clause type_inheritance_clause class_body
+	| attributes CLASS class_name generic_parameter_clause class_body
+	| attributes CLASS class_name type_inheritance_clause class_body
+	| attributes CLASS class_name class_body
+	| CLASS class_name generic_parameter_clause type_inheritance_clause class_body
+	| CLASS class_name generic_parameter_clause class_body
+	| CLASS class_name type_inheritance_clause class_body
+	| CLASS class_name class_body
+	;
+
+class_name
+	: IDENTIFIER
+	;
+
+class_body
+	: '{' declarations '}'
+	| '{' '}'
+	;
+
+protocol_declaration
+	: attributes PROTOCOL protocol_name type_inheritance_clause protocol_body
+	| attributes PROTOCOL protocol_name protocol_body
+	| PROTOCOL protocol_name type_inheritance_clause protocol_body
+	| PROTOCOL protocol_name protocol_body
+	;
+
+protocol_name
+	: IDENTIFIER
+	;
+
+protocol_body
+	: '{' protocol_member_declarations '}'
+	| '{' '}'
+	;
+
+protocol_member_declaration
+	: protocol_property_declaration
+	| protocol_method_declaration
+	| protocol_initializer_declaration
+	| protocol_subscript_declaration
+	| protocol_associated_type_declaration
+	;
+
+protocol_member_declarations
+	: protocol_member_declaration
+	| protocol_member_declaration protocol_member_declarations
+	;
+
+protocol_property_declaration
+	: variable_declaration_head variable_name type_annotation getter_setter_keyword_block
+	;
+
+protocol_method_declaration
+	: function_head function_name generic_parameter_clause function_signature
+	| function_head function_name function_signature
+	;
+
+protocol_initializer_declaration
+	: initializer_head generic_parameter_clause parameter_clause
+	| initializer_head parameter_clause
+	;
+
+protocol_subscript_declaration
+	: subscript_head subscript_result getter_setter_keyword_block
+	;
+
+protocol_associated_type_declaration
+	: typealias_head type_inheritance_clause typealias_assignment
+	| typealias_head type_inheritance_clause
+	| typealias_head typealias_assignment
+	| typealias_head
+	;
+
+initializer_declaration
+	: initializer_head generic_parameter_clause parameter_clause initializer_body
+	| initializer_head parameter_clause initializer_body
+	;
+
+initializer_head
+	: attributes CONVENIENCE INIT
+	| attributes INIT
+	| CONVENIENCE INIT
+	| INIT
+	;
+
+initializer_body
+	: code_block
+	;
+
+deinitializer_declaration
+	: attributes DEINIT code_block
+	| DEINIT code_block
+	;
+
+extension_declaration
+	: EXTENSION type_identifier type_inheritance_clause extension_body
+	| EXTENSION type_identifier extension_body
+	;
+
+extension_body
+	: '{' declarations '}'
+	| '{' '}'
+	;
+
+subscript_declaration
+	: subscript_head subscript_result code_block
+	| subscript_head subscript_result getter_setter_block
+	| subscript_head subscript_result getter_setter_keyword_block
+	;
+
+subscript_head
+	: attributes SUBSCRIPT parameter_clause
+	| SUBSCRIPT parameter_clause
+	;
+
+subscript_result
+	: attributes type
+	| type
+	;
+
+operator_declaration
+	: prefix_operator_declaration
+	| postfix_operator_declaration
+	| infix_operator_declaration
+	;
+
+prefix_operator_declaration
+	: OPERATOR PREFIX operator '{' '}'
+	;
+
+postfix_operator_declaration
+	: OPERATOR POSTFIX operator '{' '}'
+	;
+
+infix_operator_declaration
+	: OPERATOR INFIX operator '{' infix_operator_attributes '}'
+	| OPERATOR INFIX operator '{' '}'
+	;
+
+infix_operator_attributes
+	: precedence_clause associativity_clause
+	| precedence_clause
+	| associativity_clause
+	;
+
+precedence_clause
+	: PRECEDENCE NUMBER
+	;
+
+associativity_clause
+	: ASSOCIATIVITY associativity_value
+	;
+
+associativity_value
+	: LEFT
+	| RIGHT
+	| NONE
+	;
 
 %%
 
