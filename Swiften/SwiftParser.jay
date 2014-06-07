@@ -11,6 +11,7 @@ namespace Swiften
 	public partial class SwiftParser
 	{
 		const int yacc_verbose_flag = 1;
+		public static string GetTokenName (int token) { return yyNames[token]; }
 %}
 
 %token IDENTIFIER NUMBER
@@ -39,6 +40,8 @@ namespace Swiften
 %token UTYPE UPROTOCOL
 %token INTEGER_LITERAL FLOATING_POINT_LITERAL STRING_LITERAL
 
+%token END 0 "end of file"
+
 %start top_level_declaration
 %%
 
@@ -56,15 +59,21 @@ namespace Swiften
 statement
 	: expression NEWLINE	
 	| expression ';'
+	| expression END
 	| declaration NEWLINE
 	| declaration ';'
+	| declaration END
 	| loop_statement NEWLINE
 	| loop_statement ';'
+	| loop_statement END
 	| branch_statement NEWLINE
 	| branch_statement ';'
+	| branch_statement END
 	| labeled_statement NEWLINE
+	| labeled_statement END
 	| control_transfer_statement NEWLINE
 	| control_transfer_statement ';'
+	| control_transfer_statement END
 	;
 
 statements
@@ -1058,6 +1067,7 @@ expression_list
 
 prefix_expression
 	: prefix_operator postfix_expression
+	| postfix_expression
 	| in_out_expression
 	;
 

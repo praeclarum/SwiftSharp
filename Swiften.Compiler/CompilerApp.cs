@@ -9,7 +9,7 @@ namespace Swiften.Compiler
 		{
 			foreach (var path in args) {
 				var lex = new SwiftLexer (File.ReadAllText (path));
-				new SwiftParser ().yyparse (lex);
+				new SwiftParser ().yyparse (lex, new yydebug.yyDebugSimple ());
 			}
 		}
 	}
