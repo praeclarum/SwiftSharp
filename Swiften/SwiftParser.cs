@@ -10,21 +10,10 @@ namespace Swiften
 
 		public static string GetTokenName (int token) { return yyNames[token]; }
 
-		public void Parse (string input)
+		public List<Statement> Parse (string input)
 		{
 			var lex = new SwiftLexer (input);
-
-			try {
-				var topLevels = (List<Statement>)yyparse (lex, new yydebug.yyDebugSimple ());
-
-				foreach (var t in topLevels) {
-					Debug.WriteLine (t);
-				}
-
-			} catch (InvalidCastException ex) {
-				Debug.WriteLine (ex);
-				throw;
-			}
+			return (List<Statement>)yyparse (lex, new yydebug.yyDebugSimple ());
 		}
 
 		static List<T> MakeList<T> ()

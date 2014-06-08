@@ -6,4 +6,6 @@ bin
 obj
 
 *.userprefs
+Tests/*.exe
+Tests/*.sln
 

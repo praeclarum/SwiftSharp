@@ -29,13 +29,20 @@
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
     <PlatformTarget>x86</PlatformTarget>
+    <Commandlineparameters>../../../Tests/HelloWorld.swift</Commandlineparameters>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="IKVM.Reflection">
+      <HintPath>..\Lib\IKVM.Reflection.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CompilerApp.cs" />
+    <Compile Include="ConsoleApp.cs" />
+    <Compile Include="MethodCompiler.cs" />
+    <Compile Include="AssemblyCompiler.cs" />
+    <Compile Include="TypeCompiler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
