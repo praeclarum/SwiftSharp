@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Swiften
 {
@@ -17,11 +18,11 @@ namespace Swiften
 				var topLevels = (List<Statement>)yyparse (lex, new yydebug.yyDebugSimple ());
 
 				foreach (var t in topLevels) {
-					Console.WriteLine (t);
+					Debug.WriteLine (t);
 				}
 
 			} catch (InvalidCastException ex) {
-				Console.WriteLine (ex);
+				Debug.WriteLine (ex);
 				throw;
 			}
 		}
