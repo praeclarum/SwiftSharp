@@ -69,9 +69,9 @@ namespace Swiften
 				break;
 			}
 
-			Console.WriteLine ("lex:");
-			Console.WriteLine ("  tok: " + SwiftParser.GetTokenName (tok));
-			Console.WriteLine ("  val: " + val);
+//			Console.WriteLine ("lex:");
+//			Console.WriteLine ("  tok: " + SwiftParser.GetTokenName (tok));
+//			Console.WriteLine ("  val: " + val);
 
 			return true;
 		}

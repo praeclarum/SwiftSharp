@@ -10,7 +10,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)SwiftLexer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AstNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Statement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExpressionStatement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SwiftParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SwiftParser.Generated.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Expression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExpressionElement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FunctionCallExpression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Literal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdentifierExpression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SwiftWriter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BaseAstVisitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IAstVisitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StringLiteral.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)SwiftParser.jay" />

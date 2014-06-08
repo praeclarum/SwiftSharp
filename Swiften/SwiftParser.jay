@@ -10,8 +10,6 @@ namespace Swiften
 {
 	public partial class SwiftParser
 	{
-		const int yacc_verbose_flag = 1;
-		public static string GetTokenName (int token) { return yyNames[token]; }
 %}
 
 %token IDENTIFIER NUMBER
@@ -57,28 +55,33 @@ namespace Swiften
 //
 
 statement
-	: expression NEWLINE	
-	| expression ';'
-	| expression END
-	| declaration NEWLINE
-	| declaration ';'
-	| declaration END
-	| loop_statement NEWLINE
-	| loop_statement ';'
-	| loop_statement END
-	| branch_statement NEWLINE
-	| branch_statement ';'
-	| branch_statement END
+	: expression statement_end
+	{
+		$$ = new ExpressionStatement ((Expression)$1);
+	}
+	| declaration statement_end
+	| loop_statement statement_end
+	| branch_statement statement_end
 	| labeled_statement NEWLINE
 	| labeled_statement END
-	| control_transfer_statement NEWLINE
-	| control_transfer_statement ';'
-	| control_transfer_statement END
+	| control_transfer_statement statement_end
+	;
+
+statement_end
+	: NEWLINE
+	| ';'
+	| END
 	;
 
 statements
 	: statement
+	{
+		$$ = MakeList ((Statement)$1);
+	}
 	| statement statements
+	{
+		$$ = AddToList ((Statement)$1, $2);
+	}
 	;
 
 
@@ -1104,6 +1107,9 @@ type_casting_operator
 primary_expression
 	: identifier generic_argument_clause
 	| identifier
+	{
+		$$ = new IdentifierExpression ((string)$1);
+	}
 	| literal_expression
 	| self_expression
 	| superclass_expression
@@ -1213,17 +1219,35 @@ implicit_member_expression
 
 parenthesized_expression
 	: '(' expression_element_list ')'
+	{
+		$$ = $2;
+	}
 	| '(' ')'
+	{
+		$$ = MakeList<ExpressionElement> ();
+	}
 	;
 
 expression_element_list
 	: expression_element
+	{
+		$$ = MakeList ((ExpressionElement)$1);
+	}
 	| expression_element ',' expression_element_list
+	{
+		$$ = AddToList ((ExpressionElement)$1, $3);
+	}
 	;
 
 expression_element
 	: expression
+	{
+		$$ = new ExpressionElement ((Expression)$1);
+	}
 	| identifier ':' expression
+	{
+		$$ = new ExpressionElement ((string)$1, (Expression)$3);
+	}
 	;
 
 wildcard_expression
@@ -1245,6 +1269,9 @@ postfix_expression
 
 function_call_expression
 	: postfix_expression parenthesized_expression
+	{
+		$$ = new FunctionCallExpression ((Expression)$1, (List<ExpressionElement>)$2);
+	}
 	| postfix_expression parenthesized_expression trailing_closure
 	| postfix_expression trailing_closure
 	;
@@ -1302,6 +1329,9 @@ literal
 	: INTEGER_LITERAL
 	| FLOATING_POINT_LITERAL
 	| STRING_LITERAL
+	{
+		$$ = new StringLiteral ((string)$1);
+	}
 	;
 
 operator_
