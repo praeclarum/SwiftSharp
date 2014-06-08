@@ -1,6 +1,9 @@
 ﻿using System;
 using IKVM.Reflection.Emit;
 using IKVM.Reflection;
+using System.Linq;
+
+using Type = IKVM.Reflection.Type;
 
 namespace Swiften.Compiler
 {
@@ -62,7 +65,7 @@ namespace Swiften.Compiler
 			}
 		}
 
-		IKVM.Reflection.Type GetExpressionType (Expression expr)
+		Type GetExpressionType (Expression expr)
 		{
 			IKVM.Reflection.Type ty = expr.Tags.Type;
 			if (ty == null) {
@@ -97,17 +100,20 @@ namespace Swiften.Compiler
 
 		MethodInfo LookupMethod (FunctionCallExpression expr)
 		{
-			MethodInfo m;
+			MethodInfo m = expr.Tags.Method;
+			if (m != null)
+				return m;
+
 			var globalVar = expr.Value as IdentifierExpression;
 			if (globalVar != null) {
-				return LookupGlobal (globalVar.Identifier);
+				var argTypes = expr.Arguments.Select (x => GetExpressionType (x.Value)).ToArray ();
+				m = type.Assembly.LookupGlobal (
+					globalVar.Identifier,
+					argTypes);
+				expr.Tags.Method = m;
+				return m;
 			}
 			throw new Exception ("Don't know how to call " + expr.Value);
-		}
-
-		MethodInfo LookupGlobal (string name)
-		{
-			return type.Assembly.SwiftLibType.GetMethod (name);
 		}
 	}
 }

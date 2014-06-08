@@ -4,6 +4,9 @@ using IKVM.Reflection.Emit;
 using IKVM.Reflection;
 using System.Collections.Generic;
 
+using Type = IKVM.Reflection.Type;
+using System.Linq;
+
 namespace Swiften.Compiler
 {
 	public class AssemblyCompiler : BaseAstVisitor
@@ -57,6 +60,56 @@ namespace Swiften.Compiler
 		public IKVM.Reflection.Type SwiftLibType {
 			get;
 			private set;
+		}
+
+		public MethodInfo LookupGlobal (string name, Type[] types)
+		{
+			var m = SwiftLibType.GetMethod (name, types);
+
+			if (m == null) {
+
+				var ms = SwiftLibType.GetMethods (BindingFlags.Public | BindingFlags.Static)
+					.Where (x => x.Name == name);
+
+				foreach (var me in ms) {
+					var ps = me.GetParameters ();
+					if (ps.Length != types.Length)
+						continue;
+					var compat = true;
+					Dictionary<string, Type> gtypes = null;
+					for (int i = 0; compat && i < ps.Length; i++) {
+						var p = ps [i].ParameterType;
+						if (p.IsGenericParameter) {
+							if (gtypes == null)
+								gtypes = new Dictionary<string, Type> ();
+							if (gtypes.ContainsKey (p.Name)) {
+								p = gtypes [p.Name];
+							} else {
+								gtypes [p.Name] = types [i];
+								p = types [i];
+							}
+						}
+						compat = p.IsAssignableFrom (types [i]);
+					}
+					if (compat) {
+						if (gtypes != null) {
+
+							var gargs = me.GetGenericArguments ();
+							if (gtypes.Count != gargs.Length) {
+								throw new Exception ("Some generic arguments couldn't be inferred");
+							}
+
+							return me.MakeGenericMethod (gargs.Select (x => gtypes[x.Name]).ToArray ());
+						}
+
+						return me;
+					}
+				}
+
+				throw new Exception ("Could not find global function " + name + " for arg types " + string.Join (",", types.Select (x => x.ToString ())));
+			}
+
+			return m;
 		}
 
 		public void Compile ()

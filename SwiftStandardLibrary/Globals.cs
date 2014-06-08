@@ -4,9 +4,19 @@ namespace SwiftStandardLibrary
 {
 	public static class Globals
 	{
-		public static void println (string line)
+		public static void print<T> (T @object)
 		{
-			Console.WriteLine (line);
+			Console.Write (@object);
+		}
+
+		public static void println ()
+		{
+			Console.WriteLine ();
+		}
+
+		public static void println<T> (T @object)
+		{
+			Console.WriteLine (@object);
 		}
 
 		public static void Main (string[] args)
