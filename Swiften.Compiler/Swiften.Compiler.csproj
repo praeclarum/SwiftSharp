@@ -36,6 +36,7 @@
     <Reference Include="IKVM.Reflection">
       <HintPath>..\Lib\IKVM.Reflection.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -49,6 +50,10 @@
     <ProjectReference Include="..\Swiften\Swiften.csproj">
       <Project>{B51287E2-B8A1-4FB7-9BAA-57F31FA6A547}</Project>
       <Name>Swiften</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SwiftStandardLibrary\SwiftStandardLibrary.csproj">
+      <Project>{7A2814FC-26E6-4F35-824E-2D150D398679}</Project>
+      <Name>SwiftStandardLibrary</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

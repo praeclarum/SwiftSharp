@@ -7,5 +7,6 @@ obj
 
 *.userprefs
 Tests/*.exe
+Tests/*.dll
 Tests/*.sln
 

@@ -54,33 +54,48 @@ namespace Swiften.Compiler
 			private set;
 		}
 
+		public IKVM.Reflection.Type SwiftLibType {
+			get;
+			private set;
+		}
+
 		public void Compile ()
 		{
 			if (!VerifyConfiguration ()) {
 				return;
 			}
 
+			//
+			// Load some assemblies
+			//
 			var mscorlib = universe.Load ("mscorlib");
 			StringType = mscorlib.GetType ("System.String");
 			VoidType = mscorlib.GetType ("System.Void");
 
+			var swiftGlobalsType = typeof(SwiftStandardLibrary.Globals);
+			var swiftlib = universe.LoadFile (swiftGlobalsType.Assembly.Location);
+			SwiftLibType = swiftlib.GetType (swiftGlobalsType.FullName);
+
+			//
+			// Create the assembly and the globals class
+			//
 //			var ext = Path.GetExtension (OutputPath).ToLowerInvariant ();
 			var dir = Path.GetDirectoryName (OutputPath);
 			var name = new AssemblyName (Path.GetFileNameWithoutExtension (OutputPath));
 
 			asm = universe.DefineDynamicAssembly (name, AssemblyBuilderAccess.Save, dir);
-
 			module = asm.DefineDynamicModule (name.Name, OutputPath);
 
-			mainType = new TypeCompiler (this, module.DefineType (name.Name + "Main"));
-
+			mainType = new TypeCompiler (this, module.DefineType (name.Name + ".Globals", TypeAttributes.Public));
 			mainMethod = new MethodCompiler (mainType, "Main", MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig);
 
 			foreach (var i in files) {
 				CompileFile (i);
 			}
 
+			mainMethod.EndCompilation ();
 			mainType.Builder.CreateType ();
+
 			asm.SetEntryPoint (mainMethod.Builder, PEFileKinds.ConsoleApplication);
 			asm.Save (OutputPath);
 		}

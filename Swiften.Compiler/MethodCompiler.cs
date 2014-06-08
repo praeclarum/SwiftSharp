@@ -28,12 +28,52 @@ namespace Swiften.Compiler
 			this.il = builder.GetILGenerator ();
 		}
 
+		public void EndCompilation ()
+		{
+			if (builder.ReturnType == type.Assembly.VoidType) {
+				il.Emit (OpCodes.Ret);
+			}
+		}
+
 		public override void VisitExpressionStatement (ExpressionStatement stmt)
 		{
 			if (stmt.Value == null)
 				return;
 
+
 			stmt.Value.AcceptVisitor (this);
+
+			if (GetExpressionType (stmt.Value) != type.Assembly.VoidType) {
+				il.Emit (OpCodes.Pop);
+			}
+		}
+
+		class ExpressionTypeGetter : BaseAstVisitor
+		{
+			public MethodCompiler M;
+			public IKVM.Reflection.Type ExpressionType = null;
+			public override void VisitStringLiteral (StringLiteral lit)
+			{
+				ExpressionType = M.type.Assembly.StringType;
+			}
+			public override void VisitFunctionCallExpression (FunctionCallExpression expr)
+			{
+				ExpressionType = M.LookupMethod (expr).ReturnType;
+			}
+		}
+
+		IKVM.Reflection.Type GetExpressionType (Expression expr)
+		{
+			IKVM.Reflection.Type ty = expr.Tags.Type;
+			if (ty == null) {
+				var g = new ExpressionTypeGetter {
+					M = this,
+				};
+				expr.AcceptVisitor (g);
+				ty = g.ExpressionType;
+				expr.Tags.Type = ty;
+			}
+			return ty;
 		}
 
 		public override void VisitStringLiteral (StringLiteral lit)
@@ -43,15 +83,31 @@ namespace Swiften.Compiler
 
 		public override void VisitFunctionCallExpression (FunctionCallExpression expr)
 		{
+			MethodInfo m = LookupMethod (expr);
+
+			if (m.GetParameters ().Length != expr.Arguments.Count)
+				throw new Exception ("Argument count mismatch " + expr.Value);
+
 			foreach (var a in expr.Arguments) {
 				a.Value.AcceptVisitor (this);
 			}
-			expr.Value.AcceptVisitor (this);
-			il.EmitCalli (
-				OpCodes.Calli, 
-				System.Runtime.InteropServices.CallingConvention.StdCall, 
-				type.Assembly.StringType,
-				IKVM.Reflection.Type.EmptyTypes);
+
+			il.EmitCall (OpCodes.Call, m, IKVM.Reflection.Type.EmptyTypes);
+		}
+
+		MethodInfo LookupMethod (FunctionCallExpression expr)
+		{
+			MethodInfo m;
+			var globalVar = expr.Value as IdentifierExpression;
+			if (globalVar != null) {
+				return LookupGlobal (globalVar.Identifier);
+			}
+			throw new Exception ("Don't know how to call " + expr.Value);
+		}
+
+		MethodInfo LookupGlobal (string name)
+		{
+			return type.Assembly.SwiftLibType.GetMethod (name);
 		}
 	}
 }
