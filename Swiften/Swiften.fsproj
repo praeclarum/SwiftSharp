@@ -3,10 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{233A036F-6EB0-4122-AC80-8D70E9C9A757}</ProjectGuid>
+    <ProjectGuid>{FD189626-517D-49BD-874F-949A9A8EEAAC}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Swiften.Test</RootNamespace>
-    <AssemblyName>Swiften.Test</AssemblyName>
+    <RootNamespace>Swiften</RootNamespace>
+    <AssemblyName>Swiften</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,32 +36,11 @@
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="nunit.framework" />
+    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Test.fs" />
-    <Compile Include="SwiftBookTests.fs" />
-    <Compile Include="HeaderTests.fs" />
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="SwiftParser.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
-  <ItemGroup>
-    <ProjectReference Include="..\Swiften\Swiften.fsproj">
-      <Project>{FD189626-517D-49BD-874F-949A9A8EEAAC}</Project>
-      <Name>Swiften</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TestHeaders\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="TestHeaders\UIKit.UIViewController.swift">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestHeaders\UIKit.UIView.swift">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestHeaders\CoreFoundation.NSString.swift">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 </Project>

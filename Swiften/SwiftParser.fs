@@ -1,5 +1,5 @@
-﻿namespace Swiften
-module SwiftParser
+﻿
+module Swiften.SwiftParser
 
 open System
 open System.Text
@@ -8,6 +8,7 @@ let invariantCulture = System.Globalization.CultureInfo.InvariantCulture
 
 type Type =
     | IdentifierType of string
+    | ImplicitlyUnwrappedOptionalType of Type
 
 type Pattern =
     | IdentifierPattern of string * (Type option)
@@ -15,8 +16,15 @@ type Pattern =
 
 type Statement =
     | ExpressionStatement of Expression
+    | DeclarationStatement of Declaration
+
+and Declaration =
+    | ImportDeclaration of string list
     | VariableDeclaration of (Pattern * (Expression option)) list
     | ConstantDeclaration of (Pattern * (Expression option)) list
+    | TypealiasDeclaration of string * Type
+    | StructDeclaration of string * (Type list) * (Declaration list)
+    | InitializerDeclaration of string list
 
 and Expression =
     | Number of float
@@ -42,28 +50,60 @@ type Position =
     static member Beginning doc = { Document = doc; Index = 0 }
     member this.Advance count = { Document = this.Document; Index = this.Index + count; }
     member this.Eof = this.Index >= this.Document.Body.Length
+    member this.PreviousText =
+        let n = Math.Min (this.Index, 32)
+        this.Document.Body.Substring (this.Index - n, n)
 
-let ws (i : Position) =
+//
+// Lexing
+//
+
+let rec ws (i : Position) : Position =
     if i.Eof then i
     else
         let b = i.Document.Body
         let n = b.Length
-        if not (Char.IsWhiteSpace (b.[i.Index])) then i
-        else
+        match b.[i.Index] with
+        | '/' ->
+            if i.Index + 1 < n && b.[i.Index + 1] = '*' then
+                i |> comment
+            else
+                if i.Index + 1 < n && b.[i.Index + 1] = '/' then
+                    i |> lineComment
+                else i
+        | x when not (Char.IsWhiteSpace (x)) -> i
+        | _ ->
             let mutable e = i.Index + 1
             while e < n && Char.IsWhiteSpace (b.[e]) do e <- e + 1
-            i.Advance (e - i.Index)
+            i.Advance (e - i.Index) |> ws
 
+and comment (i : Position) : Position =
+    let b = i.Document.Body
+    let n = b.Length
+    let mutable e = i.Index + 2
+    while e < n && not (b.[e] = '*' && e + 1 < n && b.[e+1] = '/') do e <- e + 1
+    e <- e + 2 // Skip the star slash
+    i.Advance (e - i.Index) |> ws
+
+and lineComment (i : Position) : Position =
+    let b = i.Document.Body
+    let n = b.Length
+    let mutable e = i.Index + 2
+    while e < n && b.[e] <> '\n' do e <- e + 1
+    e <- e + 1 // Skip the \n
+    i.Advance (e - i.Index) |> ws
+
+let isTrailIdent ch = Char.IsLetterOrDigit (ch) || ch = '_'
 
 let (|Identifier|) (i : Position) =
     if i.Eof then None
     else
         let ch = i.Document.Body.[i.Index]
-        if Char.IsLetter (ch) then
+        if Char.IsLetter (ch) || ch = '_' then
             let body = i.Document.Body
             let n = body.Length
             let mutable e = i.Index + 1
-            while e < n && Char.IsLetter (body.[e]) do e <- e + 1
+            while e < n && isTrailIdent body.[e] do e <- e + 1
             Some (body.Substring (i.Index, e - i.Index), i.Advance (e - i.Index))
         else None
 
@@ -109,9 +149,45 @@ let (|Binary_operator|) (i : Position) =
         if ch = '+' then Some (ch.ToString (), i.Advance 1)
         else None
 
+//
+// Combinators
+//
+
+let rec oneOrMore pattern p1 =
+    match pattern p1 with
+    | Some (v1, p2) ->
+        match oneOrMore pattern (ws p2) with
+        | Some (v2, p3) -> Some (v1 :: v2, p3)
+        | _ -> Some ([v1], p2)
+    | _ -> None
+
+let rec oneOrMoreSep pattern sep p1 =
+    match pattern p1 with
+    | Some (v1, p2) ->
+        match ws p2 with
+        | Token sep (Some p3) ->
+            match oneOrMoreSep pattern sep (ws p3) with
+            | Some (v2, p3) -> Some (v1 :: v2, p3)
+            | _ -> None
+        | _ -> Some ([v1], p2)
+    | _ -> None
+
+
+//
+// Grammar
+//
+
 let rec (|Type|) i =
-    match i with
-    | Type_identifier (Some r) -> Some r
+    let matchType = function
+        | Type_identifier (Some r) -> Some r
+        | _ -> None
+
+    // Look for '!'
+    match matchType i with
+    | Some (v1, p2) ->
+        match ws p2 with
+        | Token "!" (Some p3) -> Some (ImplicitlyUnwrappedOptionalType v1, p3)
+        | _ -> Some (v1, p2)
     | _ -> None
 
 and (|Type_identifier|) i =
@@ -162,17 +238,7 @@ and (|Expression_element|) i =
     | Expression (Some (y, j)) -> Some ((None, y), j)
     | _ -> None
 
-
-and (|Expression_element_list|) i =
-    match i with
-    | Expression_element (Some (y,j)) ->
-        match j with
-        | Token "," (Some k) ->
-            match k with
-            | Expression_element_list (Some (w, l)) -> Some (y :: w, l)
-            | _ -> None
-        | _ -> Some ([y], j)
-    | _ -> None
+and (|Expression_element_list|) = oneOrMoreSep (|Expression_element|) ","
 
 and (|Parenthesized_expression|) i =
     match i with
@@ -247,23 +313,88 @@ and (|Identifier_pattern|) i =
     | Identifier (Some r) -> Some r
     | _ -> None
 
-let rec (|Statement|) i =
-    match i with
-    | Declaration (Some r) -> Some r
-    | Expression (Some (y,j)) -> Some (ExpressionStatement y, j)
+let rec (|Statement|) p1 =
+    match p1 with
+    | Declaration (Some (v1, p2)) -> Some (DeclarationStatement v1, p2)
+    | Expression (Some (v1, p2)) -> Some (ExpressionStatement v1, p2)
     | _ -> None
 
-and (|Declaration|) i =
-    match i with
+and (|Declaration|) p1 =
+    match p1 with
+    | Import_declaration (Some r) -> Some r
     | Constant_declaration (Some r) -> Some r
     | Variable_declaration (Some r) -> Some r
+    | Typealias_declaration (Some r) -> Some r
+    | Struct_declaration (Some r) -> Some r
+//    | Initializer_declaration (Some r) -> Some r
     | _ -> None
+
+
+
+//struct_declaration
+//    : attributes STRUCT struct_name generic_parameter_clause type_inheritance_clause struct_body
+//    | attributes STRUCT struct_name generic_parameter_clause struct_body
+//    | attributes STRUCT struct_name type_inheritance_clause struct_body
+//    | attributes STRUCT struct_name struct_body
+//    | STRUCT struct_name generic_parameter_clause type_inheritance_clause struct_body
+//    | STRUCT struct_name generic_parameter_clause struct_body
+//    | STRUCT struct_name type_inheritance_clause struct_body
+//    | STRUCT struct_name struct_body
+//    ;
+and (|Struct_declaration|) i =
+    match i with
+    | Token "struct" (Some p2) ->
+        match ws p2 with
+        | Struct_name (Some (v2, p3)) ->
+            match ws p3 with
+            | Type_inheritance_clause (Some (v3, p4)) ->
+                match ws p4 with
+                | Struct_body (Some (v4, p5)) -> Some (StructDeclaration (v2, v3, v4), p5)
+                | _ -> None
+            | Struct_body (Some (v3, p4)) -> Some (StructDeclaration (v2, [], v3), p4)
+            | _ -> None
+        | _ -> None
+    | _ -> None
+
+and (|Struct_name|) = (|Identifier|)
+
+and (|Type_inheritance_clause|) p1 =
+    match p1 with
+    | Token ":" (Some p2) ->
+        match ws p2 with
+        | Type_inheritance_list (Some n2) -> Some n2
+        | _ -> None
+    | _ -> None
+
+and (|Type_inheritance_list|) = oneOrMoreSep (|Type_identifier|) ","
+
+and (|Struct_body|) p1 =
+    match p1 with
+    | Token "{" (Some p2) ->
+        match ws p2 with
+        | Token "}" (Some p3) -> Some ([], p3)
+        | Declarations (Some n2) -> Some n2
+        | _ -> None
+    | _ -> None
+
+and (|Import_declaration|) = function
+    | Token "import" (Some j) ->
+        match ws j with
+        | Import_path (Some (z, k)) -> Some (ImportDeclaration z, k)
+        | _ -> None
+    | _ -> None
+
+
+and (|Declarations|) = oneOrMore (|Declaration|)
+
+and (|Import_path_identifier|) = (|Identifier|)
+
+and (|Import_path|) = oneOrMoreSep (|Import_path_identifier|) ","
 
 and (|Constant_declaration_head|) i =
     match i with
     | Token "let" (Some j) -> Some j
     | _ -> None
-
 
 and (|Constant_declaration|) i =
     match i with
@@ -273,12 +404,10 @@ and (|Constant_declaration|) i =
         | _ -> None
     | _ -> None
 
-
 and (|Variable_declaration_head|) i =
     match i with
     | Token "var" (Some j) -> Some j
     | _ -> None
-
 
 and (|Variable_declaration|) i =
     match i with
@@ -287,16 +416,28 @@ and (|Variable_declaration|) i =
         | Pattern_initializer_list (Some (z, k)) -> Some (VariableDeclaration z, k)            
         | _ -> None
     | _ -> None
-        
-and (|Pattern_initializer_list|) i =
+
+and (|Typealias_head|) i =
     match i with
-    | Pattern_initializer (Some (y,j)) ->
-        match j with
-        | Token "," (Some k) ->
-            match k with
-            | Pattern_initializer_list (Some (w, l)) -> Some (y :: w, l)
-            | _ -> None
-        | _ -> Some ([y], j)
+    | Token "typealias" (Some p1) ->
+        match ws p1 with
+        | Identifier (Some n2) -> Some n2
+        | _ -> None
+    | _ -> None
+
+and (|Typealias_assignment|) = function
+    | Token "=" (Some p1) ->
+        match ws p1 with
+        | Type (Some n2) -> Some n2
+        | _ -> None
+    | _ -> None
+
+/// typealias-declaration → typealias-head typealias-assignment
+and (|Typealias_declaration|) = function
+    | Typealias_head (Some (v1, p2)) ->
+        match ws p2 with
+        | Typealias_assignment (Some (v2, p3)) -> Some (TypealiasDeclaration (v1, v2), p3)
+        | _ -> None
     | _ -> None
         
 and (|Pattern_initializer|) i =
@@ -307,6 +448,8 @@ and (|Pattern_initializer|) i =
         | _ -> Some ((y, None), j)
     | _ -> None
 
+and (|Pattern_initializer_list|) = oneOrMoreSep (|Pattern_initializer|) ","
+
 and (|Initializer|) i =
     match i with
     | Token "=" (Some j) ->
@@ -315,14 +458,7 @@ and (|Initializer|) i =
         | _ -> None
     | _ -> None
 
-let rec (|Statements|) i =
-    match i with
-    | Statement (Some (y, j)) ->
-        match ws j with
-        | Statements (Some (z, k)) -> Some (y :: z, k)
-        | _ -> Some ([y], j)
-    | _ -> None
-
+let (|Statements|) = oneOrMore (|Statement|)
 
 let parseDocument document =
     match Position.Beginning document |> ws with
@@ -332,30 +468,3 @@ let parseFile path = parseDocument { Name = path; Body = System.IO.File.ReadAllT
 let parseText text = parseDocument { Name = "<text>"; Body = text }
 let toPosition text = Position.Beginning { Name = "<text>"; Body = text }
 
-
-
-module Tests =
-
-    //#load "../Swiften/SwiftParser.fs";;
-
-    let SimpleValues =
-        [
-            parseText "var myVariable = 42\nmyVariable = 50\nlet myConstant = 42"
-
-        ]
-
-
-    let pl = 
-        [
-            parseText """println"""
-            parseText """println()"""
-            parseText """println(3)"""
-            parseText """println(x:3)"""
-            parseText """println("Hello, world")"""
-        ]
-
-
-    let abx = parseText "Aaa+B+Ccc"
-    let a2 = parseText "Aaa+2"
-    let tb = parseText "33+B"
-    let t2 = parseText "33+2"

@@ -3,7 +3,7 @@
 open System
 open NUnit.Framework
 
-open SwiftParser
+open Swiften.SwiftParser
 
 [<TestFixture>]
 type ExpressionTests () =
