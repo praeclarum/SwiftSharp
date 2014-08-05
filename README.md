@@ -1,6 +1,6 @@
-# Swiften
+# SwiftSharp
 
-Swiften is the [Swift](https://developer.apple.com/swift) .NET compiler.
+SwiftSharp is the [Swift](https://developer.apple.com/swift) .NET compiler.
 
 ## Status
 
@@ -10,8 +10,8 @@ In other words, it's not production ready yet.
 
 ## Project Structure
 
-* `Swiften` is the core parser and compiler code as a Shared Project.
-* `Swiften.Compiler` is the command line compiler.
+* `SwiftSharp` is the core parser and compiler code as a Shared Project.
+* `SwiftSharp.Compiler` is the command line compiler.
 
 # So, this is what you've been doing with your down time, huh?
 

@@ -1,9 +1,9 @@
-﻿namespace Swiften.Test
+﻿namespace SwiftSharp.Test
 
 open System
 open NUnit.Framework
 
-open Swiften.SwiftParser
+open SwiftSharp.SwiftParser
 
 [<TestFixture>]
 type SwiftBookTests () =
@@ -13,7 +13,7 @@ type SwiftBookTests () =
         | Some (x, p) -> x
         | _ -> failwith "Parse didn't return anything"
 
-        //#load "../Swiften/SwiftParser.fs";;open SiftParser;;
+        //#load "../SwiftSharp/SwiftParser.fs";;open SiftParser;;
 
 
     [<Test>]

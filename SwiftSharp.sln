@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "SwiftSharp", "Swiften\SwiftSharp.fsproj", "{FD189626-517D-49BD-874F-949A9A8EEAAC}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "SwiftSharp", "SwiftSharp\SwiftSharp.fsproj", "{FD189626-517D-49BD-874F-949A9A8EEAAC}"
 EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "SwiftSharp.Test", "Swiften.Test\SwiftSharp.Test.fsproj", "{233A036F-6EB0-4122-AC80-8D70E9C9A757}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "SwiftSharp.Test", "SwiftSharp.Test\SwiftSharp.Test.fsproj", "{233A036F-6EB0-4122-AC80-8D70E9C9A757}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +21,6 @@ Global
 		{FD189626-517D-49BD-874F-949A9A8EEAAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Swiften.Test\SwiftSharp.Test.fsproj
+		StartupItem = SwiftSharp.Test\SwiftSharp.Test.fsproj
 	EndGlobalSection
 EndGlobal

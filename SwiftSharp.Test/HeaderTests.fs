@@ -1,9 +1,9 @@
-﻿namespace Swiften.Test
+﻿namespace SwiftSharp.Test
 
 open System
 open NUnit.Framework
 
-open Swiften.SwiftParser
+open SwiftSharp.SwiftParser
 
 [<TestFixture>]
 type HeaderTests () =

@@ -1,5 +1,5 @@
 ﻿
-module Swiften.SwiftParser
+module SwiftSharp.SwiftParser
 
 open System
 open System.Text

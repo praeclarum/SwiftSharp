@@ -1,8 +1,8 @@
-﻿module Swiften.AssemblyInfo
+﻿module SwiftSharp.AssemblyInfo
 open System.Reflection
 open System.Runtime.CompilerServices
 
-[<assembly: AssemblyTitle("Swiften")>]
+[<assembly: AssemblyTitle("SwiftSharp")>]
 [<assembly: AssemblyDescription("")>]
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("")>]
