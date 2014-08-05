@@ -14,19 +14,27 @@ type Pattern =
     | IdentifierPattern of string * (Type option)
 
 
+type Attribute = string * string
+type Parameter = string * (string option) * Type
+
+type DeclarationSpecifier =
+    | Static
+    | Override
+
 type Statement =
     | ExpressionStatement of Expression
     | DeclarationStatement of Declaration
 
 and Declaration =
     | ImportDeclaration of string list
-    | GetterSetterVariableDeclaration of (string list) * (string * Type) * ((Statement list) * ((Statement list) option))
-    | PatternVariableDeclaration of (string list) * ((Pattern * (Expression option)) list)
+    | GetterSetterVariableDeclaration of (DeclarationSpecifier list) * (string * Type) * ((Statement list) * ((Statement list) option))
+    | PatternVariableDeclaration of (DeclarationSpecifier list) * ((Pattern * (Expression option)) list)
     | ConstantDeclaration of (Pattern * (Expression option)) list
     | TypealiasDeclaration of string * Type
     | StructDeclaration of string * (Type list) * (Declaration list)
     | ClassDeclaration of string * (Type list) * (Declaration list)
     | InitializerDeclaration of ((string * (string option) * Type) list) * (Statement list)
+    | FunctionDeclaration of (DeclarationSpecifier list) * string * ((Parameter list) list) * (((Attribute list) * Type) option) * (Statement list)
 
 and Expression =
     | Number of float
@@ -94,6 +102,23 @@ and lineComment (i : Position) : Position =
     while e < n && b.[e] <> '\n' do e <- e + 1
     e <- e + 1 // Skip the \n
     i.Advance (e - i.Index) |> ws
+
+let isOperatorCharacter ch =
+    match ch with
+    | '/' | '=' | '-' | '+' | '!' | '*' | '%' | '<' | '>' | '&' | '|' | '^' | '~' | '.' -> true
+    | _ -> false
+
+let (|Operator|) (i : Position) =
+    if i.Eof then None
+    else
+        let ch = i.Document.Body.[i.Index]
+        if isOperatorCharacter ch then
+            let body = i.Document.Body
+            let n = body.Length
+            let mutable e = i.Index + 1
+            while e < n && (isOperatorCharacter body.[e]) do e <- e + 1
+            Some (body.Substring (i.Index, e - i.Index), i.Advance (e - i.Index))
+        else None
 
 let isTrailIdent ch = Char.IsLetterOrDigit (ch) || ch = '_'
 
@@ -372,6 +397,7 @@ and (|Declaration|) p1 =
     | Struct_declaration (Some r) -> Some r
     | Class_declaration (Some r) -> Some r
     | Initializer_declaration (Some r) -> Some r
+    | Function_declaration (Some r) -> Some r
     | _ -> None
 
 //initializer-declaration → initializer-head generic-parameter-clause_opt parameter-clause initializer-body
@@ -397,7 +423,7 @@ and (|Parameter_name|) = (|Identifier|) ||| ((|TokenValue|) "_")
 
 and (|Local_parameter_name|) = (|Identifier|) ||| ((|TokenValue|) "_")
 
-and (|Parameter|) p1 =
+and (|Parameter|) p1 : (Parameter * Position) option =
     match p1 with
     | Parameter_name (Some (v1, p2)) ->
         match ws p2 with
@@ -422,6 +448,8 @@ and (|Parameter_clause|) p1 =
             | _ -> None
         | _ -> None
     | _ -> None
+
+and (|Parameter_clauses|) = oneOrMore (|Parameter_clause|)
 
 and (|Code_block|) p1 =
     match ws p1 with
@@ -528,7 +556,11 @@ and (|Constant_declaration|) i =
         | _ -> None
     | _ -> None
 
-and (|Declaration_specifier|) = ((|TokenValue|) "static") ||| ((|TokenValue|) "override")
+and (|Declaration_specifier|) p1 =
+    match p1 with
+    | Token "static" (Some p2) -> Some (Static, p2)
+    | Token "override" (Some p2) -> Some (Override, p2)
+    | _ -> None
 
 and (|Declaration_specifiers|) = oneOrMore (|Declaration_specifier|)
 
@@ -581,6 +613,35 @@ and (|Getter_setter_block|) p1 =
             | Setter_clause (Some (v3, p4)) -> Some ((v2, Some v3), p4)
             | Token "}" (Some p4) -> Some ((v2, None), p4)
             | _ -> None
+        | _ -> None
+    | _ -> None
+
+and (|Attribute|) p1 : (Attribute * Position) option = None
+
+and (|Attributes_opt|) = zeroOrMore (|Attribute|)
+
+and (|Function_head|) p1 =
+    match ((|Declaration_specifiers_opt|) &&& ((|TokenValue|) "func")) p1 with
+    | Some ((v1, _), p3) -> Some (v1, p3)
+    | _ -> None
+
+and (|Function_name|) = (|Identifier|) ||| (|Operator|)
+
+and (|Function_result|) p1 =
+    match (((|TokenValue|) "->") &&& (|Attributes_opt|) &&& (|Type|)) p1 with
+    | Some (((_, v2), v3), p4) -> Some ((v2, v3), p4)
+    | _ -> None
+
+and (|Function_signature|) = (|Parameter_clauses|) &&& (opt (|Function_result|))
+
+and (|Function_body|) = (|Code_block|)
+
+and (|Function_declaration|) p1 = 
+    match ((|Function_head|) &&& (|Function_name|) &&& (|Function_signature|)) p1 with
+    | Some (((v1, v2), (v3, v4)), p5) ->
+        match p5 with
+        | Function_body (Some (v5, p6)) ->
+            Some (FunctionDeclaration (v1, v2, v3, v4, v5), p5)
         | _ -> None
     | _ -> None
 
