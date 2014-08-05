@@ -45,9 +45,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Swiften\Swiften.fsproj">
+    <ProjectReference Include="..\Swiften\SwiftSharp.fsproj">
       <Project>{FD189626-517D-49BD-874F-949A9A8EEAAC}</Project>
-      <Name>Swiften</Name>
+      <Name>SwiftSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
