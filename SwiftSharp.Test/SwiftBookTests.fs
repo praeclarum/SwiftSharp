@@ -74,7 +74,7 @@ let explicitDouble: Double = 70"""
                ConstantDeclaration
                  [(IdentifierPattern ("implicitDouble",None), Some (Number 70.0))];
                ConstantDeclaration
-                 [(IdentifierPattern ("explicitDouble",Some (IdentifierType "Double")),
+                 [(IdentifierPattern ("explicitDouble",Some (IdentifierType ("Double", []))),
                    Some (Number 70.0))]],
             ast)
 

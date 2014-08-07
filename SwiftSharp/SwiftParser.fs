@@ -7,8 +7,14 @@ open System.Text
 let invariantCulture = System.Globalization.CultureInfo.InvariantCulture
 
 type Type =
-    | IdentifierType of string
+    | IdentifierType of string * (Type list)
+    | NestedType of Type list
     | ImplicitlyUnwrappedOptionalType of Type
+    | OptionalType of Type
+    | FunctionType of Type * Type
+    | TupleType of (Type list) * bool
+    | ArrayType of Type
+    | DictionaryType of Type * Type
 
 type Pattern =
     | IdentifierPattern of string * (Type option)
@@ -20,6 +26,7 @@ type Parameter = string * (string option) * Type
 type DeclarationSpecifier =
     | Static
     | Override
+    | Class
 
 type Statement =
     | ExpressionStatement of Expression
@@ -35,6 +42,7 @@ and Declaration =
     | ClassDeclaration of string * (Type list) * (Declaration list)
     | InitializerDeclaration of ((string * (string option) * Type) list) * (Statement list)
     | FunctionDeclaration of (DeclarationSpecifier list) * string * ((Parameter list) list) * (((Attribute list) * Type) option) * (Statement list)
+    | ExtensionDeclaration of string * Type * ((Type list) option) * (Declaration list)
 
 and Expression =
     | Number of float
@@ -159,6 +167,7 @@ let (|Token|) (text : string) i =
     let n = b.Length
     if i.Index + text.Length > n then None
     else
+        let sss = b.Substring (i.Index, text.Length)
         match String.CompareOrdinal (text, 0, b, i.Index, text.Length) with
         | 0 -> Some (i.Advance text.Length)
         | _ -> None
@@ -248,20 +257,90 @@ let (&&&) x y p1 =
 
 let rec (|Type|) i =
     let matchType = function
+        | Array_type (Some r) -> Some r
+        | Dictionary_type (Some r) -> Some r
         | Type_identifier (Some r) -> Some r
+        | Tuple_type (Some r) -> Some r
         | _ -> None
 
-    // Look for '!'
+    // Look for '!' or '?'
     match matchType i with
     | Some (v1, p2) ->
         match ws p2 with
         | Token "!" (Some p3) -> Some (ImplicitlyUnwrappedOptionalType v1, p3)
+        | Token "?" (Some p3) -> Some (OptionalType v1, p3)
+        | Token "->" (Some p3) ->
+            match ws p3 with
+            | Type (Some (v3, p4)) -> Some (FunctionType (v1, v3), p4)
+            | _ -> None
         | _ -> Some (v1, p2)
     | _ -> None
 
-and (|Type_identifier|) i =
-    match i with
-    | Identifier (Some (y, j)) -> Some (IdentifierType (y), j)
+
+and (|Type_name|) = (|Identifier|)
+
+and (|Generic_argument|) = (|Type|)
+
+and (|Generic_argument_list|) = oneOrMoreSep (|Generic_argument|) ","
+
+and kwd x = (|TokenValue|) x
+
+and br x = (|TokenValue|) x
+
+and (|Tuple_type_element|) = (|Type|)
+
+and (|Tuple_type_element_list|) = oneOrMoreSep (|Tuple_type_element|) ","
+
+and (|Tuple_type_body|) p1 =
+    match p1 with
+    | Tuple_type_element_list (Some (v1, p2)) ->
+        match ws p2 with
+        | Token "..." (Some p3) -> Some ((v1, true), p3)
+        | _ -> Some ((v1, false), p2)
+    | _ -> None
+
+and (|Tuple_type|) p1 =
+    match ((br "(") &&& (opt (|Tuple_type_body|)) &&& (br ")")) p1 with
+    | Some (((v1, Some v2), v3), p4) -> Some (TupleType v2, p4)
+    | Some (((v1, None), v3), p4) -> Some (TupleType ([], false), p4)
+    | _ -> None
+
+and (|Array_type|) p1 =
+    match ((br "[") &&& (|Type|) &&& (br "]")) p1 with
+    | Some (((v1, v2), v3), p4) -> Some (ArrayType v2, p4)
+    | _ -> None
+
+and (|Dictionary_type|) p1 =
+    match ((br "[") &&& (|Type|) &&& (br ":") &&& (|Type|) &&& (br "]")) p1 with
+    | Some (((((v1, v2), v3), v4), v5), p4) -> Some (DictionaryType (v2, v4), p4)
+    | _ -> None
+
+and (|Generic_argument_clause|) p1 =
+    match ((br "<") &&& (|Generic_argument_list|) &&& (br ">")) p1 with
+    | Some (((v1, v2), v3), p4) -> Some (v2, p4)
+    | _ -> None
+
+and (|Type_identifier|) p1 =
+    let justId =
+        match p1 with
+        | Type_name (Some (v1, p2)) ->
+            match ws p2 with
+            | Generic_argument_clause (Some (v2, p3)) ->
+                Some (IdentifierType (v1, v2), p3)
+            | _ -> Some (IdentifierType (v1, []), p2)
+        | _ -> None
+
+    match justId with
+    | Some (idt, p3) ->
+        match ws p3 with
+        | Token "." (Some p4) ->
+            match ws p4 with
+            | Type_identifier (Some (NestedType v4, p5)) ->
+                Some (NestedType (idt :: v4), p5)
+            | Type_identifier (Some (IdentifierType (v4, v5), p6)) ->
+                Some (NestedType (idt :: [IdentifierType (v4, v5)]), p6)
+            | _ -> Some (idt, p3)
+        | _ -> Some (idt, p3)
     | _ -> None
 
 
@@ -398,7 +477,14 @@ and (|Declaration|) p1 =
     | Class_declaration (Some r) -> Some r
     | Initializer_declaration (Some r) -> Some r
     | Function_declaration (Some r) -> Some r
+    | Extension_declaration (Some r) -> Some r
     | _ -> None
+
+and (|Declarations|) = oneOrMore (|Declaration|)
+
+and (|Declarations_opt|) = zeroOrMore (|Declaration|)
+
+and (|Initializer_head|) = (opt ((|TokenValue|) "convenience")) &&& ((|TokenValue|) "init")
 
 //initializer-declaration → initializer-head generic-parameter-clause_opt parameter-clause initializer-body
 //initializer-head → attributes_opt "convenience"_opt "init"
@@ -413,12 +499,7 @@ and (|Initializer_declaration|) p1 =
             | _ -> None
         | _ -> None
     | _ -> None
-
-and (|Initializer_head|) p1 =
-    match p1 with
-    | Token "init" (Some p2) -> Some (0, p2)
-    | _ -> None
-
+        
 and (|Parameter_name|) = (|Identifier|) ||| ((|TokenValue|) "_")
 
 and (|Local_parameter_name|) = (|Identifier|) ||| ((|TokenValue|) "_")
@@ -444,6 +525,10 @@ and (|Parameter_clause|) p1 =
         | Token ")" (Some p3) -> Some ([], p3)
         | Parameter_list (Some (v2, p3)) ->
             match ws p3 with
+            | Token "..." (Some p4) ->
+                match ws p4 with
+                | Token ")" (Some p5) -> Some (v2, p5)
+                | _ -> None
             | Token ")" (Some p4) -> Some (v2, p4)
             | _ -> None
         | _ -> None
@@ -529,6 +614,16 @@ and (|Class_or_struct_body|) p1 =
         | _ -> None
     | _ -> None
 
+and (|Extension_body|) p1 =
+    match (((|TokenValue|) "{") &&& (|Declarations_opt|) &&& ((|TokenValue|) "}")) p1 with
+    | Some (((v1, v2), v3), p4) -> Some (v2, p4)
+    | _ -> None
+
+and (|Extension_declaration|) p1 =
+    match (((|TokenValue|) "extension") &&& (|Type_identifier|) &&& (opt (|Type_inheritance_clause|)) &&& (|Extension_body|)) p1 with
+    | Some ((((v1, v2), v3), v4), p5) -> Some (ExtensionDeclaration (v1, v2, v3, v4), p5)
+    | _ -> None
+
 and (|Import_declaration|) = function
     | Token "import" (Some j) ->
         match ws j with
@@ -536,8 +631,6 @@ and (|Import_declaration|) = function
         | _ -> None
     | _ -> None
 
-
-and (|Declarations|) = oneOrMore (|Declaration|)
 
 and (|Import_path_identifier|) = (|Identifier|)
 
@@ -560,6 +653,7 @@ and (|Declaration_specifier|) p1 =
     match p1 with
     | Token "static" (Some p2) -> Some (Static, p2)
     | Token "override" (Some p2) -> Some (Override, p2)
+    | Token "class" (Some p2) -> Some (Class, p2)
     | _ -> None
 
 and (|Declaration_specifiers|) = oneOrMore (|Declaration_specifier|)
@@ -632,7 +726,13 @@ and (|Function_result|) p1 =
     | Some (((_, v2), v3), p4) -> Some ((v2, v3), p4)
     | _ -> None
 
-and (|Function_signature|) = (|Parameter_clauses|) &&& (opt (|Function_result|))
+and (|Function_signature|) p1 = 
+    match p1 with
+    | Parameter_clauses (Some (v1, p2)) ->
+        match ws p2 with
+        | Function_result (Some (v2, p3)) -> Some ((v1, Some v2), p3)
+        | _ -> Some ((v1, None), p2)
+    | _ -> None
 
 and (|Function_body|) = (|Code_block|)
 
