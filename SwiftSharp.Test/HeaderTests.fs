@@ -72,12 +72,14 @@ extension NSString {
     [<Test>]
     member x.UIView () =
         let ast, e = parse "UIKit.UIView"
-        Assert.AreEqual (0, ast.Length)
+        let s = (sprintf "%A" ast)
+        Assert.AreEqual (33, ast.Length)
 
     [<Test>]
     member x.UIViewController () =
         let ast, e = parse "UIKit.UIViewController"
-        Assert.AreEqual (0, ast.Length)
+        let s = (sprintf "%A" ast)
+        Assert.AreEqual (19, ast.Length)
 
     [<Test>]
     member x.NSString () =

@@ -43,6 +43,8 @@ and Declaration =
     | InitializerDeclaration of ((string * (string option) * Type) list) * (Statement list)
     | FunctionDeclaration of (DeclarationSpecifier list) * string * ((Parameter list) list) * (((Attribute list) * Type) option) * (Statement list)
     | ExtensionDeclaration of string * Type * ((Type list) option) * (Declaration list)
+    | ProtocolDeclaration of string * string * ((Type list) option) * (Declaration list)
+    | RawValueEnumDeclaration of string * (Type list) * ((string list) list)
 
 and Expression =
     | Number of float
@@ -475,14 +477,40 @@ and (|Declaration|) p1 =
     | Typealias_declaration (Some r) -> Some r
     | Struct_declaration (Some r) -> Some r
     | Class_declaration (Some r) -> Some r
+    | Protocol_declaration (Some r) -> Some r
     | Initializer_declaration (Some r) -> Some r
     | Function_declaration (Some r) -> Some r
     | Extension_declaration (Some r) -> Some r
+    | Enum_declaration (Some r) -> Some r
     | _ -> None
 
 and (|Declarations|) = oneOrMore (|Declaration|)
 
 and (|Declarations_opt|) = zeroOrMore (|Declaration|)
+
+and (|Enum_name|) = (|Identifier|)
+
+and (|Enum_case_name|) = (|Identifier|)
+
+and (|Raw_value_style_enum_case|) = (|Enum_case_name|)
+
+and (|Raw_value_style_enum_case_list|) = oneOrMoreSep (|Raw_value_style_enum_case|) ","
+
+and (|Raw_value_style_enum_case_clause|) p1 =
+    match ((kwd "case") &&& (|Raw_value_style_enum_case_list|)) p1 with
+    | Some ((v1, v2), p3) -> Some (v2, p3)
+    | _ -> None
+
+and (|Raw_value_style_enum_member|) = (|Raw_value_style_enum_case_clause|)
+
+and (|Raw_value_style_enum_members|) = oneOrMore (|Raw_value_style_enum_member|)
+
+and (|Raw_value_style_enum|) p1 =
+    match ((kwd "enum") &&& (|Enum_name|) &&& (|Type_inheritance_clause|) &&& (br "{") &&& (|Raw_value_style_enum_members|) &&& (br "}")) p1 with
+    | Some ((((((v1, v2), v3), v4), v5), v6), p6) -> Some (RawValueEnumDeclaration (v2, v3, v5), p6)
+    | _ -> None
+
+and (|Enum_declaration|) = (|Raw_value_style_enum|)
 
 and (|Initializer_head|) = (opt ((|TokenValue|) "convenience")) &&& ((|TokenValue|) "init")
 
@@ -622,6 +650,18 @@ and (|Extension_body|) p1 =
 and (|Extension_declaration|) p1 =
     match (((|TokenValue|) "extension") &&& (|Type_identifier|) &&& (opt (|Type_inheritance_clause|)) &&& (|Extension_body|)) p1 with
     | Some ((((v1, v2), v3), v4), p5) -> Some (ExtensionDeclaration (v1, v2, v3, v4), p5)
+    | _ -> None
+
+and (|Protocol_body|) p1 =
+    match ((br "{") &&& (|Declarations_opt|) &&& (br "}")) p1 with
+    | Some (((v1, v2), v3), p4) -> Some (v2, p4)
+    | _ -> None
+
+and (|Protocol_name|) = (|Identifier|)
+
+and (|Protocol_declaration|) p1 =
+    match ((kwd "protocol") &&& (|Protocol_name|) &&& (opt (|Type_inheritance_clause|)) &&& (|Protocol_body|)) p1 with
+    | Some ((((v1, v2), v3), v4), p5) -> Some (ProtocolDeclaration (v1, v2, v3, v4), p5)
     | _ -> None
 
 and (|Import_declaration|) = function
