@@ -8,7 +8,7 @@ open SwiftSharp.SwiftParser
 [<TestFixture>]
 type HeaderTests () =
 
-    let parse path =
+    let parseFile path =
         match parseFile ("TestHeaders/" + path + ".swift") with
         | Some x -> x
         | x -> failwith (sprintf "Parse returned: %A" x)
@@ -70,20 +70,81 @@ extension NSString {
         Assert.AreEqual (1, ast.Length)
 
     [<Test>]
+    member x.SelfPropAssign() =
+        let ast, e = parseCode """
+class GovDataRequest {   
+    init(APIKey: String, APIHost: String, APIURL:String) {
+        self.foo.APIKey = APIKey
+    }
+}
+"""
+        let s = (sprintf "%A" ast)
+        Assert.AreEqual (1, ast.Length)
+
+    [<Test>]
+    member x.Switch() =
+        let ast, e = parseCode """
+class GovDataRequest {      
+    func callAPIMethod () {
+        switch APIHost {
+        case "http://api.dol.gov":
+            queryString = "?KEY=" + APIKey
+        default:
+            println("doing nothing for now")
+        }
+    }
+}
+"""
+        let s = (sprintf "%A" ast)
+        Assert.AreEqual (1, ast.Length)
+
+    [<Test>]
+    member x.HashParam() =
+        let ast, e = parseCode """
+class GovDataRequest {   
+    func callAPIMethod (#method: String, arguments: Dictionary<String,String>) {
+    }
+}
+"""
+        let s = (sprintf "%A" ast)
+        Assert.AreEqual (1, ast.Length)
+
+
+    [<Test>]
+    member x.ForIn() =
+        let ast, e = parseCode """
+class GovDataRequest {   
+    func callAPIMethod () {
+        for (argKey, argValue) in arguments {
+            x = 42
+        }
+    }
+}
+"""
+        let s = (sprintf "%A" ast)
+        Assert.AreEqual (1, ast.Length)
+
+    [<Test>]
+    member x.GovDataRequest () =
+        let ast, e = parseFile "GovDataRequest"
+        let s = (sprintf "%A" ast)
+        Assert.AreEqual (5, ast.Length)
+
+    [<Test>]
     member x.UIView () =
-        let ast, e = parse "UIKit.UIView"
+        let ast, e = parseFile "UIKit.UIView"
         let s = (sprintf "%A" ast)
         Assert.AreEqual (33, ast.Length)
 
     [<Test>]
     member x.UIViewController () =
-        let ast, e = parse "UIKit.UIViewController"
+        let ast, e = parseFile "UIKit.UIViewController"
         let s = (sprintf "%A" ast)
         Assert.AreEqual (19, ast.Length)
 
     [<Test>]
     member x.NSString () =
-        let ast, e = parse "CoreFoundation.NSString"
+        let ast, e = parseFile "CoreFoundation.NSString"
         let r = (sprintf "%A" ast)
         Assert.AreEqual (56, ast.Length)
     

@@ -63,5 +63,8 @@
     <Content Include="TestHeaders\CoreFoundation.NSString.swift">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="TestHeaders\GovDataRequest.swift">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

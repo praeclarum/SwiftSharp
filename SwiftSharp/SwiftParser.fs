@@ -16,12 +16,8 @@ type Type =
     | ArrayType of Type
     | DictionaryType of Type * Type
 
-type Pattern =
-    | IdentifierPattern of string * (Type option)
-
-
 type Attribute = string * string
-type Parameter = string * (string option) * Type
+type Parameter = string * string * Type
 
 type DeclarationSpecifier =
     | Static
@@ -31,6 +27,11 @@ type DeclarationSpecifier =
 type Statement =
     | ExpressionStatement of Expression
     | DeclarationStatement of Declaration
+    | SwitchStatement of Expression * (SwitchCase list)
+    | ForInStatement of Pattern * Expression * (Statement list)
+    | IfStatement of Expression * (Statement list) * ((Statement list) option)
+
+and SwitchCase = (Pattern list) * (Statement list)
 
 and Declaration =
     | ImportDeclaration of string list
@@ -40,7 +41,7 @@ and Declaration =
     | TypealiasDeclaration of string * Type
     | StructDeclaration of string * (Type list) * (Declaration list)
     | ClassDeclaration of string * (Type list) * (Declaration list)
-    | InitializerDeclaration of ((string * (string option) * Type) list) * (Statement list)
+    | InitializerDeclaration of (Parameter list) * (Statement list)
     | FunctionDeclaration of (DeclarationSpecifier list) * string * ((Parameter list) list) * (((Attribute list) * Type) option) * (Statement list)
     | ExtensionDeclaration of string * Type * ((Type list) option) * (Declaration list)
     | ProtocolDeclaration of string * string * ((Type list) option) * (Declaration list)
@@ -52,8 +53,14 @@ and Expression =
     | Variable of string
     | Compound of Expression * (Binary list)
     | Funcall of Expression * (((string option) * Expression) list) * ((Statement list) option)
+    | ExplicitMember of Expression * string
 
 and Binary = string * Expression
+
+and Pattern =
+    | IdentifierPattern of string * (Type option)
+    | ExpressionPattern of Expression
+    | TuplePattern of (Pattern list) * (Type option)
 
 
 //
@@ -132,6 +139,14 @@ let (|Operator|) (i : Position) =
 
 let isTrailIdent ch = Char.IsLetterOrDigit (ch) || ch = '_'
 
+let isKeyword = function
+    | "class" | "struct" | "extension" | "protocol" -> true
+    | "let" | "func" | "var" | "get" | "set" -> true
+    | "for" | "in" -> true
+    | "if" | "else" -> true
+    | "switch" | "case" | "default" -> true
+    | _ -> false
+
 let (|Identifier|) (i : Position) =
     if i.Eof then None
     else
@@ -141,7 +156,8 @@ let (|Identifier|) (i : Position) =
             let n = body.Length
             let mutable e = i.Index + 1
             while e < n && isTrailIdent body.[e] do e <- e + 1
-            Some (body.Substring (i.Index, e - i.Index), i.Advance (e - i.Index))
+            let name = body.Substring (i.Index, e - i.Index)
+            if isKeyword name then None else Some (name, i.Advance (e - i.Index))
         else None
 
 let (|String|) (i : Position) =
@@ -179,18 +195,25 @@ let (|TokenValue|) (text : string) p1 =
     | Token text (Some p2) -> Some (text, p2)
     | _ -> None
 
+let kwd x = (|TokenValue|) x
+
+let br x = (|TokenValue|) x
+
 let isNum c = Char.IsDigit (c) || c = '.'
+
+let isLeadNum c = Char.IsDigit (c)
 
 let (|Number|) (i : Position) =
     if i.Eof then None
     else
         let ch = i.Document.Body.[i.Index]
-        if isNum ch then
+        if isLeadNum ch then
             let body = i.Document.Body
             let n = body.Length
             let mutable e = i.Index + 1
             while e < n && isNum body.[e] do e <- e + 1
-            Some (Double.Parse (body.Substring (i.Index, e - i.Index)), i.Advance (e - i.Index))
+            let numStr = body.Substring (i.Index, e - i.Index)
+            Some (Double.Parse (numStr), i.Advance (e - i.Index))
         else None
 
 let (|Binary_operator|) (i : Position) =
@@ -284,10 +307,6 @@ and (|Type_name|) = (|Identifier|)
 and (|Generic_argument|) = (|Type|)
 
 and (|Generic_argument_list|) = oneOrMoreSep (|Generic_argument|) ","
-
-and kwd x = (|TokenValue|) x
-
-and br x = (|TokenValue|) x
 
 and (|Tuple_type_element|) = (|Type|)
 
@@ -402,27 +421,41 @@ and (|Parenthesized_expression|) i =
         | _ -> None
     | _ -> None
 
-and (|Function_call_expression|) i =
+and (|Function_call_expression|) pe i =
     match i with
     | Parenthesized_expression (Some (pae, j)) ->
         match j with
-        | Trailing_closure (Some (tc, k)) -> Some ((fun pe -> Funcall (pe, pae, Some tc)), k)
-        | _ -> Some ((fun pe -> Funcall (pe, pae, None)), j)
+        | Trailing_closure (Some (tc, k)) -> Some (Funcall (!pe, pae, Some tc), k)
+        | _ -> Some (Funcall (!pe, pae, None), j)
     | _ ->
         match i with
-        | Trailing_closure (Some (tc, j)) -> Some ((fun pe -> Funcall (pe, [], Some tc)), j)
+        | Trailing_closure (Some (tc, j)) -> Some (Funcall (!pe, [], Some tc), j)
         | _ -> None
 
-and (|Postfix_expression|) i =
-    let postfix_expression_internal i =        
-        match i with
-        | Primary_expression (Some (y, j)) ->
-            match j with
-            | Function_call_expression (Some (z, k)) -> Some (z y, k) 
-            | _ -> Some (y, j)
-        | _ -> None
-    postfix_expression_internal i
 
+and (|Explicit_member_expression|) e p1 =
+    match p1 with
+    | Token "." (Some p2) ->
+        match (ws p2) with
+        | Identifier (Some (v2, p3)) -> Some (ExplicitMember (!e, v2), p3)
+        | _ -> None
+    | _ -> None
+
+and (|Postfix_expression|) p1 =
+    match p1 with
+    | Primary_expression (Some (v1, p2)) ->
+        let e = ref v1
+        let p = ref p2
+        let rec loop = function
+            | Function_call_expression e (Some (v2, p3))
+            | Explicit_member_expression e (Some (v2, p3)) ->
+                e := v2
+                p := p3
+                loop (ws p3)
+            | _ -> ()
+        loop (ws p2)
+        Some (!e, !p)
+    | _ -> None
 
 and (|Prefix_expression|) i =
     match i with
@@ -456,6 +489,25 @@ let rec (|Pattern|) p1 =
         match ws p2 with
         | Type_annotation (Some (v2, p3)) -> Some (IdentifierPattern (v1, Some v2), p3)
         | _ -> Some (IdentifierPattern (v1, None), p2)
+    | Tuple_pattern (Some (v1, p2)) ->
+        match ws p2 with
+        | Type_annotation (Some (v2, p3)) -> Some (TuplePattern (v1, Some v2), p3)
+        | _ -> Some (TuplePattern (v1, None), p2)
+    | Expression (Some (v1, p2)) -> Some (ExpressionPattern v1, p2)
+    | _ -> None
+
+and (|Tuple_pattern_element_list|) = oneOrMoreSep (|Pattern|) ","
+
+and (|Tuple_pattern|) p1 =
+    match p1 with
+    | Token "(" (Some p2) ->
+        match ws p2 with
+        | Token ")" (Some p3) -> Some ([], p3)
+        | Tuple_pattern_element_list (Some (v2, p3)) ->
+            match ws p3 with
+            | Token ")" (Some p4) -> Some (v2, p4)
+            | _ -> None
+        | _ -> None
     | _ -> None
 
 and (|Identifier_pattern|) i =
@@ -466,8 +518,60 @@ and (|Identifier_pattern|) i =
 let rec (|Statement|) p1 =
     match p1 with
     | Declaration (Some (v1, p2)) -> Some (DeclarationStatement v1, p2)
+    | Branch_statement (Some (v1, p2)) -> Some (v1, p2)
+    | Loop_statement (Some (v1, p2)) -> Some (v1, p2)
     | Expression (Some (v1, p2)) -> Some (ExpressionStatement v1, p2)
     | _ -> None
+
+and (|Statements|) = oneOrMore (|Statement|)
+
+and (|Case_item|) = (|Pattern|)
+
+and (|Case_label|) p1 =
+    match ((kwd "case") &&& (oneOrMoreSep (|Case_item|) ",") &&& (br ":")) p1 with
+    | Some (((v1, v2), v3), p4) -> Some (v2, p4)
+    | _ -> None
+
+and (|Default_label|) p1 =
+    match ((kwd "default") &&& (br ":")) p1 with
+    | Some (_, p3) -> Some ([], p3)
+    | _ -> None
+
+and (|Switch_case|) = ((|Case_label|) &&& (|Statements|)) ||| ((|Default_label|) &&& (|Statements|))
+
+and (|Switch_cases_opt|) = zeroOrMore (|Switch_case|)
+
+and (|Switch_statement|) p1 =
+    match ((kwd "switch") &&& (|Expression|) &&& (br "{") &&& (|Switch_cases_opt|) &&& (br "}")) p1 with
+    | Some (((((v1, v2), v3), v4), v5), p6) -> Some (SwitchStatement (v2, v4), p6)
+    | _ -> None
+        
+and (|If_condition|) p1 =
+    match p1 with
+    | Expression (Some (v1, p2)) -> Some (v1, p2)
+    | _ -> None
+
+and (|Else_clause|) p1 =
+    match p1 with
+    | Token "else" (Some p2) ->
+        match ws p2 with
+        | Code_block (Some (v2, p3)) -> Some (v2, p3)
+        | If_statement (Some (v2, p3)) -> Some ([v2], p3)
+    | _ -> None
+
+and (|If_statement|) p1 =
+    match ((kwd "if") &&& (|If_condition|) &&& (|Code_block|) &&& (opt (|Else_clause|))) p1 with
+    | Some ((((v1, v2), v3), v4), p5) -> Some (IfStatement (v2, v3, v4), p5)
+    | _ -> None
+
+and (|Branch_statement|) = (|Switch_statement|) ||| (|If_statement|)
+
+and (|For_in_statement|) p1 =
+    match ((kwd "for") &&& (|Pattern|) &&& (kwd "in") &&& (|Expression|) &&& (|Code_block|)) p1 with
+    | Some (((((v1, v2), v3), v4), v5), p6) -> Some (ForInStatement (v2, v4, v5), p6)
+    | _ -> None
+
+and (|Loop_statement|) = (|For_in_statement|)
 
 and (|Declaration|) p1 =
     match p1 with
@@ -528,19 +632,25 @@ and (|Initializer_declaration|) p1 =
         | _ -> None
     | _ -> None
         
-and (|Parameter_name|) = (|Identifier|) ||| ((|TokenValue|) "_")
+and (|External_parameter_name|) = (|Identifier|) ||| ((|TokenValue|) "_")
 
 and (|Local_parameter_name|) = (|Identifier|) ||| ((|TokenValue|) "_")
 
 and (|Parameter|) p1 : (Parameter * Position) option =
-    match p1 with
-    | Parameter_name (Some (v1, p2)) ->
+
+    let np1, hash =
+        match p1 with
+        | Token "#" (Some p2) -> ws p2, true
+        | _ -> p1, false
+
+    match np1 with
+    | External_parameter_name (Some (v1, p2)) ->
         match ws p2 with
         | Local_parameter_name (Some (v2, p3)) ->
             match ws p3 with
-            | Type_annotation (Some (v3, p4)) -> Some ((v1, Some v2, v3), p4)
+            | Type_annotation (Some (v3, p4)) -> Some ((v1, v2, v3), p4)
             | _ -> None
-        | Type_annotation (Some (v2, p3)) -> Some ((v1, None, v2), p3)
+        | Type_annotation (Some (v2, p3)) -> Some ((v1, (if hash then v1 else "_"), v2), p3)
         | _ -> None
     | _ -> None
 
@@ -569,6 +679,7 @@ and (|Code_block|) p1 =
     | Token "{" (Some p2) ->
         match ws p2 with
         | Token "}" (Some p3) -> Some ([], p3)
+        | Statements (Some (v2, p3)) -> Some (v2, p3)
         | _ -> None
     | _ ->
         match p1 with
@@ -781,7 +892,7 @@ and (|Function_declaration|) p1 =
     | Some (((v1, v2), (v3, v4)), p5) ->
         match p5 with
         | Function_body (Some (v5, p6)) ->
-            Some (FunctionDeclaration (v1, v2, v3, v4, v5), p5)
+            Some (FunctionDeclaration (v1, v2, v3, v4, v5), p6)
         | _ -> None
     | _ -> None
 
@@ -825,8 +936,6 @@ and (|Initializer|) i =
         | Expression (Some (z, k)) -> Some (z, k)
         | _ -> None
     | _ -> None
-
-let (|Statements|) = oneOrMore (|Statement|)
 
 let parseDocument document =
     match Position.Beginning document |> ws with
