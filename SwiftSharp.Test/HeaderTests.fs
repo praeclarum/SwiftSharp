@@ -125,10 +125,91 @@ class GovDataRequest {
         Assert.AreEqual (1, ast.Length)
 
     [<Test>]
+    member x.BinaryOperators() =
+        let ast, e = parseCode """
+            switch APIHost {
+            case "http://api.dol.gov":
+                queryString += "&$"
+            }
+"""
+        let s = (sprintf "%A" ast)
+        Assert.AreEqual (1, ast.Length)
+
+
+    [<Test>]
+    member x.IfWithElse() =
+        let ast, e = parseCode """
+                if countElements(queryString) == 0 {
+                    queryString += "aaaa"
+                } else {
+                    queryString += "bbbb"
+                }
+"""
+        let s = (sprintf "%A" ast)
+        Assert.AreEqual (1, ast.Length)
+
+
+    [<Test>]
+    member x.ClosureExpression() =
+        let ast, e = parseCode """
+            session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
+             2 + 2
+                })
+ """
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (Funcall _)] -> ()
+        | _ -> Assert.Fail (s);
+
+    [<Test>]
+    member x.OptionalChaining() =
+        let ast, e = parseCode """
+self.delegate?.didCompleteWithError(error.localizedDescription)
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (Funcall _)] -> ()
+        | _ -> Assert.Fail (s);
+
+
+    [<Test>]
+    member x.AsCast() =
+        let ast, e = parseCode """
+JSONObjectWithData as NSDictionary
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (Compound (Variable _, [AsBinary _]))] -> ()
+        | _ -> Assert.Fail (s);
+
+    [<Test>]
+    member x.InOut() =
+        let ast, e = parseCode """
+&err
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (InOut "err")] -> ()
+        | _ -> Assert.Fail (s);
+
+
+    [<Test>]
+    member x.TupleExpr() =
+        let ast, e = parseCode """
+                if(err?) { 2+ 2
+                }
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [IfStatement _] -> ()
+        | _ -> Assert.Fail (s);
+
+
+    [<Test>]
     member x.GovDataRequest () =
         let ast, e = parseFile "GovDataRequest"
         let s = (sprintf "%A" ast)
-        Assert.AreEqual (5, ast.Length)
+        Assert.AreEqual (3, ast.Length)
 
     [<Test>]
     member x.UIView () =

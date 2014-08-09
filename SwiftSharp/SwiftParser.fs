@@ -17,7 +17,7 @@ type Type =
     | DictionaryType of Type * Type
 
 type Attribute = string * string
-type Parameter = string * string * Type
+type Parameter = string * string * (Type option)
 
 type DeclarationSpecifier =
     | Static
@@ -42,7 +42,7 @@ and Declaration =
     | StructDeclaration of string * (Type list) * (Declaration list)
     | ClassDeclaration of string * (Type list) * (Declaration list)
     | InitializerDeclaration of (Parameter list) * (Statement list)
-    | FunctionDeclaration of (DeclarationSpecifier list) * string * ((Parameter list) list) * (((Attribute list) * Type) option) * (Statement list)
+    | FunctionDeclaration of (DeclarationSpecifier list) * string * ((Parameter list) list) * (FunctionResult option) * (Statement list)
     | ExtensionDeclaration of string * Type * ((Type list) option) * (Declaration list)
     | ProtocolDeclaration of string * string * ((Type list) option) * (Declaration list)
     | RawValueEnumDeclaration of string * (Type list) * ((string list) list)
@@ -54,8 +54,16 @@ and Expression =
     | Compound of Expression * (Binary list)
     | Funcall of Expression * (((string option) * Expression) list) * ((Statement list) option)
     | ExplicitMember of Expression * string
+    | Closure of (((Parameter list) * (FunctionResult option)) option) * (Statement list)
+    | OptionalChaining of Expression
+    | InOut of string
+    | TupleExpr of ((string option) * Expression) list
 
-and Binary = string * Expression
+and FunctionResult = ((Attribute list) * Type)
+
+and Binary =
+    | OpBinary of string * Expression
+    | AsBinary of Type
 
 and Pattern =
     | IdentifierPattern of string * (Type option)
@@ -140,11 +148,8 @@ let (|Operator|) (i : Position) =
 let isTrailIdent ch = Char.IsLetterOrDigit (ch) || ch = '_'
 
 let isKeyword = function
-    | "class" | "struct" | "extension" | "protocol" -> true
-    | "let" | "func" | "var" | "get" | "set" -> true
-    | "for" | "in" -> true
-    | "if" | "else" -> true
-    | "switch" | "case" | "default" -> true
+    | "class" | "deinit" | "enum" | "extension" | "func" | "import" | "init" | "internal" | "let" | "operator" | "private" | "protocol" | "public" | "static" | "struct" | "subscript" | "typealias" | "var"
+    | "break" | "case" | "continue" | "default" | "do" | "else" | "fallthrough" | "for" | "if" | "in" | "return" | "switch" | "where" | "while" -> true
     | _ -> false
 
 let (|Identifier|) (i : Position) =
@@ -216,12 +221,7 @@ let (|Number|) (i : Position) =
             Some (Double.Parse (numStr), i.Advance (e - i.Index))
         else None
 
-let (|Binary_operator|) (i : Position) =
-    if i.Eof then None
-    else
-        let ch = i.Document.Body.[i.Index]
-        if ch = '+' then Some (ch.ToString (), i.Advance 1)
-        else None
+let (|Binary_operator|) = (|Operator|)
 
 //
 // Combinators
@@ -365,7 +365,7 @@ and (|Type_identifier|) p1 =
     | _ -> None
 
 
-let (|Type_annotation|) i =
+and (|Type_annotation|) i =
     match i with
     | Token ":" (Some j) ->
         match ws j with
@@ -373,7 +373,7 @@ let (|Type_annotation|) i =
         | _ -> None
     | _ -> None
 
-let rec (|Expression|) i =
+and (|Expression|) i =
     match i with
     | Prefix_expression (Some (pe, j)) ->
         match ws j with
@@ -381,10 +381,34 @@ let rec (|Expression|) i =
         | _ -> Some (pe, j)
     | _ -> None
 
-and (|Primary_expression|) i =
-    match i with
+and (|Identifier_list|) = oneOrMoreSep (|Identifier|) ","
+
+and (|Closure_signature|) p1 =
+    let tail e p1 = 
+        match ((opt (|Function_result|)) &&& (kwd "in")) p1 with
+        | Some ((v1, v2), p4) -> Some ((e, v1), p4)
+        | _ -> None
+    match p1 with
+    | Parameter_clause (Some (v1, p2)) -> tail v1 (ws p2)
+    | Identifier_list (Some (v1, p2)) -> 
+        let ps = v1 |> List.map (fun x -> ("_", x, None))
+        tail ps (ws p2)
+    | _ -> None
+
+and (|Closure_expression|) p1 =
+    match ((br "{") &&& (opt (|Closure_signature|)) &&& (|Statements|) &&& (br "}")) p1 with
+    | Some ((((v1, v2), v3), v4), p5) -> Some (Closure (v2, v3), p5)
+    | _ -> None
+
+and (|Primary_expression|) p1 =
+    match p1 with
     | Identifier (Some (id, j)) -> Some (Variable id, j)
     | Literal (Some r) -> Some r
+    | Closure_expression (Some r) -> Some r
+    | Parenthesized_expression (Some (v1, p2)) ->
+        match v1 with
+        | [(None, x)] ->  Some  (x, p2)
+        | _ -> Some (TupleExpr v1, p2)
     | _ -> None
 
 and (|Literal|) i =
@@ -395,28 +419,31 @@ and (|Literal|) i =
 
 and (|Trailing_closure|) i : (Statement list * Position) option = None
 
-and (|Expression_element|) i =
-    match i with
-    | Identifier (Some (id, j)) ->
-        match ws j with
-        | Token ":" (Some k) ->
-            match ws k with
-            | Expression (Some (w, l)) -> Some ((Some id, w), l)
+and (|Expression_element|) p1 =
+    match p1 with
+    | Identifier (Some (v1, p2)) ->
+        match ws p2 with
+        | Token ":" (Some p3) ->
+            match ws p3 with
+            | Expression (Some (v3, p4)) -> Some ((Some v1, v3), p4)
             | _ -> None
-        | _ -> Some ((None, Variable id), j)
-    | Expression (Some (y, j)) -> Some ((None, y), j)
+        | _ ->
+            match p1 with
+            | Expression (Some (v1, p2)) -> Some ((None, v1), p2)
+            | _ -> None
+    | Expression (Some (v1, p2)) -> Some ((None, v1), p2)
     | _ -> None
 
 and (|Expression_element_list|) = oneOrMoreSep (|Expression_element|) ","
 
-and (|Parenthesized_expression|) i =
-    match i with
-    | Token "(" (Some j) ->
-        match j with
-        | Token ")" (Some k) -> Some ([], k)
-        | Expression_element_list (Some (z,k)) ->
-            match k with
-            | Token ")" (Some l) -> Some (z, l)
+and (|Parenthesized_expression|) p1 : ((((string option) * Expression) list) * Position) option =
+    match p1 with
+    | Token "(" (Some p2) ->
+        match ws p2 with
+        | Token ")" (Some p3) -> Some ([], p3)
+        | Expression_element_list (Some (v2, p3)) ->
+            match ws p3 with
+            | Token ")" (Some p4) -> Some (v2, p4)
             | _ -> None
         | _ -> None
     | _ -> None
@@ -441,6 +468,11 @@ and (|Explicit_member_expression|) e p1 =
         | _ -> None
     | _ -> None
 
+and (|Optional_chaining_expression|) e p1 =
+    match p1 with
+    | Token "?" (Some p2) -> Some (OptionalChaining !e, p2)
+    | _ -> None
+
 and (|Postfix_expression|) p1 =
     match p1 with
     | Primary_expression (Some (v1, p2)) ->
@@ -448,6 +480,7 @@ and (|Postfix_expression|) p1 =
         let p = ref p2
         let rec loop = function
             | Function_call_expression e (Some (v2, p3))
+            | Optional_chaining_expression e (Some (v2, p3))
             | Explicit_member_expression e (Some (v2, p3)) ->
                 e := v2
                 p := p3
@@ -457,22 +490,32 @@ and (|Postfix_expression|) p1 =
         Some (!e, !p)
     | _ -> None
 
+and (|In_out_expression|) p1 =
+    match ((br "&") &&& (|Identifier|)) p1 with
+    | Some ((v1, v2), p3) -> Some (InOut v2, p3)
+    | _ -> None
+
 and (|Prefix_expression|) i =
     match i with
+    | In_out_expression (Some r) -> Some r
     | Postfix_expression (Some r) -> Some r
     | _ -> None
 
+and (|Type_casting_operator|) p1 =
+    match p1 with
+    | Token "as" (Some p2) ->
+        match ws p2 with
+        | Type (Some (v2, p3)) -> Some (AsBinary v2, p3)
+        | _ -> None
+    | _ -> None
 
-and (|Binary_expression|) i : (Binary * Position) option =
-    match i with
-    | Token "=" (Some j) ->
-        match ws j with
-        | Prefix_expression (Some (z, k)) -> Some (("=", z), k)
+and (|Binary_expression|) p1 : (Binary * Position) option =
+    match p1 with
+    | Binary_operator (Some (v1, p2)) ->
+        match ws p2 with
+        | Prefix_expression (Some (v2, p3)) -> Some (OpBinary (v1, v2), p3)
         | _ -> None
-    | Binary_operator (Some (y, j)) ->
-        match ws j with
-        | Prefix_expression (Some (z, k)) -> Some ((y, z), k)
-        | _ -> None
+    | Type_casting_operator (Some (v1, p2)) -> Some (v1, p2)
     | _ -> None
 
 and (|Binary_expressions|) i =
@@ -483,7 +526,7 @@ and (|Binary_expressions|) i =
         | _ -> Some ([be], j)
     | _ -> None
 
-let rec (|Pattern|) p1 =
+and (|Pattern|) p1 =
     match p1 with
     | Identifier_pattern (Some (v1, p2)) ->
         match ws p2 with
@@ -515,7 +558,7 @@ and (|Identifier_pattern|) i =
     | Identifier (Some r) -> Some r
     | _ -> None
 
-let rec (|Statement|) p1 =
+and (|Statement|) p1 =
     match p1 with
     | Declaration (Some (v1, p2)) -> Some (DeclarationStatement v1, p2)
     | Branch_statement (Some (v1, p2)) -> Some (v1, p2)
@@ -557,6 +600,7 @@ and (|Else_clause|) p1 =
         match ws p2 with
         | Code_block (Some (v2, p3)) -> Some (v2, p3)
         | If_statement (Some (v2, p3)) -> Some ([v2], p3)
+        | _ -> None
     | _ -> None
 
 and (|If_statement|) p1 =
@@ -632,9 +676,9 @@ and (|Initializer_declaration|) p1 =
         | _ -> None
     | _ -> None
         
-and (|External_parameter_name|) = (|Identifier|) ||| ((|TokenValue|) "_")
+and (|External_parameter_name|) = (|Identifier|) ||| (br "_")
 
-and (|Local_parameter_name|) = (|Identifier|) ||| ((|TokenValue|) "_")
+and (|Local_parameter_name|) = (|Identifier|) ||| (br "_")
 
 and (|Parameter|) p1 : (Parameter * Position) option =
 
@@ -648,9 +692,9 @@ and (|Parameter|) p1 : (Parameter * Position) option =
         match ws p2 with
         | Local_parameter_name (Some (v2, p3)) ->
             match ws p3 with
-            | Type_annotation (Some (v3, p4)) -> Some ((v1, v2, v3), p4)
+            | Type_annotation (Some (v3, p4)) -> Some ((v1, v2, Some v3), p4)
             | _ -> None
-        | Type_annotation (Some (v2, p3)) -> Some ((v1, (if hash then v1 else "_"), v2), p3)
+        | Type_annotation (Some (v2, p3)) -> Some ((v1, (if hash then v1 else "_"), Some v2), p3)
         | _ -> None
     | _ -> None
 
@@ -679,7 +723,10 @@ and (|Code_block|) p1 =
     | Token "{" (Some p2) ->
         match ws p2 with
         | Token "}" (Some p3) -> Some ([], p3)
-        | Statements (Some (v2, p3)) -> Some (v2, p3)
+        | Statements (Some (v2, p3)) ->
+            match ws p3 with
+            | Token "}" (Some p4) -> Some (v2, p4)
+            | _ -> None
         | _ -> None
     | _ ->
         match p1 with
@@ -687,16 +734,6 @@ and (|Code_block|) p1 =
         | _ -> None
 
 
-//struct_declaration
-//    : attributes STRUCT struct_name generic_parameter_clause type_inheritance_clause struct_body
-//    | attributes STRUCT struct_name generic_parameter_clause struct_body
-//    | attributes STRUCT struct_name type_inheritance_clause struct_body
-//    | attributes STRUCT struct_name struct_body
-//    | STRUCT struct_name generic_parameter_clause type_inheritance_clause struct_body
-//    | STRUCT struct_name generic_parameter_clause struct_body
-//    | STRUCT struct_name type_inheritance_clause struct_body
-//    | STRUCT struct_name struct_body
-//    ;
 and (|Struct_declaration|) i =
     match i with
     | Token "struct" (Some p2) ->
@@ -781,7 +818,6 @@ and (|Import_declaration|) = function
         | Import_path (Some (z, k)) -> Some (ImportDeclaration z, k)
         | _ -> None
     | _ -> None
-
 
 and (|Import_path_identifier|) = (|Identifier|)
 
