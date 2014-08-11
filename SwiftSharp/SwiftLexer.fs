@@ -214,3 +214,9 @@ let (&&&) x y p1 =
         | _ -> None
     | _ -> None
 
+let okwd x = x |> kwd |> opt
+
+let nokwd x p1 =
+    match kwd x p1 with
+    | Some (v2, p2) -> Some (Some v2, p2)
+    | _ -> None

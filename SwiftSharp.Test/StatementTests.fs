@@ -17,21 +17,30 @@ type StatementTests () =
 
 
     [<Test>]
+    member x.Poo() =
+        let ast, e = parseCode """
+    func queryDataset(dataset: String, limit: Int = SODADefaultLimit, offset: Int = 0, completionHandler: SODADatasetCompletionHandler) {
+    }
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [DeclarationStatement _] -> ()
+        | _ -> Assert.Fail (s)
+
+    [<Test>]
     member x.SwitchUnion() =
         let ast, e = parseCode """
             switch res {
             case .Dataset (let rows):
-                0
+                completionHandler(.Row (rows[0]))
             case .Error(let err):
-                1
+                completionHandler(.Error (err))
             }
 """
         let s = (sprintf "%A" ast)
         match ast with
         | [SwitchStatement _] -> ()
-        | _ -> Assert.Fail (s);
-
-
+        | _ -> Assert.Fail (s)
 
     [<Test>]
     member x.FuncallWithParamCont() =
@@ -42,7 +51,7 @@ type StatementTests () =
         let s = (sprintf "%A" ast)
         match ast with
         | [ExpressionStatement (Funcall _)] -> ()
-        | _ -> Assert.Fail (s);
+        | _ -> Assert.Fail (s)
 
     [<Test>]
     member x.FuncallWithEndCont() =
@@ -53,7 +62,7 @@ type StatementTests () =
         let s = (sprintf "%A" ast)
         match ast with
         | [ExpressionStatement (Funcall _)] -> ()
-        | _ -> Assert.Fail (s);
+        | _ -> Assert.Fail (s)
 
 
     [<Test>]

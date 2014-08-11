@@ -127,7 +127,7 @@ and (|Closure_signature|) p1 =
     match p1 with
     | Parameter_clause (Some (v1, p2)) -> tail v1 (ws p2)
     | Identifier_list (Some (v1, p2)) -> 
-        let ps = v1 |> List.map (fun x -> ("_", x, None))
+        let ps = v1 |> List.map (fun x -> ([], None, x, None, None))
         tail ps (ws p2)
     | _ -> None
 
@@ -458,28 +458,39 @@ and (|Initializer_declaration|) p1 =
             | _ -> None
         | _ -> None
     | _ -> None
-        
-and (|External_parameter_name|) = (|Identifier|) ||| (br "_")
 
+and (|Default_argument_clause|) p1 =
+    match ((br "=") &&& ((|Expression|) true)) p1 with
+    | Some ((v1, v2), p3) -> Some (v2, p3)
+    | _ -> None
+            
+and (|External_parameter_name|) = (|Identifier|) ||| (br "_")
 and (|Local_parameter_name|) = (|Identifier|) ||| (br "_")
 
-and (|Parameter|) p1 : (Parameter * Position) option =
-
-    let np1, hash =
-        match p1 with
-        | Token "#" (Some p2) -> ws p2, true
-        | _ -> p1, false
-
-    match np1 with
+and (|Parameter_names|) p1 =
+    match p1 with
     | External_parameter_name (Some (v1, p2)) ->
         match ws p2 with
-        | Local_parameter_name (Some (v2, p3)) ->
-            match ws p3 with
-            | Type_annotation (Some (v3, p4)) -> Some ((v1, v2, Some v3), p4)
-            | _ -> None
-        | Type_annotation (Some (v2, p3)) -> Some ((v1, (if hash then v1 else "_"), Some v2), p3)
-        | _ -> None
+        | Local_parameter_name (Some (v2, p3)) -> Some ((Some v1, v2), p3)
+        | _ -> Some ((None, v1), p2)
     | _ -> None
+
+and (|Let_or_var_parameter|) p1 : (Parameter * Position) option =
+    match ((okwd "inout") &&& ((okwd "let") ||| (nokwd "var")) &&& (okwd "#") &&& (|Parameter_names|) &&& (|Type_annotation|) &&& (opt (|Default_argument_clause|))) p1 with
+    | Some ((((((v1, v2), v3), (v4a, v4b)), v5), v6), p7) ->
+        let ex, loc =
+            match v3 with
+            | Some _ -> (Some v4b, v4b)
+            | _ -> (v4a, v4b)
+        Some (([], ex, loc, Some v5, v6), p7)
+    | _ -> None
+        
+and (|Type_parameter|) p1 : (Parameter * Position) option =
+    match ((|Attributes_opt|) &&& (|Type|)) p1 with
+    | Some ((v1, v2), p3) -> Some ((v1, None, "_", Some v2, None), p3)
+    | _ -> None
+
+and (|Parameter|) = (|Let_or_var_parameter|) ||| (|Type_parameter|)
 
 and (|Parameter_list|) = oneOrMoreSep (|Parameter|) ","
 
