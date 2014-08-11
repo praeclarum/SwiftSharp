@@ -18,7 +18,7 @@ type HeaderTests () =
     member x.SODAClient () =
         let ast, e = parseFile "SODAClient"
         let s = (sprintf "%A" ast)
-        Assert.AreEqual (3, ast.Length)
+        Assert.AreEqual (7, ast.Length)
 
     [<Test>]
     member x.GovDataRequest () =

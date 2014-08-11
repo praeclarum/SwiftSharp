@@ -198,6 +198,17 @@ let rec oneOrMoreSep pattern sep p1 =
         | _ -> Some ([v1], p2)
     | _ -> None
 
+let rec oneOrMoreSepOpt pattern sep p1 =
+    match pattern p1 with
+    | Some (v1, p2) ->
+        match ws p2 with
+        | Token sep (Some p3) ->
+            match oneOrMoreSep pattern sep (ws p3) with
+            | Some (v2, p3) -> Some (v1 :: v2, p3)
+            | _ -> Some ([v1], p2)
+        | _ -> Some ([v1], p2)
+    | _ -> None
+
 let (|||) x y p1 =
     match x p1 with
     | Some (v1, p2) -> Some (v1, p2)

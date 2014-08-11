@@ -15,9 +15,51 @@ type StatementTests () =
         | x -> failwith (sprintf "Parse returned: %A" x)
 
 
+    [<Test>]
+    member x.IfDecl() =
+        let ast, e = parseCode """
+            if let error = jsonError {
+                return
+            }
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [IfStatement _] -> ()
+        | _ -> Assert.Fail (s)
 
     [<Test>]
-    member x.Poo() =
+    member x.ReturnExpr() =
+        let ast, e = parseCode """
+        return s
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ReturnStatement _] -> ()
+        | _ -> Assert.Fail (s)
+
+    [<Test>]
+    member x.Return() =
+        let ast, e = parseCode """
+        return
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ReturnStatement _] -> ()
+        | _ -> Assert.Fail (s)
+
+    [<Test>]
+    member x.Private() =
+        let ast, e = parseCode """
+    private class func paramsToQueryString (params: NSDictionary) -> String {
+    }
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [DeclarationStatement _] -> ()
+        | _ -> Assert.Fail (s)
+
+    [<Test>]
+    member x.DefaultArguments() =
         let ast, e = parseCode """
     func queryDataset(dataset: String, limit: Int = SODADefaultLimit, offset: Int = 0, completionHandler: SODADatasetCompletionHandler) {
     }

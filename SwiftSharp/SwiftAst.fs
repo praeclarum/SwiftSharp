@@ -17,13 +17,19 @@ type DeclarationSpecifier =
     | Static
     | Override
     | Class
+    | Private
 
 type Statement =
     | ExpressionStatement of Expression
     | DeclarationStatement of Declaration
     | SwitchStatement of Expression * (SwitchCase list)
     | ForInStatement of Pattern * Expression * (Statement list)
-    | IfStatement of Expression * (Statement list) * ((Statement list) option)
+    | IfStatement of IfCondition * (Statement list) * ((Statement list) option)
+    | ReturnStatement of Expression option
+
+and IfCondition =
+    | ExpressionIfCondition of Expression
+    | DeclarationIfCondition of Declaration
 
 and SwitchCase = (Pattern list) * (Statement list)
 
@@ -51,6 +57,8 @@ and Argument = (string option) * Expression
 and Expression =
     | Number of float
     | Str of string
+    | DictionaryLiteral of (Expression * Expression) list
+    | ArrayLiteral of Expression list
     | Variable of string
     | Compound of Expression * (Binary list)
     | Funcall of Expression * (Argument list)
@@ -64,7 +72,9 @@ and Expression =
 and FunctionResult = ((Attr list) * Type)
 
 and Binary =
-    | AsBinary of Type
+    | AsCastBinary of Type
+    | AsOptionalCastBinary of Type
+    | TernaryConditionalBinary of Expression * Expression
     | OpBinary of string * Expression
 
 and Pattern =

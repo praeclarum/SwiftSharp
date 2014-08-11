@@ -16,6 +16,46 @@ type ExpressionTests () =
 
 
     [<Test>]
+    member x.ArrayLiteral() =
+        let ast, e = parseCode """
+            [a]
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (ArrayLiteral _)] -> ()
+        | _ -> Assert.Fail (s)
+
+    [<Test>]
+    member x.DictionaryLiteral() =
+        let ast, e = parseCode """
+            [a: b]
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (DictionaryLiteral _)] -> ()
+        | _ -> Assert.Fail (s)
+
+    [<Test>]
+    member x.AsOptional() =
+        let ast, e = parseCode """
+            jsonResult as? String
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (Compound _)] -> ()
+        | _ -> Assert.Fail (s)
+
+    [<Test>]
+    member x.TernaryConditional() =
+        let ast, e = parseCode """
+a ? b : c
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (Compound _)] -> ()
+        | _ -> Assert.Fail (s)
+
+    [<Test>]
     member x.Subscript() =
         let ast, e = parseCode """
         rows[0]
@@ -74,7 +114,7 @@ JSONObjectWithData as NSDictionary
 """
         let s = (sprintf "%A" ast)
         match ast with
-        | [ExpressionStatement (Compound (Variable _, [AsBinary _]))] -> ()
+        | [ExpressionStatement (Compound (Variable _, [AsCastBinary _]))] -> ()
         | _ -> Assert.Fail (s);
 
     [<Test>]

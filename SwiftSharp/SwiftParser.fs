@@ -155,10 +155,50 @@ and (|Primary_expression|) p1 =
         | _ -> Some (TupleExpr v1, p2)
     | _ -> None
 
-and (|Literal|) i =
-    match i with
-    | Number (Some (v, j)) -> Some (Number v, j)
-    | String (Some (v, j)) -> Some (Str v, j)
+and (|Dictionary_literal_item|) p1 =
+    match (((|Expression|) true) &&& (br ":") &&& ((|Expression|)) true) p1 with
+    | Some (((v1, v2), v3), p4) -> Some ((v1, v3), p4)
+    | _ -> None
+
+and (|Dictionary_literal_items|) = oneOrMoreSepOpt (|Dictionary_literal_item|) ","
+
+and (|Dictionary_literal|) p1 =
+    match p1 with
+    | Token "[" (Some p2) ->
+        match ws p2 with
+        | Token ":" (Some p3) ->
+            match ws p3 with
+            | Token "]" (Some p4) -> Some ([], p4)
+            | _ -> None
+        | Dictionary_literal_items (Some (v2, p3)) ->
+            match ws p3 with
+            | Token "]" (Some p4) -> Some (v2, p4)
+            | _ -> None
+        | _ -> None
+    | _ -> None
+
+and (|Array_literal_item|) = ((|Expression|) true)
+
+and (|Array_literal_items|) = oneOrMoreSepOpt (|Array_literal_item|) ","
+
+and (|Array_literal|) p1 =
+    match p1 with
+    | Token "[" (Some p2) ->
+        match ws p2 with
+        | Token "]" (Some p3) -> Some ([], p3)
+        | Array_literal_items (Some (v2, p3)) ->
+            match ws p3 with
+            | Token "]" (Some p4) -> Some (v2, p4)
+            | _ -> None
+        | _ -> None
+    | _ -> None
+            
+and (|Literal|) p1 =
+    match p1 with
+    | Number (Some (v1, p2)) -> Some (Number v1, p2)
+    | String (Some (v1, p2)) -> Some (Str v1, p2)
+    | Dictionary_literal (Some (v1, p2)) -> Some (DictionaryLiteral v1, p2)
+    | Array_literal (Some (v1, p2)) -> Some (ArrayLiteral v1, p2)
     | _ -> None
 
 and (|Trailing_closure|) = (|Closure_expression|)
@@ -220,7 +260,11 @@ and (|Explicit_member_expression|) e p1 =
 
 and (|Optional_chaining_expression|) e p1 =
     match p1 with
-    | Token "?" (Some p2) -> Some (OptionalChaining !e, p2)
+    | Token "?" (Some p2) ->
+        // Look ahead to see if we look like ternary conditional
+        match (((|Expression|) true) &&& (br ":")) (ws p2) with
+        | Some _ -> None
+        | _ -> Some (OptionalChaining !e, p2)
     | _ -> None
 
 and (|Subscript_expression|) e p1 =
@@ -261,12 +305,27 @@ and (|Type_casting_operator|) p1 =
     match p1 with
     | Token "as" (Some p2) ->
         match ws p2 with
-        | Type (Some (v2, p3)) -> Some (AsBinary v2, p3)
-        | _ -> None
+        | Token "?" (Some p3) ->
+            match ws p3 with
+            | Type (Some (v3, p4)) -> Some (AsOptionalCastBinary v3, p4)
+            | _ -> None
+        | _ ->
+            match ws p2 with
+            | Type (Some (v2, p3)) -> Some (AsCastBinary v2, p3)
+            | _ -> None
+    | _ -> None
+
+and (|Conditional_operator|) p1 =
+    match ((br "?") &&& ((|Expression|) true) &&& (br ":")) p1 with
+    | Some (((v1, v2), v3), p4) -> Some (v2, p4)
     | _ -> None
 
 and (|Binary_expression|) withTrailingClosure p1 =
     match p1 with
+    | Conditional_operator (Some (v1, p2)) ->
+        match ws p2 with
+        | Prefix_expression withTrailingClosure (Some (v2, p3)) -> Some (TernaryConditionalBinary (v1, v2), p3)
+        | _ -> None
     | Binary_operator (Some (v1, p2)) ->
         match ws p2 with
         | Prefix_expression withTrailingClosure (Some (v2, p3)) -> Some (OpBinary (v1, v2), p3)
@@ -323,11 +382,19 @@ and (|Tuple_pattern|) p1 =
 
 and (|Identifier_pattern|) = (|Identifier|)
 
+and (|Return_statement|) p1 =
+    match ((kwd "return") &&& (opt ((|Expression|) true))) p1 with
+    | Some ((v1, v2), p3) -> Some (ReturnStatement v2, p3)
+    | _ -> None
+
+and (|Control_transfer_statement|) = (|Return_statement|)
+
 and (|Statement|) p1 =
     match p1 with
-    | Declaration (Some (v1, p2)) -> Some (DeclarationStatement v1, p2)
-    | Branch_statement (Some (v1, p2)) -> Some (v1, p2)
-    | Loop_statement (Some (v1, p2)) -> Some (v1, p2)
+    | Declaration true (Some (v1, p2)) -> Some (DeclarationStatement v1, p2)
+    | Branch_statement (Some r) -> Some r
+    | Loop_statement (Some r) -> Some r
+    | Control_transfer_statement (Some r) -> Some r
     | Expression true (Some (v1, p2)) -> Some (ExpressionStatement v1, p2)
     | _ -> None
 
@@ -358,7 +425,8 @@ and (|Switch_statement|) p1 =
         
 and (|If_condition|) p1 =
     match p1 with
-    | Expression false (Some (v1, p2)) -> Some (v1, p2)
+    | Expression false (Some (v1, p2)) -> Some (ExpressionIfCondition v1, p2)
+    | Declaration false (Some (v1, p2)) -> Some (DeclarationIfCondition v1, p2)
     | _ -> None
 
 and (|Else_clause|) p1 =
@@ -384,11 +452,11 @@ and (|For_in_statement|) p1 =
 
 and (|Loop_statement|) = (|For_in_statement|)
 
-and (|Declaration|) p1 =
+and (|Declaration|) withTrailingClosure p1 =
     match p1 with
     | Import_declaration (Some r) -> Some r
-    | Constant_declaration (Some r) -> Some r
-    | Variable_declaration (Some r) -> Some r
+    | Constant_declaration withTrailingClosure (Some r) -> Some r
+    | Variable_declaration withTrailingClosure (Some r) -> Some r
     | Typealias_declaration (Some r) -> Some r
     | Struct_declaration (Some r) -> Some r
     | Class_declaration (Some r) -> Some r
@@ -399,9 +467,9 @@ and (|Declaration|) p1 =
     | Enum_declaration (Some r) -> Some r
     | _ -> None
 
-and (|Declarations|) = oneOrMore (|Declaration|)
+and (|Declarations|) = oneOrMore ((|Declaration|) true)
 
-and (|Declarations_opt|) = zeroOrMore (|Declaration|)
+and (|Declarations_opt|) = zeroOrMore ((|Declaration|) true)
 
 and (|Enum_name|) = (|Identifier|)
 
@@ -617,16 +685,13 @@ and (|Import_path_identifier|) = (|Identifier|)
 
 and (|Import_path|) = oneOrMoreSep (|Import_path_identifier|) ","
 
-and (|Constant_declaration_head|) i =
-    match i with
-    | Token "let" (Some j) -> Some j
-    | _ -> None
+and (|Constant_declaration_head|) = kwd "let"
 
-and (|Constant_declaration|) i =
-    match i with
-    | Constant_declaration_head (Some j) ->
-        match ws j with
-        | Pattern_initializer_list (Some (z, k)) -> Some (ConstantDeclaration z, k)            
+and (|Constant_declaration|) withTrailingClosure p1 =
+    match p1 with
+    | Constant_declaration_head (Some (v1, p2)) ->
+        match ws p2 with
+        | Pattern_initializer_list withTrailingClosure (Some (v2, p3)) -> Some (ConstantDeclaration v2, p3)
         | _ -> None
     | _ -> None
 
@@ -635,6 +700,7 @@ and (|Declaration_specifier|) p1 =
     | Token "static" (Some p2) -> Some (Static, p2)
     | Token "override" (Some p2) -> Some (Override, p2)
     | Token "class" (Some p2) -> Some (Class, p2)
+    | Token "private" (Some p2) -> Some (Private, p2)
     | _ -> None
 
 and (|Declaration_specifiers|) = oneOrMore (|Declaration_specifier|)
@@ -654,12 +720,12 @@ and (|Single_variable_declaration|) specs p1 =
         | _ -> None
     | _ -> None
         
-and (|Variable_declaration|) p1 =
+and (|Variable_declaration|) withTrailingClosure p1 =
     match p1 with
     | Variable_declaration_head (Some ((v1, _), p2)) ->
         match ws p2 with
         | Single_variable_declaration v1 (Some n2) -> Some n2
-        | Pattern_initializer_list (Some (v2, p3)) -> Some (PatternVariableDeclaration (v1, v2), p3)
+        | Pattern_initializer_list withTrailingClosure (Some (v2, p3)) -> Some (PatternVariableDeclaration (v1, v2), p3)
         | _ -> None
     | _ -> None
 
@@ -748,21 +814,21 @@ and (|Typealias_declaration|) = function
         | _ -> None
     | _ -> None
         
-and (|Pattern_initializer|) i =
+and (|Pattern_initializer|) withTrailingClosure i =
     match i with
     | Pattern (Some (y,j)) ->
         match ws j with
-        | Initializer (Some (z, k)) -> Some ((y, Some z), k)
+        | Initializer withTrailingClosure (Some (z, k)) -> Some ((y, Some z), k)
         | _ -> Some ((y, None), j)
     | _ -> None
 
-and (|Pattern_initializer_list|) = oneOrMoreSep (|Pattern_initializer|) ","
+and (|Pattern_initializer_list|) withTrailingClosure = oneOrMoreSep ((|Pattern_initializer|) withTrailingClosure) ","
 
-and (|Initializer|) i =
-    match i with
-    | Token "=" (Some j) ->
-        match ws j with
-        | Expression true (Some (z, k)) -> Some (z, k)
+and (|Initializer|) withTrailingClosure p1 =
+    match p1 with
+    | Token "=" (Some p2) ->
+        match ws p2 with
+        | Expression withTrailingClosure (Some (v2, p3)) -> Some (v2, p3)
         | _ -> None
     | _ -> None
 
