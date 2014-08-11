@@ -14,6 +14,60 @@ type StatementTests () =
         | Some x -> x
         | x -> failwith (sprintf "Parse returned: %A" x)
 
+
+
+    [<Test>]
+    member x.SwitchUnion() =
+        let ast, e = parseCode """
+            switch res {
+            case .Dataset (let rows):
+                0
+            case .Error(let err):
+                1
+            }
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [SwitchStatement _] -> ()
+        | _ -> Assert.Fail (s);
+
+
+
+    [<Test>]
+    member x.FuncallWithParamCont() =
+        let ast, e = parseCode """
+        getResource(params: ps, completionHandler: { res in
+})
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (Funcall _)] -> ()
+        | _ -> Assert.Fail (s);
+
+    [<Test>]
+    member x.FuncallWithEndCont() =
+        let ast, e = parseCode """
+        getResource(params: ps) { res in
+}
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (Funcall _)] -> ()
+        | _ -> Assert.Fail (s);
+
+
+    [<Test>]
+    member x.UnionEnum() =
+        let ast, e = parseCode """
+enum SODADatasetResult {
+    case Dataset ([[String: AnyObject]])
+    case Error (NSError)
+}
+"""
+        let r = (sprintf "%A" ast)
+        Assert.AreEqual (1, ast.Length)
+
+
     [<Test>]
     member x.NewlineAtEndOfFuncDeclWithType() =
         let ast, e = parseCode """
@@ -95,13 +149,9 @@ class GovDataRequest {
     [<Test>]
     member x.ForIn() =
         let ast, e = parseCode """
-class GovDataRequest {   
-    func callAPIMethod () {
         for (argKey, argValue) in arguments {
             x = 42
         }
-    }
-}
 """
         let s = (sprintf "%A" ast)
         Assert.AreEqual (1, ast.Length)

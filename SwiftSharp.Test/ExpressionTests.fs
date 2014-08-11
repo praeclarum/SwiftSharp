@@ -14,13 +14,35 @@ type ExpressionTests () =
         | Some x -> x
         | x -> failwith (sprintf "Parse returned: %A" x)
 
+
+    [<Test>]
+    member x.Subscript() =
+        let ast, e = parseCode """
+        rows[0]
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (Subscript _)] -> ()
+        | _ -> Assert.Fail (s)
+
+    [<Test>]
+    member x.EnumCtor() =
+        let ast, e = parseCode """
+        .Row (0)
+"""
+        let s = (sprintf "%A" ast)
+        match ast with
+        | [ExpressionStatement (Funcall _)] -> ()
+        | _ -> Assert.Fail (s)
+
+
     [<Test>]
     member x.Funcall() =
         let ast, e = parseCode "f(x)"
         let s = (sprintf "%A" ast)
         match ast with
         | [ExpressionStatement (Funcall _)] -> ()
-        | _ -> Assert.Fail (s);
+        | _ -> Assert.Fail (s)
 
     [<Test>]
     member x.ClosureExpression() =

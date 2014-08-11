@@ -33,6 +33,20 @@ and (|Generic_argument|) = (|Type|)
 
 and (|Generic_argument_list|) = oneOrMoreSep (|Generic_argument|) ","
 
+and (|Generic_argument_clause|) p1 =
+    match ((br "<") &&& (|Generic_argument_list|) &&& (br ">")) p1 with
+    | Some (((v1, v2), v3), p4) -> Some (v2, p4)
+    | _ -> None
+
+and (|Generic_parameter|) = (|Type_name|)
+
+and (|Generic_parameter_list|) = oneOrMoreSep (|Generic_parameter|) ","
+
+and (|Generic_parameter_clause|) p1 =
+    match ((br "<") &&& (|Generic_parameter_list|) &&& (br ">")) p1 with
+    | Some (((v1, v2), v3), p4) -> Some (v2, p4)
+    | _ -> None
+
 and (|Tuple_type_element|) = (|Type|)
 
 and (|Tuple_type_element_list|) = oneOrMoreSep (|Tuple_type_element|) ","
@@ -59,11 +73,6 @@ and (|Array_type|) p1 =
 and (|Dictionary_type|) p1 =
     match ((br "[") &&& (|Type|) &&& (br ":") &&& (|Type|) &&& (br "]")) p1 with
     | Some (((((v1, v2), v3), v4), v5), p4) -> Some (DictionaryType (v2, v4), p4)
-    | _ -> None
-
-and (|Generic_argument_clause|) p1 =
-    match ((br "<") &&& (|Generic_argument_list|) &&& (br ">")) p1 with
-    | Some (((v1, v2), v3), p4) -> Some (v2, p4)
     | _ -> None
 
 and (|Type_identifier|) p1 =
@@ -98,13 +107,15 @@ and (|Type_annotation|) i =
         | _ -> None
     | _ -> None
 
-and (|Expression|) i =
-    match i with
-    | Prefix_expression (Some (pe, j)) ->
-        match ws j with
-        | Binary_expressions (Some (bes, k)) -> Some (Compound (pe, bes), k)
-        | _ -> Some (pe, j)
+and (|Expression|) withTrailingClosure p1 =
+    match p1 with
+    | Prefix_expression withTrailingClosure (Some (v1, p2)) ->
+        match ws p2 with
+        | Binary_expressions withTrailingClosure (Some (v2, p3)) -> Some (Compound (v1, v2), p3)
+        | _ -> Some (v1, p2)
     | _ -> None
+
+and (|Expression_list|) = oneOrMoreSep ((|Expression|) true) ","
 
 and (|Identifier_list|) = oneOrMoreSep (|Identifier|) ","
 
@@ -121,12 +132,20 @@ and (|Closure_signature|) p1 =
     | _ -> None
 
 and (|Closure_expression|) p1 =
-    match ((br "{") &&& (opt (|Closure_signature|)) &&& (|Statements|) &&& (br "}")) p1 with
+    match ((br "{") &&& (opt (|Closure_signature|)) &&& (|Statements_opt|) &&& (br "}")) p1 with
     | Some ((((v1, v2), v3), v4), p5) -> Some (Closure (v2, v3), p5)
     | _ -> None
 
+and (|Implicit_member_expression|) p1 =
+    match ((br ".") &&& (|Identifier|)) p1 with
+    | Some ((v1, v2), p3) -> Some (Member (None, v2), p3)
+    | _ -> None
+
+
+
 and (|Primary_expression|) p1 =
     match p1 with
+    | Implicit_member_expression (Some r) -> Some r
     | Identifier (Some (id, j)) -> Some (Variable id, j)
     | Literal (Some r) -> Some r
     | Closure_expression (Some r) -> Some r
@@ -142,7 +161,7 @@ and (|Literal|) i =
     | String (Some (v, j)) -> Some (Str v, j)
     | _ -> None
 
-and (|Trailing_closure|) i : (Statement list * Position) option = None
+and (|Trailing_closure|) = (|Closure_expression|)
 
 and (|Expression_element|) p1 =
     match p1 with
@@ -150,13 +169,13 @@ and (|Expression_element|) p1 =
         match ws p2 with
         | Token ":" (Some p3) ->
             match ws p3 with
-            | Expression (Some (v3, p4)) -> Some ((Some v1, v3), p4)
+            | Expression true (Some (v3, p4)) -> Some ((Some v1, v3), p4)
             | _ -> None
         | _ ->
             match p1 with
-            | Expression (Some (v1, p2)) -> Some ((None, v1), p2)
+            | Expression true (Some (v1, p2)) -> Some ((None, v1), p2)
             | _ -> None
-    | Expression (Some (v1, p2)) -> Some ((None, v1), p2)
+    | Expression true (Some (v1, p2)) -> Some ((None, v1), p2)
     | _ -> None
 
 and (|Expression_element_list|) = oneOrMoreSep (|Expression_element|) ","
@@ -173,23 +192,29 @@ and (|Parenthesized_expression|) p1 : ((((string option) * Expression) list) * P
         | _ -> None
     | _ -> None
 
-and (|Function_call_expression|) pe i =
-    match i with
-    | Parenthesized_expression (Some (pae, j)) ->
-        match j with
-        | Trailing_closure (Some (tc, k)) -> Some (Funcall (!pe, pae, Some tc), k)
-        | _ -> Some (Funcall (!pe, pae, None), j)
+and (|Function_call_expression|) e withTrailingClosure p1 =
+    match p1 with
+    | Parenthesized_expression (Some (v1, p2)) ->
+        if not withTrailingClosure then
+            Some (Funcall (!e, v1), p2)
+        else
+            match ws p2 with
+            | Trailing_closure (Some (v2, p3)) -> Some (Funcall (!e, List.append v1 [(None, v2)]), p3)
+            | _ -> Some (Funcall (!e, v1), p2)
     | _ ->
-        match i with
-        | Trailing_closure (Some (tc, j)) -> Some (Funcall (!pe, [], Some tc), j)
-        | _ -> None
+        if not withTrailingClosure then
+            None
+        else
+            match p1 with
+            | Trailing_closure (Some (v1, p2)) -> Some (Funcall (!e, [(None, v1)]), p2)
+            | _ -> None
 
 
 and (|Explicit_member_expression|) e p1 =
     match p1 with
     | Token "." (Some p2) ->
         match (ws p2) with
-        | Identifier (Some (v2, p3)) -> Some (ExplicitMember (!e, v2), p3)
+        | Identifier (Some (v2, p3)) -> Some (Member (Some !e, v2), p3)
         | _ -> None
     | _ -> None
 
@@ -198,14 +223,20 @@ and (|Optional_chaining_expression|) e p1 =
     | Token "?" (Some p2) -> Some (OptionalChaining !e, p2)
     | _ -> None
 
-and (|Postfix_expression|) p1 =
+and (|Subscript_expression|) e p1 =
+    match ((br "[") &&& (|Expression_list|) &&& (br "]")) p1 with
+    | Some (((v1, v2), v3), p4) -> Some (Subscript (!e, v2), p4)
+    | _ -> None
+
+and (|Postfix_expression|) withTrailingClosure p1 =
     match p1 with
     | Primary_expression (Some (v1, p2)) ->
         let e = ref v1
         let p = ref p2
         let rec loop = function
-            | Function_call_expression e (Some (v2, p3))
+            | Function_call_expression e withTrailingClosure (Some (v2, p3))
             | Optional_chaining_expression e (Some (v2, p3))
+            | Subscript_expression e (Some (v2, p3))
             | Explicit_member_expression e (Some (v2, p3)) ->
                 e := v2
                 p := p3
@@ -220,10 +251,10 @@ and (|In_out_expression|) p1 =
     | Some ((v1, v2), p3) -> Some (InOut v2, p3)
     | _ -> None
 
-and (|Prefix_expression|) i =
-    match i with
+and (|Prefix_expression|) withTrailingClosure p1 =
+    match p1 with
     | In_out_expression (Some r) -> Some r
-    | Postfix_expression (Some r) -> Some r
+    | Postfix_expression withTrailingClosure (Some r) -> Some r
     | _ -> None
 
 and (|Type_casting_operator|) p1 =
@@ -234,25 +265,37 @@ and (|Type_casting_operator|) p1 =
         | _ -> None
     | _ -> None
 
-and (|Binary_expression|) p1 : (Binary * Position) option =
+and (|Binary_expression|) withTrailingClosure p1 =
     match p1 with
     | Binary_operator (Some (v1, p2)) ->
         match ws p2 with
-        | Prefix_expression (Some (v2, p3)) -> Some (OpBinary (v1, v2), p3)
+        | Prefix_expression withTrailingClosure (Some (v2, p3)) -> Some (OpBinary (v1, v2), p3)
         | _ -> None
     | Type_casting_operator (Some (v1, p2)) -> Some (v1, p2)
     | _ -> None
 
-and (|Binary_expressions|) i =
+and (|Binary_expressions|) withTrailingClosure i =
     match i with
-    | Binary_expression (Some (be, j)) ->
+    | Binary_expression withTrailingClosure (Some (be, j)) ->
         match ws j with
-        | Binary_expressions (Some (bes, k)) -> Some (be :: bes, k)
+        | Binary_expressions withTrailingClosure (Some (bes, k)) -> Some (be :: bes, k)
         | _ -> Some ([be], j)
+    | _ -> None
+
+and (|Enum_case_pattern|) p1 =
+    match ((opt (|Type_identifier|)) &&& (br ".") &&& (|Enum_case_name|) &&& (opt (|Tuple_pattern|))) p1 with
+    | Some ((((v1, v2), v3), v4), p5) -> Some (EnumCasePattern (v1, v3, v4), p5)
+    | _ -> None
+
+and (|Value_binding_pattern|) p1 =
+    match (((kwd "let") ||| (kwd "var")) &&& (|Pattern|)) p1 with
+    | Some ((v1, v2), p3) -> Some (ValueBindingPattern v2, p3)
     | _ -> None
 
 and (|Pattern|) p1 =
     match p1 with
+    | Value_binding_pattern (Some r) -> Some r
+    | Enum_case_pattern (Some r) -> Some r
     | Identifier_pattern (Some (v1, p2)) ->
         match ws p2 with
         | Type_annotation (Some (v2, p3)) -> Some (IdentifierPattern (v1, Some v2), p3)
@@ -261,7 +304,7 @@ and (|Pattern|) p1 =
         match ws p2 with
         | Type_annotation (Some (v2, p3)) -> Some (TuplePattern (v1, Some v2), p3)
         | _ -> Some (TuplePattern (v1, None), p2)
-    | Expression (Some (v1, p2)) -> Some (ExpressionPattern v1, p2)
+    | Expression true (Some (v1, p2)) -> Some (ExpressionPattern v1, p2)
     | _ -> None
 
 and (|Tuple_pattern_element_list|) = oneOrMoreSep (|Pattern|) ","
@@ -285,10 +328,12 @@ and (|Statement|) p1 =
     | Declaration (Some (v1, p2)) -> Some (DeclarationStatement v1, p2)
     | Branch_statement (Some (v1, p2)) -> Some (v1, p2)
     | Loop_statement (Some (v1, p2)) -> Some (v1, p2)
-    | Expression (Some (v1, p2)) -> Some (ExpressionStatement v1, p2)
+    | Expression true (Some (v1, p2)) -> Some (ExpressionStatement v1, p2)
     | _ -> None
 
 and (|Statements|) = oneOrMore (|Statement|)
+
+and (|Statements_opt|) = zeroOrMore (|Statement|)
 
 and (|Case_item|) = (|Pattern|)
 
@@ -307,13 +352,13 @@ and (|Switch_case|) = ((|Case_label|) &&& (|Statements|)) ||| ((|Default_label|)
 and (|Switch_cases_opt|) = zeroOrMore (|Switch_case|)
 
 and (|Switch_statement|) p1 =
-    match ((kwd "switch") &&& (|Expression|) &&& (br "{") &&& (|Switch_cases_opt|) &&& (br "}")) p1 with
+    match ((kwd "switch") &&& ((|Expression|) false) &&& (br "{") &&& (|Switch_cases_opt|) &&& (br "}")) p1 with
     | Some (((((v1, v2), v3), v4), v5), p6) -> Some (SwitchStatement (v2, v4), p6)
     | _ -> None
         
 and (|If_condition|) p1 =
     match p1 with
-    | Expression (Some (v1, p2)) -> Some (v1, p2)
+    | Expression false (Some (v1, p2)) -> Some (v1, p2)
     | _ -> None
 
 and (|Else_clause|) p1 =
@@ -333,7 +378,7 @@ and (|If_statement|) p1 =
 and (|Branch_statement|) = (|Switch_statement|) ||| (|If_statement|)
 
 and (|For_in_statement|) p1 =
-    match ((kwd "for") &&& (|Pattern|) &&& (kwd "in") &&& (|Expression|) &&& (|Code_block|)) p1 with
+    match ((kwd "for") &&& (|Pattern|) &&& (kwd "in") &&& ((|Expression|) false) &&& (|Code_block|)) p1 with
     | Some (((((v1, v2), v3), v4), v5), p6) -> Some (ForInStatement (v2, v4, v5), p6)
     | _ -> None
 
@@ -380,7 +425,26 @@ and (|Raw_value_style_enum|) p1 =
     | Some ((((((v1, v2), v3), v4), v5), v6), p6) -> Some (RawValueEnumDeclaration (v2, v3, v5), p6)
     | _ -> None
 
-and (|Enum_declaration|) = (|Raw_value_style_enum|)
+and (|Union_style_enum_case|) = (|Enum_case_name|) &&& (opt (|Tuple_type|))
+
+and (|Union_style_enum_case_list|) = oneOrMoreSep (|Union_style_enum_case|) ","
+
+and (|Union_style_enum_case_clause|) p1 =
+    match ((kwd "case") &&& (|Union_style_enum_case_list|)) p1 with
+    | Some ((v1, v2), p3) -> Some (v2, p3)
+    | _ -> None
+
+and (|Union_style_enum_member|) = (|Union_style_enum_case_clause|)
+
+and (|Union_style_enum_members|) = zeroOrMore (|Union_style_enum_member|)
+
+and (|Union_style_enum|) p1 =
+    match ((kwd "enum") &&& (|Enum_name|) &&& (opt (|Generic_parameter_clause|)) &&& (opt (|Type_inheritance_clause|)) &&& (br "{") &&& (|Union_style_enum_members|) &&& (br "}")) p1 with
+    | Some (((((((v1, v2), v3), v4), v5), v6), v7), p8) -> Some (UnionEnumDeclaration (v2, v3, v4, v6), p8)
+    | _ -> None
+
+
+and (|Enum_declaration|) = (|Raw_value_style_enum|) ||| (|Union_style_enum|)
 
 and (|Initializer_head|) = (opt ((|TokenValue|) "convenience")) &&& ((|TokenValue|) "init")
 
@@ -687,7 +751,7 @@ and (|Initializer|) i =
     match i with
     | Token "=" (Some j) ->
         match ws j with
-        | Expression (Some (z, k)) -> Some (z, k)
+        | Expression true (Some (z, k)) -> Some (z, k)
         | _ -> None
     | _ -> None
 

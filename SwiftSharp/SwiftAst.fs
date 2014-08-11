@@ -28,6 +28,8 @@ type Statement =
 
 and SwitchCase = (Pattern list) * (Statement list)
 
+and GenericParameter = string
+
 and Declaration =
     | ImportDeclaration of string list
     | GetterSetterVariableDeclaration of (DeclarationSpecifier list) * (string * Type) * ((Statement list) * ((Statement list) option))
@@ -41,18 +43,22 @@ and Declaration =
     | ExtensionDeclaration of string * Type * ((Type list) option) * (Declaration list)
     | ProtocolDeclaration of string * string * ((Type list) option) * (Declaration list)
     | RawValueEnumDeclaration of string * (Type list) * ((string list) list)
+    | UnionEnumDeclaration of string * ((GenericParameter list) option) * ((Type list) option) * (((string * (Type option)) list) list)
+
+and Argument = (string option) * Expression
 
 and Expression =
     | Number of float
     | Str of string
     | Variable of string
     | Compound of Expression * (Binary list)
-    | Funcall of Expression * (((string option) * Expression) list) * ((Statement list) option)
-    | ExplicitMember of Expression * string
+    | Funcall of Expression * (Argument list)
+    | Member of (Expression option) * string
     | Closure of (((Parameter list) * (FunctionResult option)) option) * (Statement list)
     | OptionalChaining of Expression
     | InOut of string
     | TupleExpr of ((string option) * Expression) list
+    | Subscript of Expression * (Expression list)
 
 and FunctionResult = ((Attr list) * Type)
 
@@ -64,5 +70,7 @@ and Pattern =
     | IdentifierPattern of string * (Type option)
     | ExpressionPattern of Expression
     | TuplePattern of (Pattern list) * (Type option)
+    | EnumCasePattern of (Type option) * string * ((Pattern list) option)
+    | ValueBindingPattern of Pattern
 
 

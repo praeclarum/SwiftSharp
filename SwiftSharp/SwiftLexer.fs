@@ -27,7 +27,10 @@ type Position =
     member this.Eof = this.Index >= this.Document.Body.Length
     member this.PreviousText =
         let n = Math.Min (this.Index, 32)
-        this.Document.Body.Substring (this.Index - n, n + 1)
+        let body = this.Document.Body
+        let e = if this.Index < body.Length then this.Index + 1 else body.Length
+        let b = if e - 32 >= 0 then e - 32 else 0
+        body.Substring (b, e - b)
 
 let rec ws (i : Position) : Position =
     if i.Eof then i
