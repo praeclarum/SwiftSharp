@@ -3,6 +3,7 @@
 open System
 open NUnit.Framework
 
+open SwiftSharp
 open SwiftSharp.SwiftParser
 
 [<TestFixture>]
