@@ -1,15 +1,15 @@
 ﻿namespace SwiftSharp
 
 
-type Type =
-    | ArrayType of Type
-    | DictionaryType of Type * Type
-    | FunctionType of Type * Type
-    | IdentifierType of string * (Type list)
-    | ImplicitlyUnwrappedOptionalType of Type
-    | NestedType of Type list
-    | OptionalType of Type
-    | TupleType of (Type list) * bool
+type SwiftType =
+    | ArrayType of SwiftType
+    | DictionaryType of SwiftType * SwiftType
+    | FunctionType of SwiftType * SwiftType
+    | IdentifierType of string * (SwiftType list)
+    | ImplicitlyUnwrappedOptionalType of SwiftType
+    | NestedType of SwiftType list
+    | OptionalType of SwiftType
+    | TupleType of (SwiftType list) * bool
 
 type Attr = string * string
 
@@ -35,22 +35,22 @@ and SwitchCase = (Pattern list) * (Statement list)
 
 and GenericParameter = string
 
-and Parameter = (Attr list) * (string option) * string * (Type option) * (Expression option)
+and Parameter = (Attr list) * (string option) * string * (SwiftType option) * (Expression option)
 
 and Declaration =
     | ImportDeclaration of string list
-    | GetterSetterVariableDeclaration of (DeclarationSpecifier list) * (string * Type) * ((Statement list) * ((Statement list) option))
+    | GetterSetterVariableDeclaration of (DeclarationSpecifier list) * (string * SwiftType) * ((Statement list) * ((Statement list) option))
     | PatternVariableDeclaration of (DeclarationSpecifier list) * ((Pattern * (Expression option)) list)
     | ConstantDeclaration of (Pattern * (Expression option)) list
-    | TypealiasDeclaration of string * Type
-    | StructDeclaration of string * (Type list) * (Declaration list)
-    | ClassDeclaration of string * (Type list) * (Declaration list)
+    | TypealiasDeclaration of string * SwiftType
+    | StructDeclaration of string * (SwiftType list) * (Declaration list)
+    | ClassDeclaration of string * (SwiftType list) * (Declaration list)
     | InitializerDeclaration of (Parameter list) * (Statement list)
     | FunctionDeclaration of (DeclarationSpecifier list) * string * ((Parameter list) list) * (FunctionResult option) * (Statement list)
-    | ExtensionDeclaration of string * Type * ((Type list) option) * (Declaration list)
-    | ProtocolDeclaration of string * string * ((Type list) option) * (Declaration list)
-    | RawValueEnumDeclaration of string * (Type list) * ((string list) list)
-    | UnionEnumDeclaration of string * ((GenericParameter list) option) * ((Type list) option) * (((string * (Type option)) list) list)
+    | ExtensionDeclaration of string * SwiftType * ((SwiftType list) option) * (Declaration list)
+    | ProtocolDeclaration of string * string * ((SwiftType list) option) * (Declaration list)
+    | RawValueEnumDeclaration of string * (SwiftType list) * ((string list) list)
+    | UnionEnumDeclaration of string * ((GenericParameter list) option) * ((SwiftType list) option) * (((string * (SwiftType option)) list) list)
 
 and Argument = (string option) * Expression
 
@@ -69,19 +69,19 @@ and Expression =
     | TupleExpr of ((string option) * Expression) list
     | Subscript of Expression * (Expression list)
 
-and FunctionResult = ((Attr list) * Type)
+and FunctionResult = ((Attr list) * SwiftType)
 
 and Binary =
-    | AsCastBinary of Type
-    | AsOptionalCastBinary of Type
+    | AsCastBinary of SwiftType
+    | AsOptionalCastBinary of SwiftType
     | TernaryConditionalBinary of Expression * Expression
     | OpBinary of string * Expression
 
 and Pattern =
-    | EnumCasePattern of (Type option) * string * ((Pattern list) option)
+    | EnumCasePattern of (SwiftType option) * string * ((Pattern list) option)
     | ExpressionPattern of Expression
-    | IdentifierPattern of string * (Type option)
-    | TuplePattern of (Pattern list) * (Type option)
+    | IdentifierPattern of string * (SwiftType option)
+    | TuplePattern of (Pattern list) * (SwiftType option)
     | ValueBindingPattern of Pattern
 
 
