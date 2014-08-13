@@ -2,8 +2,6 @@
 
 
 type SwiftType =
-    | ArrayType of SwiftType
-    | DictionaryType of SwiftType * SwiftType
     | FunctionType of SwiftType * SwiftType
     | IdentifierType of string * (SwiftType list)
     | ImplicitlyUnwrappedOptionalType of SwiftType
@@ -20,16 +18,16 @@ type DeclarationSpecifier =
     | Private
 
 type Statement =
-    | ExpressionStatement of Expression
     | DeclarationStatement of Declaration
-    | SwitchStatement of Expression * (SwitchCase list)
+    | ExpressionStatement of Expression
     | ForInStatement of Pattern * Expression * (Statement list)
     | IfStatement of IfCondition * (Statement list) * ((Statement list) option)
     | ReturnStatement of Expression option
+    | SwitchStatement of Expression * (SwitchCase list)
 
 and IfCondition =
-    | ExpressionIfCondition of Expression
     | DeclarationIfCondition of Declaration
+    | ExpressionIfCondition of Expression
 
 and SwitchCase = (Pattern list) * (Statement list)
 

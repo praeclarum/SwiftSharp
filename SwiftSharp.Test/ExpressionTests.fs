@@ -17,7 +17,7 @@ type ExpressionTests () =
 
     [<Test>]
     member x.ArrayLiteral() =
-        let ast, e = parseCode """
+        let ast = parseCode """
             [a]
 """
         let s = (sprintf "%A" ast)
@@ -27,7 +27,7 @@ type ExpressionTests () =
 
     [<Test>]
     member x.DictionaryLiteral() =
-        let ast, e = parseCode """
+        let ast = parseCode """
             [a: b]
 """
         let s = (sprintf "%A" ast)
@@ -37,7 +37,7 @@ type ExpressionTests () =
 
     [<Test>]
     member x.AsOptional() =
-        let ast, e = parseCode """
+        let ast = parseCode """
             jsonResult as? String
 """
         let s = (sprintf "%A" ast)
@@ -47,7 +47,7 @@ type ExpressionTests () =
 
     [<Test>]
     member x.TernaryConditional() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 a ? b : c
 """
         let s = (sprintf "%A" ast)
@@ -57,7 +57,7 @@ a ? b : c
 
     [<Test>]
     member x.Subscript() =
-        let ast, e = parseCode """
+        let ast = parseCode """
         rows[0]
 """
         let s = (sprintf "%A" ast)
@@ -67,7 +67,7 @@ a ? b : c
 
     [<Test>]
     member x.EnumCtor() =
-        let ast, e = parseCode """
+        let ast = parseCode """
         .Row (0)
 """
         let s = (sprintf "%A" ast)
@@ -78,7 +78,7 @@ a ? b : c
 
     [<Test>]
     member x.Funcall() =
-        let ast, e = parseCode "f(x)"
+        let ast = parseCode "f(x)"
         let s = (sprintf "%A" ast)
         match ast with
         | [ExpressionStatement (Funcall _)] -> ()
@@ -86,7 +86,7 @@ a ? b : c
 
     [<Test>]
     member x.ClosureExpression() =
-        let ast, e = parseCode """
+        let ast = parseCode """
             session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
              2 + 2
                 })
@@ -98,7 +98,7 @@ a ? b : c
 
     [<Test>]
     member x.OptionalChaining() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 self.delegate?.didCompleteWithError(error.localizedDescription)
 """
         let s = (sprintf "%A" ast)
@@ -109,7 +109,7 @@ self.delegate?.didCompleteWithError(error.localizedDescription)
 
     [<Test>]
     member x.AsCast() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 JSONObjectWithData as NSDictionary
 """
         let s = (sprintf "%A" ast)
@@ -119,7 +119,7 @@ JSONObjectWithData as NSDictionary
 
     [<Test>]
     member x.InOut() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 &err
 """
         let s = (sprintf "%A" ast)
@@ -130,7 +130,7 @@ JSONObjectWithData as NSDictionary
 
     [<Test>]
     member x.Tuple1Expr() =
-        let ast, e = parseCode """
+        let ast = parseCode """
                 (5)
 """
         let s = (sprintf "%A" ast)
@@ -140,7 +140,7 @@ JSONObjectWithData as NSDictionary
 
     [<Test>]
     member x.BinaryOperators() =
-        let ast, e = parseCode """
+        let ast = parseCode """
             switch APIHost {
             case "http://api.dol.gov":
                 queryString += "&$"
@@ -153,7 +153,7 @@ JSONObjectWithData as NSDictionary
 
     [<Test>]
     member x.SelfPropAssign() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 class GovDataRequest {   
     init(APIKey: String, APIHost: String, APIURL:String) {
         self.foo.APIKey = APIKey

@@ -10,7 +10,7 @@ type SwiftBookTests () =
 
     let parse code =
         match parseText code with
-        | Some (x, p) -> x
+        | Some x -> x
         | _ -> failwith "Parse didn't return anything"
 
         //#load "../SwiftSharp/SwiftParser.fs";;open SiftParser;;

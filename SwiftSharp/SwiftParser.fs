@@ -67,12 +67,12 @@ and (|Tuple_type|) p1 =
 
 and (|Array_type|) p1 =
     match ((br "[") &&& (|Type|) &&& (br "]")) p1 with
-    | Some (((v1, v2), v3), p4) -> Some (ArrayType v2, p4)
+    | Some (((v1, v2), v3), p4) -> Some (IdentifierType ("Array", [v2]), p4)
     | _ -> None
 
 and (|Dictionary_type|) p1 =
     match ((br "[") &&& (|Type|) &&& (br ":") &&& (|Type|) &&& (br "]")) p1 with
-    | Some (((((v1, v2), v3), v4), v5), p4) -> Some (DictionaryType (v2, v4), p4)
+    | Some (((((v1, v2), v3), v4), v5), p6) -> Some (IdentifierType ("Dictionary", [v2; v4]), p6)
     | _ -> None
 
 and (|Type_identifier|) p1 =
@@ -834,7 +834,7 @@ and (|Initializer|) withTrailingClosure p1 =
 
 let parseDocument document =
     match Position.Beginning document |> ws with
-    | Statements (Some r) -> Some r
+    | Statements (Some (ss, p)) -> Some ss
     | _ -> None
 let parseFile path = parseDocument { Name = path; Body = System.IO.File.ReadAllText (path) }
 let parseText text = parseDocument { Name = "<text>"; Body = text }

@@ -15,8 +15,7 @@ type Config =
     {
         InputUrls: string list
         OutputPath: string
-//        CorlibPath: string
-//        ErrorOutput: System.IO.TextWriter
+        CorlibPath: string
     }
 
 type ClrType = IKVM.Reflection.Type
@@ -25,91 +24,116 @@ type Env (config) =
     let dir = System.IO.Path.GetDirectoryName (config.OutputPath)
     let name = new AssemblyName (System.IO.Path.GetFileNameWithoutExtension (config.OutputPath))
     let u = new Universe ()
-    let mscorlib = u.Load ("mscorlib")
-    let StringType = mscorlib.GetType ("System.String")
+    let mscorlib = u.Load (config.CorlibPath)
+    let stringType = mscorlib.GetType ("System.String")
+    let intType = mscorlib.GetType ("System.Int32")
     let voidType = mscorlib.GetType ("System.Void")
     let objectType = mscorlib.GetType ("System.Object")
     let asm = u.DefineDynamicAssembly (name, AssemblyBuilderAccess.Save, dir)
     let modl = asm.DefineDynamicModule (name.Name, config.OutputPath)
-    let mainType = modl.DefineType (name.Name + ".Globals", TypeAttributes.Public)
-    let mainMethod = mainType.DefineMethod ("Main", MethodAttributes.Public ||| MethodAttributes.Static ||| MethodAttributes.HideBySig)
 
     let knownTypes = new Dictionary<SwiftType, ClrType> ()
 
-    member this.VoidType = voidType
-
-    member this.DefineType name = 
-        let t = modl.DefineType (name, TypeAttributes.Public)
+    let learnType name t =
         knownTypes.[IdentifierType (name, [])] <- t
+
+    let defineType name = 
+        let t = modl.DefineType (name, TypeAttributes.Public)
+        learnType name t
         t
 
-    member this.GetClrType t =
-        match t with
-        | IdentifierType ("String", []) -> StringType
-        | IdentifierType ("Void", []) -> voidType
-        | _ ->
-            match knownTypes.TryGetValue (t) with
-            | (true, y) -> y
-            | _ -> objectType
-//            | _ -> failwith (sprintf "LookupType failed for %A" t)
+    do
+        learnType "AnyObject" objectType
+        learnType "Int" intType
+        learnType "String" stringType
+        learnType "Void" voidType
+        learnType "Dictionary" (mscorlib.GetType ("System.Collections.Generic.Dictionary`2"))
+        learnType "List" (mscorlib.GetType ("System.Collections.Generic.List`1"))
 
-    member this.GetClrTypeOrVoid t =
-        match t with
+    let mainType = defineType (name.Name + "Globals")
+    let mainMethod = mainType.DefineMethod ("Main", MethodAttributes.Public ||| MethodAttributes.Static ||| MethodAttributes.HideBySig)
+
+    member this.VoidType = voidType
+
+    member this.DefinedTypes = knownTypes.Values |> Seq.choose (function | :? TypeBuilder as t -> Some t | _ -> None) |> Seq.toList
+    member this.MainType = mainType
+
+    member this.DefineType name = defineType name
+
+    member this.GetClrType swiftType =
+        match knownTypes.TryGetValue (swiftType) with
+        | (true, t) -> t
+        | _ ->
+            match swiftType with
+            | IdentifierType (name, generics) when generics.Length > 0 ->
+                // Can we get the generic version?
+                match knownTypes.TryGetValue (IdentifierType (name, [])) with
+                | (true, g) ->
+                    // Great, let's try to make a concrete one
+                    let targs = generics |> Seq.map this.GetClrType |> Seq.toArray
+                    let t = g.MakeGenericType (targs)
+                    knownTypes.[swiftType] <- t
+                    t
+                | _ -> failwith (sprintf "GetClrType failed for %A" swiftType)
+            | _ -> failwith (sprintf "GetClrType failed for %A" swiftType)
+
+    member this.GetClrTypeOrVoid optionalSwiftType =
+        match optionalSwiftType with
         | Some x -> this.GetClrType x
         | _ -> voidType
 
 
-
-let rec compileFunc func (typ : TypeBuilder) (env : Env) =
-    match func with
-    | FunctionDeclaration (dspecs, name : string, parameters: Parameter list list, res, body) ->
-        if parameters.Length > 1 then failwith "Curried function declarations not supported"
-        let returnType =
-            match res with
-            | Some (resAttrs, resType) -> env.GetClrType (resType)
-            | None -> env.VoidType
-        let paramTypes = parameters.Head |> Seq.map (fun (a,e,l,t,d) -> env.GetClrTypeOrVoid (t)) |> Seq.toArray
-        let attribs = MethodAttributes.Public
-        let builder = typ.DefineMethod (name, attribs, returnType, paramTypes)
-        let ps = parameters.Head |> List.mapi (fun i p -> builder.DefineParameter (i + 1, ParameterAttributes.None, "args"))
-        let il = builder.GetILGenerator ()
-        builder
-    | _ -> failwith (sprintf "compileFunc called with %A" func)
+let declareMember (env : Env) (typ : TypeBuilder) decl =
+    match decl with
+        | FunctionDeclaration (dspecs, name : string, parameters: Parameter list list, res, body) ->
+            if parameters.Length > 1 then failwith "Curried function declarations not supported"
+            let returnType =
+                match res with
+                | Some (resAttrs, resType) -> env.GetClrType (resType)
+                | None -> env.VoidType
+            let paramTypes = parameters.Head |> Seq.map (fun (a,e,l,t,d) -> env.GetClrTypeOrVoid (t)) |> Seq.toArray
+            let attribs = MethodAttributes.Public
+            let builder = typ.DefineMethod (name, attribs, returnType, paramTypes)
+            let ps = parameters.Head |> List.mapi (fun i p -> builder.DefineParameter (i + 1, ParameterAttributes.None, "args"))
+            Some (fun () -> ())
+        | _ -> None
 
 
-and compileClass cls (env : Env) =
-    match cls with
-    | ClassDeclaration (name, inheritance, decls) ->
-        let typ = env.DefineType name
-        let methods =
-            decls
-            |> Seq.choose (function
-                | FunctionDeclaration _ as d -> Some (compileFunc d typ env)
-                | _ -> None)
-            |> Seq.toArray        
-        typ
-    | _ -> failwith (sprintf "compileClass called with %A" cls)
+let declareType (env : Env) stmt =
+    match stmt with
+    | DeclarationStatement (ClassDeclaration (name, inheritance, decls) as d) -> Some (env.DefineType name, decls)
+    | DeclarationStatement (UnionEnumDeclaration (name, generics, inheritance, cases) as d) -> Some (env.DefineType name, [])
+    | DeclarationStatement (TypealiasDeclaration (name, typ) as d) -> Some (env.DefineType name, [])
+    | _ -> None
 
 
+let compile config =
+    let env = new Env (config)
 
-let compileTypes env stmts =
-    stmts
-    |> List.choose (function
-        | DeclarationStatement (ClassDeclaration _ as d) -> Some (compileClass d env)
-        | _ -> None)
+    // Parse
+    let stmts = config.InputUrls |> List.choose parseFile |> List.collect (fun x -> x)
+
+    // First pass: Declare the types
+    let typeDecls = stmts |> List.choose (declareType env)
+
+    // Second pass: Declare members
+    let memberCompilers = typeDecls |> List.collect (fun (typ, decls) -> (decls |> List.choose (declareMember env typ)))
+
+    // Third pass: Compile code
+    for mc in memberCompilers do mc ()
+
+    // Hey, there they are
+    env.MainType :: env.DefinedTypes
+
 
 let compileFile file =
     let config =
         {
             InputUrls = [file]
             OutputPath = System.IO.Path.ChangeExtension (file, ".dll")
+            CorlibPath = "mscorlib"
         }
-    let env = new Env (config)
-    match parseFile file with
-    | Some (ss, e) -> compileTypes env ss
-    | None -> failwith "parse failed"
-
-
+    compile config
 
 
 //compileFile "/Users/fak/Dropbox/Projects/SwiftSharp/SwiftSharp.Test/TestFiles/SODAClient.swift"

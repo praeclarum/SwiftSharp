@@ -17,7 +17,7 @@ type StatementTests () =
 
     [<Test>]
     member x.IfDecl() =
-        let ast, e = parseCode """
+        let ast = parseCode """
             if let error = jsonError {
                 return
             }
@@ -29,7 +29,7 @@ type StatementTests () =
 
     [<Test>]
     member x.ReturnExpr() =
-        let ast, e = parseCode """
+        let ast = parseCode """
         return s
 """
         let s = (sprintf "%A" ast)
@@ -39,7 +39,7 @@ type StatementTests () =
 
     [<Test>]
     member x.Return() =
-        let ast, e = parseCode """
+        let ast = parseCode """
         return
 """
         let s = (sprintf "%A" ast)
@@ -49,7 +49,7 @@ type StatementTests () =
 
     [<Test>]
     member x.Private() =
-        let ast, e = parseCode """
+        let ast = parseCode """
     private class func paramsToQueryString (params: NSDictionary) -> String {
     }
 """
@@ -60,7 +60,7 @@ type StatementTests () =
 
     [<Test>]
     member x.DefaultArguments() =
-        let ast, e = parseCode """
+        let ast = parseCode """
     func queryDataset(dataset: String, limit: Int = SODADefaultLimit, offset: Int = 0, completionHandler: SODADatasetCompletionHandler) {
     }
 """
@@ -71,7 +71,7 @@ type StatementTests () =
 
     [<Test>]
     member x.SwitchUnion() =
-        let ast, e = parseCode """
+        let ast = parseCode """
             switch res {
             case .Dataset (let rows):
                 completionHandler(.Row (rows[0]))
@@ -86,7 +86,7 @@ type StatementTests () =
 
     [<Test>]
     member x.FuncallWithParamCont() =
-        let ast, e = parseCode """
+        let ast = parseCode """
         getResource(params: ps, completionHandler: { res in
 })
 """
@@ -97,7 +97,7 @@ type StatementTests () =
 
     [<Test>]
     member x.FuncallWithEndCont() =
-        let ast, e = parseCode """
+        let ast = parseCode """
         getResource(params: ps) { res in
 }
 """
@@ -109,7 +109,7 @@ type StatementTests () =
 
     [<Test>]
     member x.UnionEnum() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 enum SODADatasetResult {
     case Dataset ([[String: AnyObject]])
     case Error (NSError)
@@ -121,7 +121,7 @@ enum SODADatasetResult {
 
     [<Test>]
     member x.NewlineAtEndOfFuncDeclWithType() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 class NSString {
     func characterAtIndex(index: Int) -> unichar
 }
@@ -130,7 +130,7 @@ class NSString {
 
     [<Test>]
     member x.DotDotDotParams() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 extension NSString {
     convenience init(format: NSString, _ args: CVarArg...)
 }"""
@@ -139,7 +139,7 @@ extension NSString {
 
     [<Test>]
     member x.NewlineAtEndOfFuncDecl() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 extension NSString {    
     func getCharacters(buffer: UnsafePointer<unichar>, range aRange: NSRange)
 }
@@ -149,7 +149,7 @@ extension NSString {
 
     [<Test>]
     member x.ArrayType() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 extension NSString {
     func componentsSeparatedByString(separator: String!) -> [AnyObject]!
 }   
@@ -159,7 +159,7 @@ extension NSString {
 
     [<Test>]
     member x.FunctionType() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 extension NSString {
     func enumerateLinesUsingBlock(block: ((String!, UnsafePointer<ObjCBool>) -> Void)!)
 }   
@@ -170,7 +170,7 @@ extension NSString {
 
     [<Test>]
     member x.Switch() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 class GovDataRequest {      
     func callAPIMethod () {
         switch APIHost {
@@ -187,7 +187,7 @@ class GovDataRequest {
 
     [<Test>]
     member x.HashParam() =
-        let ast, e = parseCode """
+        let ast = parseCode """
 class GovDataRequest {   
     func callAPIMethod (#method: String, arguments: Dictionary<String,String>) {
     }
@@ -199,7 +199,7 @@ class GovDataRequest {
 
     [<Test>]
     member x.ForIn() =
-        let ast, e = parseCode """
+        let ast = parseCode """
         for (argKey, argValue) in arguments {
             x = 42
         }
@@ -211,7 +211,7 @@ class GovDataRequest {
 
     [<Test>]
     member x.IfWithElse() =
-        let ast, e = parseCode """
+        let ast = parseCode """
                 if countElements(queryString) == 0 {
                     queryString += "aaaa"
                 } else {
