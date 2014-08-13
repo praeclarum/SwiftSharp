@@ -1,13 +1,7 @@
 ﻿namespace SwiftSharp
 
-
-type SwiftType =
-    | FunctionType of SwiftType * SwiftType
-    | IdentifierType of string * (SwiftType list)
-    | ImplicitlyUnwrappedOptionalType of SwiftType
-    | NestedType of SwiftType list
-    | OptionalType of SwiftType
-    | TupleType of (SwiftType list) * bool
+type SwiftType = SwiftType of (SwiftTypeElement list)
+and SwiftTypeElement = string * (SwiftType list)
 
 type Attr = string * string
 
@@ -42,13 +36,13 @@ and Declaration =
     | ConstantDeclaration of (Pattern * (Expression option)) list
     | TypealiasDeclaration of string * SwiftType
     | StructDeclaration of string * (SwiftType list) * (Declaration list)
-    | ClassDeclaration of string * (SwiftType list) * (Declaration list)
+    | ClassDeclaration of string * (GenericParameter list) * (SwiftType list) * (Declaration list)
     | InitializerDeclaration of (Parameter list) * (Statement list)
     | FunctionDeclaration of (DeclarationSpecifier list) * string * ((Parameter list) list) * (FunctionResult option) * (Statement list)
     | ExtensionDeclaration of string * SwiftType * ((SwiftType list) option) * (Declaration list)
     | ProtocolDeclaration of string * string * ((SwiftType list) option) * (Declaration list)
     | RawValueEnumDeclaration of string * (SwiftType list) * ((string list) list)
-    | UnionEnumDeclaration of string * ((GenericParameter list) option) * ((SwiftType list) option) * (((string * (SwiftType option)) list) list)
+    | UnionEnumDeclaration of string * (GenericParameter list) * ((SwiftType list) option) * (((string * (SwiftType option)) list) list)
 
 and Argument = (string option) * Expression
 

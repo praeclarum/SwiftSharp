@@ -5,7 +5,10 @@ open System.Text
 
 open SwiftLexer
 
-let rec (|Type|) i =
+let makeGenericType name genericParams =
+    SwiftType [(name, genericParams)]
+
+let rec (|Type|) p1 =
     let matchType = function
         | Array_type (Some r) -> Some r
         | Dictionary_type (Some r) -> Some r
@@ -14,14 +17,14 @@ let rec (|Type|) i =
         | _ -> None
 
     // Look for '!' or '?'
-    match matchType i with
+    match matchType p1 with
     | Some (v1, p2) ->
         match ws p2 with
-        | Token "!" (Some p3) -> Some (ImplicitlyUnwrappedOptionalType v1, p3)
-        | Token "?" (Some p3) -> Some (OptionalType v1, p3)
+        | Token "!" (Some p3) -> Some (SwiftType [("ImplicitelyUnwrappedOptional", [v1])], p3)
+        | Token "?" (Some p3) -> Some (SwiftType [("Optional", [v1])], p3)
         | Token "->" (Some p3) ->
             match ws p3 with
-            | Type (Some (v3, p4)) -> Some (FunctionType (v1, v3), p4)
+            | Type (Some (v3, p4)) -> Some (SwiftType [("Func", [v1; v3])], p4)
             | _ -> None
         | _ -> Some (v1, p2)
     | _ -> None
@@ -47,6 +50,11 @@ and (|Generic_parameter_clause|) p1 =
     | Some (((v1, v2), v3), p4) -> Some (v2, p4)
     | _ -> None
 
+and (|Generic_parameter_clause_opt|) p1 =
+    match p1 with
+    | Generic_parameter_clause (Some r) -> Some r
+    | _ -> Some ([], p1)
+
 and (|Tuple_type_element|) = (|Type|)
 
 and (|Tuple_type_element_list|) = oneOrMoreSep (|Tuple_type_element|) ","
@@ -61,18 +69,18 @@ and (|Tuple_type_body|) p1 =
 
 and (|Tuple_type|) p1 =
     match ((br "(") &&& (opt (|Tuple_type_body|)) &&& (br ")")) p1 with
-    | Some (((v1, Some v2), v3), p4) -> Some (TupleType v2, p4)
-    | Some (((v1, None), v3), p4) -> Some (TupleType ([], false), p4)
+    | Some (((v1, Some (v2, infinite)), v3), p4) -> Some (SwiftType [("Tuple", v2)], p4)
+    | Some (((v1, None), v3), p4) -> Some (SwiftType [("Tuple", [])], p4)
     | _ -> None
 
 and (|Array_type|) p1 =
     match ((br "[") &&& (|Type|) &&& (br "]")) p1 with
-    | Some (((v1, v2), v3), p4) -> Some (IdentifierType ("Array", [v2]), p4)
+    | Some (((v1, v2), v3), p4) -> Some (SwiftType [("Array", [v2])], p4)
     | _ -> None
 
 and (|Dictionary_type|) p1 =
     match ((br "[") &&& (|Type|) &&& (br ":") &&& (|Type|) &&& (br "]")) p1 with
-    | Some (((((v1, v2), v3), v4), v5), p6) -> Some (IdentifierType ("Dictionary", [v2; v4]), p6)
+    | Some (((((v1, v2), v3), v4), v5), p6) -> Some (SwiftType [("Dictionary", [v2; v4])], p6)
     | _ -> None
 
 and (|Type_identifier|) p1 =
@@ -81,8 +89,8 @@ and (|Type_identifier|) p1 =
         | Type_name (Some (v1, p2)) ->
             match ws p2 with
             | Generic_argument_clause (Some (v2, p3)) ->
-                Some (IdentifierType (v1, v2), p3)
-            | _ -> Some (IdentifierType (v1, []), p2)
+                Some ((v1, v2), p3)
+            | _ -> Some ((v1, []), p2)
         | _ -> None
 
     match justId with
@@ -90,12 +98,10 @@ and (|Type_identifier|) p1 =
         match ws p3 with
         | Token "." (Some p4) ->
             match ws p4 with
-            | Type_identifier (Some (NestedType v4, p5)) ->
-                Some (NestedType (idt :: v4), p5)
-            | Type_identifier (Some (IdentifierType (v4, v5), p6)) ->
-                Some (NestedType (idt :: [IdentifierType (v4, v5)]), p6)
-            | _ -> Some (idt, p3)
-        | _ -> Some (idt, p3)
+            | Type_identifier (Some (SwiftType v4, p5)) ->
+                Some (SwiftType (idt :: v4), p5)
+            | _ -> Some (SwiftType [idt], p3)
+        | _ -> Some (SwiftType [idt], p3)
     | _ -> None
 
 
@@ -507,7 +513,7 @@ and (|Union_style_enum_member|) = (|Union_style_enum_case_clause|)
 and (|Union_style_enum_members|) = zeroOrMore (|Union_style_enum_member|)
 
 and (|Union_style_enum|) p1 =
-    match ((kwd "enum") &&& (|Enum_name|) &&& (opt (|Generic_parameter_clause|)) &&& (opt (|Type_inheritance_clause|)) &&& (br "{") &&& (|Union_style_enum_members|) &&& (br "}")) p1 with
+    match ((kwd "enum") &&& (|Enum_name|) &&& (|Generic_parameter_clause_opt|) &&& (opt (|Type_inheritance_clause|)) &&& (br "{") &&& (|Union_style_enum_members|) &&& (br "}")) p1 with
     | Some (((((((v1, v2), v3), v4), v5), v6), v7), p8) -> Some (UnionEnumDeclaration (v2, v3, v4, v6), p8)
     | _ -> None
 
@@ -621,9 +627,9 @@ and (|Class_declaration|) i =
             match ws p3 with
             | Type_inheritance_clause (Some (v3, p4)) ->
                 match ws p4 with
-                | Class_or_struct_body (Some (v4, p5)) -> Some (ClassDeclaration (v2, v3, v4), p5)
+                | Class_or_struct_body (Some (v4, p5)) -> Some (ClassDeclaration (v2, [], v3, v4), p5)
                 | _ -> None
-            | Class_or_struct_body (Some (v3, p4)) -> Some (ClassDeclaration (v2, [], v3), p4)
+            | Class_or_struct_body (Some (v3, p4)) -> Some (ClassDeclaration (v2, [], [], v3), p4)
             | _ -> None
         | _ -> None
     | _ -> None
