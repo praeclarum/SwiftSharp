@@ -109,14 +109,14 @@ type TranslationUnit (env : Env, stmts : Statement list) =
         | _ -> env.VoidType
 
 
-let declareMember (tu : TranslationUnit) (typ : DefinedClrType) decl =
+let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
     match decl with
         | FunctionDeclaration (dspecs, name : string, parameters: Parameter list list, res, body) ->
             if parameters.Length > 1 then failwith "Curried function declarations not supported"
             let returnType =
                 match res with
                 | Some (resAttrs, resType) -> tu.GetClrType (resType)
-                | None -> tu.GetClrTypeOrVoid (None)
+                | None -> tu.Env.VoidType
             let paramTypes =
                 parameters.Head
                 |> Seq.map (function
@@ -148,15 +148,14 @@ let compile config =
     // First pass: Declare the types
     let typeDecls = tus |> List.map (fun x -> (x, x.Statements |> List.choose (declareType x)))
 
-    // Second pass: Declare members
-    let memberCompilers =
-        typeDecls
-        |> List.collect (fun (tu, tdecls) ->
+    // Second pass: Declare methods - these state their types explicitely
+    let methodCompilers =
+        typeDecls |> List.collect (fun (tu, tdecls) ->
             tdecls |> List.collect (fun (typ, decls) ->
-                (decls |> List.choose (declareMember tu typ))))
+                decls |> List.choose (declareMethod tu typ)))
 
-    // Third pass: Compile code
-    for mc in memberCompilers do mc ()
+    // Third pass: Compile code, finally
+    for mc in methodCompilers do mc ()
 
     // Hey, there they are
     env.DefinedTypes.Values |> Seq.map (fun (n,g) -> n) |> Seq.toList
