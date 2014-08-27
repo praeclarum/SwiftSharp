@@ -29,6 +29,8 @@ and GenericParameter = string
 
 and Parameter = (Attr list) * (string option) * string * (SwiftType option) * (Expression option)
 
+and UnionEnumCase = (string * (SwiftType option)) list
+
 and Declaration =
     | ImportDeclaration of string list
     | GetterSetterVariableDeclaration of (DeclarationSpecifier list) * (string * SwiftType) * ((Statement list) * ((Statement list) option))
@@ -42,7 +44,7 @@ and Declaration =
     | ExtensionDeclaration of string * SwiftType * ((SwiftType list) option) * (Declaration list)
     | ProtocolDeclaration of string * string * ((SwiftType list) option) * (Declaration list)
     | RawValueEnumDeclaration of string * (SwiftType list) * ((string list) list)
-    | UnionEnumDeclaration of string * (GenericParameter list) * ((SwiftType list) option) * (((string * (SwiftType option)) list) list)
+    | UnionEnumDeclaration of string * (GenericParameter list) * ((SwiftType list) option) * (UnionEnumCase list)
 
 and Argument = (string option) * Expression
 

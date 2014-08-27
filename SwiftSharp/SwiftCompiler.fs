@@ -107,8 +107,8 @@ type Env (config) =
 
     member this.DefinedTypes = definedTypes
 
-    member this.DefineType name generics =
-        let t = modl.DefineType (defaultNamespace + "." + name, TypeAttributes.Public)
+    member this.DefineType name generics attribs (parent : ClrType) =
+        let t = modl.DefineType (defaultNamespace + "." + name, attribs, parent)
         let g = 
             match generics with
             | [] -> [||]
@@ -151,7 +151,7 @@ type TranslationUnit (env : Env, stmts : Statement list) =
                 | (true, t) -> Some t
                 | _ -> None
 
-    member this.DefineType name generics = env.DefineType name generics
+    member this.DefineType = env.DefineType
 
     member this.GetClrType (SwiftType es) =
         // TODO: This ignores nested types
@@ -230,12 +230,26 @@ let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
 
 type DeclaredType = DefinedClrType * (Declaration list)
 
-let declareType (tu : TranslationUnit) stmt : DeclaredType option =
+let declareType (tu : TranslationUnit) stmt : DeclaredType list =
     match stmt with
-    | DeclarationStatement (ClassDeclaration (name, generics, inheritance, decls) as d) -> Some (tu.DefineType name generics, decls)
-    | DeclarationStatement (UnionEnumDeclaration (name, generics, inheritance, cases) as d) -> Some (tu.DefineType name generics, [])
-    | DeclarationStatement (TypealiasDeclaration (name, typ) as d) -> Some (tu.DefineType name [], [])
-    | _ -> None
+    | DeclarationStatement (ClassDeclaration (name, generics, inheritance, decls) as d) -> [(tu.DefineType name generics TypeAttributes.Public null, decls)]
+    | DeclarationStatement (UnionEnumDeclaration (name, generics, inheritance, cases) as d) ->
+        let tb, gbs = tu.DefineType name generics (TypeAttributes.Public ||| TypeAttributes.Abstract) null
+        let cbs : DeclaredType list = cases |> List.collect (fun ccases ->
+            ccases |> List.map (fun (cn, oct) ->
+                let tattribs = TypeAttributes.Class ||| TypeAttributes.Public
+                let fattribs = FieldAttributes.Public
+                let cb, cgbs = tu.DefineType (name + cn) [] tattribs (tb :> ClrType)
+                match oct with
+                | Some (SwiftType [("Tuple", ts)]) ->
+                    ts |> List.iteri (fun i tt ->
+                        let fb = cb.DefineField (sprintf "Item%d" (i+1), tu.GetClrType (tt), fattribs)
+                        ())
+                | _ -> ()
+                ((cb, cgbs), [])))
+        ((tb, gbs), []) :: cbs
+    | DeclarationStatement (TypealiasDeclaration (name, typ) as d) -> [(tu.DefineType name [] TypeAttributes.Public null, [])]
+    | _ -> []
 
 
 let compile config =
@@ -245,7 +259,7 @@ let compile config =
     let tus = config.InputUrls |> List.choose parseFile |> List.map (fun x -> new TranslationUnit (env, x))
 
     // First pass: Declare the types
-    let typeDecls = tus |> List.map (fun x -> (x, x.Statements |> List.choose (declareType x)))
+    let typeDecls = tus |> List.map (fun x -> (x, x.Statements |> List.collect (declareType x)))
 
     // Second pass: Declare methods - these state their types explicitely
     let methodCompilers =
@@ -264,7 +278,10 @@ let compile config =
     for mc in methodCompilers do mc ()
 
     // Save it
-    let types = env.DefinedTypes.Values |> Seq.map (fun x -> (fst x).CreateType ()) |> Seq.toArray
+    let types =
+        env.DefinedTypes.Values
+        |> Seq.map (fun (tb, gbs) -> if tb.IsCreated () then tb :> ClrType else tb.CreateType ())
+        |> Seq.toArray
     env.Assembly.Save (config.OutputPath)
     types
 
