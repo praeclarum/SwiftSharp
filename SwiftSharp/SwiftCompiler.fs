@@ -43,6 +43,7 @@ type TypeMap = Dictionary<TypeId, ClrType>
 type Env (config) =
     let dir = System.IO.Path.GetDirectoryName (config.OutputPath)
     let name = new AssemblyName (System.IO.Path.GetFileNameWithoutExtension (config.OutputPath))
+    let defaultNamespace = name.Name
     let u = new Universe ()
     let refs = config.References |> List.map u.LoadFile
     let mscorlib = refs |> List.find (fun x -> x.GetType ("System.String") <> null)
@@ -58,6 +59,10 @@ type Env (config) =
     let objectType = mscorlib.GetType ("System.Object")
     let asm = u.DefineDynamicAssembly (name, AssemblyBuilderAccess.Save, dir)
     let modl = asm.DefineDynamicModule (name.Name, config.OutputPath)
+    do
+        refs
+        |> List.iter (fun a ->
+            modl.__AddAssemblyReference (a.GetName (), a))
 
     //
     // Read the namespaces
@@ -93,6 +98,9 @@ type Env (config) =
         learnType ("Dictionary", 2) (mscorlib.GetType ("System.Collections.Generic.Dictionary`2"))
         learnType ("Array", 1) (mscorlib.GetType ("System.Collections.Generic.List`1"))
 
+
+    member this.Assembly = asm
+
     member this.CoreTypes = coreTypes
     member this.VoidType = voidType
     member this.ObjectType = objectType
@@ -100,7 +108,7 @@ type Env (config) =
     member this.DefinedTypes = definedTypes
 
     member this.DefineType name generics =
-        let t = modl.DefineType (name, TypeAttributes.Public)
+        let t = modl.DefineType (defaultNamespace + "." + name, TypeAttributes.Public)
         let g = 
             match generics with
             | [] -> [||]
@@ -181,7 +189,7 @@ let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
                 |> Seq.toArray
             let attribs = MethodAttributes.Public
             let builder = (fst typ).DefineMethod (name, attribs, returnType, paramTypes)
-            let ps = parameters.Head |> List.mapi (fun i p -> builder.DefineParameter (i + 1, ParameterAttributes.None, "args"))
+            let ps = parameters.Head |> List.mapi (fun i (_, _, ploc, _, _) -> builder.DefineParameter (i + 1, ParameterAttributes.None, ploc))
             Some (fun () -> ())
         | _ -> None
 
@@ -213,8 +221,12 @@ let compile config =
     // Third pass: Compile code, finally
     for mc in methodCompilers do mc ()
 
-    // Hey, there they are
-    env.DefinedTypes.Values |> Seq.map (fun (n,g) -> n) |> Seq.toList
+    // Save it
+    let types = env.DefinedTypes.Values |> Seq.map (fun x -> (fst x).CreateType ()) |> Seq.toArray
+
+    env.Assembly.Save (config.OutputPath)
+
+    types
 
 
 let compileFile file =

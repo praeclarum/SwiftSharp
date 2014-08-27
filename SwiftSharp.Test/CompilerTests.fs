@@ -1,6 +1,7 @@
 ﻿namespace SwiftSharp.Test
 
 open System
+open System.IO
 open NUnit.Framework
 
 open SwiftSharp
@@ -12,8 +13,8 @@ type CompilerTests () =
     let compileFile path =
         let config =
             {
-                InputUrls = ["TestFiles/" + path + ".swift"]
-                OutputPath = "TestFiles/" + path + ".dll"
+                InputUrls = [Path.GetFullPath ("TestFiles/" + path + ".swift")]
+                OutputPath = Path.GetFullPath ("TestFiles/" + path + ".dll")
                 References =
                     [
                         "/Developer/MonoTouch/usr/lib/mono/2.1/mscorlib.dll"
@@ -24,6 +25,6 @@ type CompilerTests () =
 
     [<Test>]
     member x.SODAClient() =
-        let r = compileFile "SODAClient"
-        let lastType = r |> List.rev |> List.head
+        let r = (compileFile "SODAClient")
+        let lastType = r.[r.Length - 1]
         Assert.AreEqual ("SODAClient", lastType.Name)
