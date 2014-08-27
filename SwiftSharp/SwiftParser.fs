@@ -24,6 +24,7 @@ let rec (|Type|) p1 =
         | Token "?" (Some p3) -> Some (SwiftType [("Optional", [v1])], p3)
         | Token "->" (Some p3) ->
             match ws p3 with
+            | Type (Some (SwiftType [("Void",[])], p4)) -> Some (SwiftType [("Action", [v1])], p4)
             | Type (Some (v3, p4)) -> Some (SwiftType [("Func", [v1; v3])], p4)
             | _ -> None
         | _ -> Some (v1, p2)

@@ -97,6 +97,7 @@ type Env (config) =
         learnType ("Void", 0) voidType
         learnType ("Dictionary", 2) (mscorlib.GetType ("System.Collections.Generic.Dictionary`2"))
         learnType ("Array", 1) (mscorlib.GetType ("System.Collections.Generic.List`1"))
+        learnType ("Action", 1) (mscorlib.GetType ("System.Action`1"))
 
 
     member this.Assembly = asm
@@ -128,6 +129,7 @@ type Env (config) =
 
 
 type TranslationUnit (env : Env, stmts : Statement list) =
+    let typeAliases = new TypeMap ()
     let importedTypes = new TypeMap ()
     do
         stmts
@@ -141,19 +143,27 @@ type TranslationUnit (env : Env, stmts : Statement list) =
     member this.Statements = stmts
 
     member private this.LookupKnownType id =
-        match env.DefinedTypes.TryGetValue id with
-        | (true, (t, g)) -> Some (t :> ClrType)
+        match typeAliases.TryGetValue id with
+        | (true, t) -> Some t
         | _ ->
-            match importedTypes.TryGetValue id with
-            | (true, t) -> Some t
+            match env.DefinedTypes.TryGetValue id with
+            | (true, (t, g)) -> Some (t :> ClrType)
             | _ ->
-                match env.CoreTypes.TryGetValue id with
+                match importedTypes.TryGetValue id with
                 | (true, t) -> Some t
-                | _ -> None
+                | _ ->
+                    match env.CoreTypes.TryGetValue id with
+                    | (true, t) -> Some t
+                    | _ -> None
 
     member this.DefineType = env.DefineType
 
-    member this.GetClrType (SwiftType es) =
+    member this.DefineTypeAlias (name, swiftType) =
+        let clrType = this.GetClrType (swiftType)
+        typeAliases.[[(name, 0)]] <- clrType
+        clrType
+
+    member this.GetClrType (SwiftType es : SwiftType) =
         // TODO: This ignores nested types
         let e = es.Head
         let id = e |> swiftToId
@@ -248,7 +258,9 @@ let declareType (tu : TranslationUnit) stmt : DeclaredType list =
                 | _ -> ()
                 ((cb, cgbs), [])))
         ((tb, gbs), []) :: cbs
-    | DeclarationStatement (TypealiasDeclaration (name, typ) as d) -> [(tu.DefineType name [] TypeAttributes.Public null, [])]
+    | DeclarationStatement (TypealiasDeclaration (name, typ)) ->
+        let ct = tu.DefineTypeAlias (name, typ)
+        []
     | _ -> []
 
 
