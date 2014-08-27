@@ -689,7 +689,7 @@ and (|Import_declaration|) = function
 
 and (|Import_path_identifier|) = (|Identifier|)
 
-and (|Import_path|) = oneOrMoreSep (|Import_path_identifier|) ","
+and (|Import_path|) = oneOrMoreSep (|Import_path_identifier|) "."
 
 and (|Constant_declaration_head|) = kwd "let"
 

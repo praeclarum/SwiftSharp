@@ -9,11 +9,21 @@ open SwiftSharp.SwiftCompiler
 [<TestFixture>]
 type CompilerTests () =
 
-    let compileFile path = compileFile ("TestFiles/" + path + ".swift")
+    let compileFile path =
+        let config =
+            {
+                InputUrls = ["TestFiles/" + path + ".swift"]
+                OutputPath = "TestFiles/" + path + ".dll"
+                References =
+                    [
+                        "/Developer/MonoTouch/usr/lib/mono/2.1/mscorlib.dll"
+                        "/Developer/MonoTouch/usr/lib/mono/2.1/monotouch.dll"
+                    ]
+            }
+        compile config
 
     [<Test>]
     member x.SODAClient() =
         let r = compileFile "SODAClient"
-        match r with
-        | [t] -> Assert.AreEqual ("SODAClient", t.Name)
-        | _ -> failwith "Expected 1 class"
+        let lastType = r |> List.rev |> List.head
+        Assert.AreEqual ("SODAClient", lastType.Name)
