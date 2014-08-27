@@ -118,7 +118,6 @@ type Env (config) =
         definedTypes.[id] <- d
         (t, g)
 
-
     member this.GetNamespace (parts) =
         match namespaces.TryGetValue (parts) with
         | (true, ns) -> ns
@@ -127,10 +126,9 @@ type Env (config) =
             | (true, ns) -> ns
             | (false, _) -> failwith (sprintf "Cannot find namespace %A" parts)
 
+
 type TranslationUnit (env : Env, stmts : Statement list) =
-
     let importedTypes = new TypeMap ()
-
     do
         stmts
         |> List.iter (function
@@ -172,6 +170,32 @@ type TranslationUnit (env : Env, stmts : Statement list) =
         | Some x -> this.GetClrType x
         | _ -> env.VoidType
 
+    member this.InferType (expr) =
+        match expr with
+        | _ -> failwith (sprintf "Cannot infer type of: %A" expr)
+
+let notSupported x = failwith (sprintf "Not supported: %A" x)
+
+let declareField (tu : TranslationUnit) (typ : DefinedClrType) decl =
+
+    let getType optType optInit =
+        match optType with
+        | Some t -> tu.GetClrType (t)
+        | _ ->
+            match optInit with
+            | Some e -> tu.InferType (e)
+            | _ -> failwith "let statements must have a type or initializer"                
+
+    match decl with
+        | ConstantDeclaration specs ->
+            let attribs = FieldAttributes.Public
+            let builders = specs |> List.map (function
+                | (IdentifierPattern (name, ot), oi) ->
+                    let tt = fst typ
+                    tt.DefineField (name, getType ot oi, attribs)
+                | x -> notSupported x)                
+            Some (fun () -> ())
+        | _ -> None
 
 let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
     match decl with
@@ -191,6 +215,17 @@ let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
             let builder = (fst typ).DefineMethod (name, attribs, returnType, paramTypes)
             let ps = parameters.Head |> List.mapi (fun i (_, _, ploc, _, _) -> builder.DefineParameter (i + 1, ParameterAttributes.None, ploc))
             Some (fun () -> ())
+        | InitializerDeclaration (parameters: Parameter list, body) ->
+            let paramTypes =
+                parameters
+                |> Seq.map (function
+                    | (a,e,l,Some t,d) -> tu.GetClrType (t)
+                    | _ -> tu.Env.ObjectType)
+                |> Seq.toArray
+            let attribs = MethodAttributes.Public
+            let builder = (fst typ).DefineConstructor (attribs, CallingConventions.Standard, paramTypes)
+            let ps = parameters |> List.mapi (fun i (_, _, ploc, _, _) -> builder.DefineParameter (i + 1, ParameterAttributes.None, ploc))
+            Some (fun () -> ())
         | _ -> None
 
 type DeclaredType = DefinedClrType * (Declaration list)
@@ -206,7 +241,7 @@ let declareType (tu : TranslationUnit) stmt : DeclaredType option =
 let compile config =
     let env = new Env (config)
 
-    // Parse
+    // Parse each translation unit
     let tus = config.InputUrls |> List.choose parseFile |> List.map (fun x -> new TranslationUnit (env, x))
 
     // First pass: Declare the types
@@ -218,14 +253,19 @@ let compile config =
             tdecls |> List.collect (fun (typ, decls) ->
                 decls |> List.choose (declareMethod tu typ)))
 
-    // Third pass: Compile code, finally
+    // Third pass: Declare fields and properties
+    let fieldCompilers =
+        typeDecls |> List.collect (fun (tu, tdecls) ->
+            tdecls |> List.collect (fun (typ, decls) ->
+                decls |> List.choose (declareField tu typ)))
+
+    // Fourth pass: Compile code, finally
+    for fc in fieldCompilers do fc ()
     for mc in methodCompilers do mc ()
 
     // Save it
     let types = env.DefinedTypes.Values |> Seq.map (fun x -> (fst x).CreateType ()) |> Seq.toArray
-
     env.Assembly.Save (config.OutputPath)
-
     types
 
 
