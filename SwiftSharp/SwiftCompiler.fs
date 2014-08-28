@@ -186,6 +186,17 @@ type TranslationUnit (env : Env, stmts : Statement list) =
 
 let notSupported x = failwith (sprintf "Not supported: %A" x)
 
+let compoundToTree (ex, opList) =
+    failwith "Don't know how to convert a compund to a tree :-("
+
+let compileMethod (tu : TranslationUnit) (typ : DefinedClrType) (ps : ParameterBuilder list) (body : Statement list) (il : ILGenerator) =
+    body
+    |> List.iter (function
+        | ExpressionStatement (Compound (ex, opList)) ->
+            let tree = compoundToTree (ex, opList)
+            failwith "Tree?"
+        | x -> failwith (sprintf "Don't know how to compile %A" x))
+
 let declareField (tu : TranslationUnit) (typ : DefinedClrType) decl =
 
     let getType optType optInit =
@@ -224,7 +235,7 @@ let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
             let attribs = MethodAttributes.Public
             let builder = (fst typ).DefineMethod (name, attribs, returnType, paramTypes)
             let ps = parameters.Head |> List.mapi (fun i (_, _, ploc, _, _) -> builder.DefineParameter (i + 1, ParameterAttributes.None, ploc))
-            Some (fun () -> ())
+            Some (fun () -> compileMethod tu typ ps body (builder.GetILGenerator ()))
         | InitializerDeclaration (parameters: Parameter list, body) ->
             let paramTypes =
                 parameters
@@ -235,7 +246,7 @@ let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
             let attribs = MethodAttributes.Public
             let builder = (fst typ).DefineConstructor (attribs, CallingConventions.Standard, paramTypes)
             let ps = parameters |> List.mapi (fun i (_, _, ploc, _, _) -> builder.DefineParameter (i + 1, ParameterAttributes.None, ploc))
-            Some (fun () -> ())
+            Some (fun () -> compileMethod tu typ ps body (builder.GetILGenerator ()))
         | _ -> None
 
 type DeclaredType = DefinedClrType * (Declaration list)
