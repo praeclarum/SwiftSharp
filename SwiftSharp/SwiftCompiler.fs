@@ -246,8 +246,26 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
         | xs ->
             match tu.Env.ExportAttributeType with
             | Some ex ->
-                let mats = xs |> Array.map (fun x -> (x, x.__GetCustomAttributes (ex, true)))
-                omg "I can't decide on a ctor %A" (mats, xs)
+                let mats = xs |> Array.choose (fun x -> 
+                    match x.__GetCustomAttributes (ex, true) |> Seq.toList with
+                    | [e] when e.ConstructorArguments.Count = 1 -> 
+                        let n = e.ConstructorArguments.[0].Value.ToString ()
+                        let ans = n.Split ([|':'|], StringSplitOptions.RemoveEmptyEntries)
+                        let a0 = ans.[0]
+                        if a0.StartsWith ("initWith") && a0.Length > 8 then
+                            ans.[0] <- (Char.ToLowerInvariant (a0.[8])).ToString () + a0.Substring (9)
+                        Some (ans, x)
+                    | _ -> None)
+                let anames = args |> Seq.map fst |> Seq.toArray
+                let argMatch m a =
+                    match a with
+                    | Some x -> x = m
+                    | None -> true
+                let argsMatch ((mnames : string array), m) =
+                    anames |> Array.map2 argMatch mnames |> Array.forall (id)
+                match mats |> Seq.tryFind argsMatch with
+                | Some (_, x) -> Some x
+                | None -> omg "I can't find a ctor %A" (mats, args)
             | _ ->
                 let pts = args |> Seq.map (snd >> typeof) |> Seq.toArray
                 omg "Too many overloads of init %A" (pts, xs)
