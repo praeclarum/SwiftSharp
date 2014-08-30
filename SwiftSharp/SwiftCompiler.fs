@@ -45,9 +45,18 @@ type Env (config) =
     let name = new AssemblyName (System.IO.Path.GetFileNameWithoutExtension (config.OutputPath))
     let defaultNamespace = name.Name
     let u = new Universe ()
+    let dirs = dir :: (config.References |> List.map (fun x -> System.IO.Path.GetDirectoryName (x)))
+    do
+        u.add_AssemblyResolve (new ResolveEventHandler (fun sender (e : ResolveEventArgs) ->
+            let n = new AssemblyName (e.Name)
+            match dirs |> Seq.map (fun d -> System.IO.Path.Combine (d, n.Name + ".dll")) |> Seq.tryFind (fun p -> System.IO.File.Exists (p)) with
+            | Some p -> u.LoadFile (p)
+            | _ -> failwith (sprintf "Cannot find %A" e.Name)
+            ))
+
     let refs = config.References |> List.map u.LoadFile
     let mscorlib = refs |> List.find (fun x -> x.GetType ("System.String") <> null)
-
+    let monotouch = refs |> List.tryFind (fun x -> x.GetType ("MonoTouch.Foundation.NSString") <> null)
     let errors = new ResizeArray<string> ()
 
     //
@@ -57,6 +66,8 @@ type Env (config) =
     let intType = mscorlib.GetType ("System.Int32")
     let voidType = mscorlib.GetType ("System.Void")
     let objectType = mscorlib.GetType ("System.Object")
+    let exportAttributeType = match monotouch with | Some x -> Some (x.GetType ("MonoTouch.Foundation.ExportAttribute")) | _ -> None
+    let registerAttributeType = match monotouch with | Some x -> Some (x.GetType ("MonoTouch.Foundation.RegisterAttribute")) | _ -> None
     let asm = u.DefineDynamicAssembly (name, AssemblyBuilderAccess.Save, dir)
     let modl = asm.DefineDynamicModule (name.Name, config.OutputPath)
     do
@@ -105,6 +116,8 @@ type Env (config) =
     member this.CoreTypes = coreTypes
     member this.VoidType = voidType
     member this.ObjectType = objectType
+    member this.StringType = stringType
+    member this.ExportAttributeType = exportAttributeType
 
     member this.DefinedTypes = definedTypes
 
@@ -164,17 +177,25 @@ type TranslationUnit (env : Env, stmts : Statement list) =
         typeAliases.[[(name, 0)]] <- clrType
         clrType
 
-    member this.GetClrType (SwiftType es : SwiftType) =
+    member this.FindClrType (SwiftType es : SwiftType) =
         // TODO: This ignores nested types
         let e = es.Head
         let id = e |> swiftToId
         match this.LookupKnownType id, id with
-        | Some t, [(_, 0)] -> t
+        | Some t, [(_, 0)] -> Some t
         | Some t, _ ->
             // Great, let's try to make a concrete one
             let targs = snd e |> Seq.map this.GetClrType |> Seq.toArray
-            t.MakeGenericType (targs)
-        | _ -> failwith (sprintf "GetClrType failed for %A" e)
+            Some (t.MakeGenericType (targs))
+        | _ -> None
+
+    member this.FindClrType (name : string) =
+        this.FindClrType (SwiftType [(name, [])])
+
+    member this.GetClrType (swiftType) =
+        match this.FindClrType swiftType with
+        | Some x -> x
+        | _ -> failwith (sprintf "GetClrType failed for %A" swiftType)
 
     member this.GetClrTypeOrVoid optionalSwiftType =
         match optionalSwiftType with
@@ -187,20 +208,92 @@ type TranslationUnit (env : Env, stmts : Statement list) =
 
 let notSupported x = failwith (sprintf "Not supported: %A" x)
 
-let compileMethod (tu : TranslationUnit) (typ : DefinedClrType) (ps : ParameterBuilder list) (body : Statement list) (il : ILGenerator) =
+let omg msg x = failwith (sprintf msg x)
 
-    let eval e =
+let pass msg x = (sprintf msg x) |> ignore
+
+let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodName : string) (ps : (ParameterBuilder * ClrType) list) (body : Statement list) (il : ILGenerator) =
+
+    let cid = ref 1
+    let locals = ref []
+
+    let declareLocal name clrType =
+        let loc = il.DeclareLocal clrType
+        loc.SetLocalSymInfo (name)
+        locals := (name, loc) :: !locals
+        loc
+
+    let typeof e =
         match e with
+        | Str _ -> tu.Env.StringType
         | Variable name ->
-            match ps |> List.findIndex (fun x -> x.Name = name) with
-            | i when i >= 0 -> il.Emit (OpCodes.Ldarg, i)
-            | _ -> failwith (sprintf "Can't lookup variable %A" e)
+            match !locals |> List.tryFind (fun (n,_) -> n = name) with
+            | Some (_, loc) -> loc.LocalType
+            | None ->
+                match ps |> List.tryFind (fun (x, _) -> x.Name = name) with
+                | Some (_,t) -> t
+                | _ -> omg "Can't find the type of variable %s" name
+        | Funcall (Variable name, args) ->
+            match tu.FindClrType (name) with
+            | Some x -> x
+            | _ -> failwith (sprintf "Don't know the type of funcall %A" name)
+        | _ -> failwith (sprintf "Don't know the type of %A" e)
+
+    let findCtor (typ : ClrType) (args : Argument list) =
+        match typ.GetConstructors () |> Array.filter (fun x -> (x.GetParameters ()).Length = args.Length) with
+        | [||] -> None
+        | [|x|] -> Some x
+        | xs ->
+            match tu.Env.ExportAttributeType with
+            | Some ex ->
+                let mats = xs |> Array.map (fun x -> (x, x.__GetCustomAttributes (ex, true)))
+                omg "I can't decide on a ctor %A" (mats, xs)
+            | _ ->
+                let pts = args |> Seq.map (snd >> typeof) |> Seq.toArray
+                omg "Too many overloads of init %A" (pts, xs)
+
+    let findMethod (typ : ClrType) name (args : Argument list) =
+        match typ.GetMethods () |> Array.filter (fun x -> x.Name = name && (x.GetParameters ()).Length = args.Length) with
+        | [||] -> None
+        | [|x|] -> Some x
+        | x -> omg "Too many overloads of %s" name 
+
+    let rec eval e =
+        match e with
+        | Str s -> il.Emit (OpCodes.Ldstr, s)
+        | Variable name ->
+            match !locals |> List.tryFind (fun (n,_) -> n = name) with
+            | Some (_, loc) -> il.Emit (OpCodes.Ldloc, loc.LocalIndex)
+            | None ->
+                match ps |> List.tryFindIndex (fun (x,_) -> x.Name = name) with
+                | Some i -> il.Emit (OpCodes.Ldarg, i)
+                | _ -> omg "Can't find variable %s for eval" name
+        | Closure (head, body) ->
+            let ctypeName = sprintf "%sClosure%d" methodName !cid
+            cid := !cid + 1
+            let nt = typ.DefineNestedType (ctypeName)
+            nt.CreateType () |> ignore
+            pass "Closure, closure %A" head
+        | Funcall (Variable name, args) ->
+            match tu.FindClrType (name) with
+            | Some x ->
+                match findCtor x args with
+                | None -> omg "Couldn't find constructor for %A" args
+                | Some ctor ->
+                    args |> List.iter (snd >> eval)
+                    il.Emit (OpCodes.Newobj, ctor)
+            | _ ->
+                match findMethod typ name args with
+                | None -> omg "Couldn't find method for %A" typ
+                | Some meth ->
+                    args |> List.iter (snd >> eval)
+                    il.EmitCall (OpCodes.Callvirt, meth, [||])
         | _ -> failwith (sprintf "Can't eval %A" e)
 
     let assign left right =
         match left with
         | Member (Some (Variable "self"), name) ->
-            match (fst typ).GetMember (name) with
+            match typ.GetMember (name) with
             | null | [||] -> failwith (sprintf "Can't find member %A" name)
             | [|:? FieldBuilder as field|] ->
                 eval right
@@ -208,7 +301,7 @@ let compileMethod (tu : TranslationUnit) (typ : DefinedClrType) (ps : ParameterB
                 il.Emit (OpCodes.Stfld, field)
             | [|m|] -> failwith (sprintf "Don't know how to assign %A" m)
             | _ -> failwith (sprintf "Ambiguous member %A" name)
-        | _ -> failwith (sprintf "Can't assign %A" left)
+        | _ -> pass "Can't assign %A" left
 
     let rec run s =
         match s with
@@ -216,7 +309,12 @@ let compileMethod (tu : TranslationUnit) (typ : DefinedClrType) (ps : ParameterB
             match (flatten e tu.Env.GetOperatorPrecedence) with
             | Binary (left, OpBinary ("=", right)) -> assign left right
             | x -> eval x
-        | x -> failwith (sprintf "Don't know how to compile %A" x)
+        | DeclarationStatement (ConstantDeclaration [(IdentifierPattern (name, None), Some e)]) ->
+            let loc = declareLocal name (typeof e)
+            loc.SetLocalSymInfo (name)
+            eval e
+            il.Emit (OpCodes.Stloc, loc.LocalIndex)
+        | x -> failwith (sprintf "Don't know how to compile statement %A" x)
 
     body |> List.iter run
 
@@ -258,7 +356,8 @@ let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
             let attribs = MethodAttributes.Public
             let builder = (fst typ).DefineMethod (name, attribs, returnType, paramTypes)
             let ps = parameters.Head |> List.mapi (fun i (_, _, ploc, _, _) -> builder.DefineParameter (i + 1, ParameterAttributes.None, ploc))
-            Some (fun () -> compileMethod tu typ ps body (builder.GetILGenerator ()))
+            let psts = (List.zip ps (paramTypes |> Array.toList))
+            Some (fun () -> compileMethod tu typ name psts body (builder.GetILGenerator ()))
         | InitializerDeclaration (parameters: Parameter list, body) ->
             let paramTypes =
                 parameters
@@ -269,7 +368,8 @@ let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
             let attribs = MethodAttributes.Public
             let builder = (fst typ).DefineConstructor (attribs, CallingConventions.Standard, paramTypes)
             let ps = parameters |> List.mapi (fun i (_, _, ploc, _, _) -> builder.DefineParameter (i + 1, ParameterAttributes.None, ploc))
-            Some (fun () -> compileMethod tu typ ps body (builder.GetILGenerator ()))
+            let psts = (List.zip ps (paramTypes |> Array.toList))
+            Some (fun () -> compileMethod tu typ "init" psts body (builder.GetILGenerator ()))
         | _ -> None
 
 type DeclaredType = DefinedClrType * (Declaration list)
