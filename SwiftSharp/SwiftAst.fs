@@ -54,7 +54,8 @@ and Expression =
     | DictionaryLiteral of (Expression * Expression) list
     | ArrayLiteral of Expression list
     | Variable of string
-    | Compound of Expression * (Binary list)
+    | FlatBinary of Expression * (BinaryElement list)
+    | Binary of Expression * BinaryElement
     | Funcall of Expression * (Argument list)
     | Member of (Expression option) * string
     | Closure of (((Parameter list) * (FunctionResult option)) option) * (Statement list)
@@ -63,9 +64,10 @@ and Expression =
     | TupleExpr of ((string option) * Expression) list
     | Subscript of Expression * (Expression list)
 
+
 and FunctionResult = ((Attr list) * SwiftType)
 
-and Binary =
+and BinaryElement =
     | AsCastBinary of SwiftType
     | AsOptionalCastBinary of SwiftType
     | TernaryConditionalBinary of Expression * Expression
@@ -78,4 +80,7 @@ and Pattern =
     | TuplePattern of (Pattern list) * (SwiftType option)
     | ValueBindingPattern of Pattern
 
-
+type Associativity =
+    | LeftAssociative
+    | RightAssociative
+    | NoAssociativity

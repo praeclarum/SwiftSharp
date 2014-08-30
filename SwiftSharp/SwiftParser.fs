@@ -118,7 +118,7 @@ and (|Expression|) withTrailingClosure p1 =
     match p1 with
     | Prefix_expression withTrailingClosure (Some (v1, p2)) ->
         match ws p2 with
-        | Binary_expressions withTrailingClosure (Some (v2, p3)) -> Some (Compound (v1, v2), p3)
+        | Binary_expressions withTrailingClosure (Some (v2, p3)) -> Some (FlatBinary (v1, v2), p3)
         | _ -> Some (v1, p2)
     | _ -> None
 
@@ -838,6 +838,35 @@ and (|Initializer|) withTrailingClosure p1 =
         | Expression withTrailingClosure (Some (v2, p3)) -> Some (v2, p3)
         | _ -> None
     | _ -> None
+
+/// Converts FlatBinary expressions to Binary expressions
+/// using operator precedence and associativity
+let flatten expr (operatorLookup : string -> (Associativity * int)) =
+    let lookup = function
+        | AsCastBinary _ -> (NoAssociativity, 132)
+        | AsOptionalCastBinary _ -> (NoAssociativity, 132)
+        | TernaryConditionalBinary _ -> (RightAssociative, 100)
+        | OpBinary ("=", _) -> (RightAssociative, 90)
+        | OpBinary ("+", _) -> (LeftAssociative, 140)
+        | OpBinary ("-", _) -> (LeftAssociative, 140)
+        | OpBinary ("*", _) -> (LeftAssociative, 150)
+        | OpBinary ("/", _) -> (LeftAssociative, 150)
+        | OpBinary (op, _) -> operatorLookup op
+
+    let lowestPrecedence = Seq.map lookup >> Seq.minBy snd
+
+    let loop head list =
+        match list with
+        | [] -> head
+        | [x] -> Binary (head, x)
+        | _ ->
+            let low = lowestPrecedence list
+            failwith "Flattened infix expressions not implemented"
+
+    match expr with
+        | FlatBinary (head, list) -> loop head list
+        | _ -> expr
+
 
 let parseDocument document =
     match Position.Beginning document |> ws with

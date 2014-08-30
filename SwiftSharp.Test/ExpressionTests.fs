@@ -42,7 +42,7 @@ type ExpressionTests () =
 """
         let s = (sprintf "%A" ast)
         match ast with
-        | [ExpressionStatement (Compound _)] -> ()
+        | [ExpressionStatement (FlatBinary _)] -> ()
         | _ -> Assert.Fail (s)
 
     [<Test>]
@@ -52,7 +52,8 @@ a ? b : c
 """
         let s = (sprintf "%A" ast)
         match ast with
-        | [ExpressionStatement (Compound _)] -> ()
+        | [ExpressionStatement (FlatBinary _)] -> ()
+        | [ExpressionStatement ( _)] -> ()
         | _ -> Assert.Fail (s)
 
     [<Test>]
@@ -114,7 +115,7 @@ JSONObjectWithData as NSDictionary
 """
         let s = (sprintf "%A" ast)
         match ast with
-        | [ExpressionStatement (Compound (Variable _, [AsCastBinary _]))] -> ()
+        | [ExpressionStatement (FlatBinary (Variable _, [AsCastBinary _]))] -> ()
         | _ -> Assert.Fail (s);
 
     [<Test>]
@@ -153,8 +154,8 @@ JSONObjectWithData as NSDictionary
 
     [<Test>]
     member x.SelfPropAssign() =
-        let ast = parseCode """
-class GovDataRequest {   
+        let ast = parseCode """_)] -> ()
+        | t {   
     init(APIKey: String, APIHost: String, APIURL:String) {
         self.foo.APIKey = APIKey
     }

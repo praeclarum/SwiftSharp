@@ -127,6 +127,7 @@ type Env (config) =
             | (true, ns) -> ns
             | (false, _) -> failwith (sprintf "Cannot find namespace %A" parts)
 
+    member this.GetOperatorPrecedence op = failwith (sprintf "Unknown operator %s" op)
 
 type TranslationUnit (env : Env, stmts : Statement list) =
     let typeAliases = new TypeMap ()
@@ -186,16 +187,38 @@ type TranslationUnit (env : Env, stmts : Statement list) =
 
 let notSupported x = failwith (sprintf "Not supported: %A" x)
 
-let compoundToTree (ex, opList) =
-    failwith "Don't know how to convert a compund to a tree :-("
-
 let compileMethod (tu : TranslationUnit) (typ : DefinedClrType) (ps : ParameterBuilder list) (body : Statement list) (il : ILGenerator) =
-    body
-    |> List.iter (function
-        | ExpressionStatement (Compound (ex, opList)) ->
-            let tree = compoundToTree (ex, opList)
-            failwith "Tree?"
-        | x -> failwith (sprintf "Don't know how to compile %A" x))
+
+    let eval e =
+        match e with
+        | Variable name ->
+            match ps |> List.findIndex (fun x -> x.Name = name) with
+            | i when i >= 0 -> il.Emit (OpCodes.Ldarg, i)
+            | _ -> failwith (sprintf "Can't lookup variable %A" e)
+        | _ -> failwith (sprintf "Can't eval %A" e)
+
+    let assign left right =
+        match left with
+        | Member (Some (Variable "self"), name) ->
+            match (fst typ).GetMember (name) with
+            | null | [||] -> failwith (sprintf "Can't find member %A" name)
+            | [|:? FieldBuilder as field|] ->
+                eval right
+                il.Emit (OpCodes.Ldloc_0);
+                il.Emit (OpCodes.Stfld, field)
+            | [|m|] -> failwith (sprintf "Don't know how to assign %A" m)
+            | _ -> failwith (sprintf "Ambiguous member %A" name)
+        | _ -> failwith (sprintf "Can't assign %A" left)
+
+    let rec run s =
+        match s with
+        | ExpressionStatement e ->
+            match (flatten e tu.Env.GetOperatorPrecedence) with
+            | Binary (left, OpBinary ("=", right)) -> assign left right
+            | x -> eval x
+        | x -> failwith (sprintf "Don't know how to compile %A" x)
+
+    body |> List.iter run
 
 let declareField (tu : TranslationUnit) (typ : DefinedClrType) decl =
 
@@ -296,15 +319,17 @@ let compile config =
             tdecls |> List.collect (fun (typ, decls) ->
                 decls |> List.choose (declareField tu typ)))
 
+    // Bake the types
+    let types =
+        env.DefinedTypes.Values
+        |> Seq.map (fun (tb, gbs) -> if tb.IsCreated () then tb :> ClrType else tb.CreateType ())
+        |> Seq.toArray
+
     // Fourth pass: Compile code, finally
     for fc in fieldCompilers do fc ()
     for mc in methodCompilers do mc ()
 
     // Save it
-    let types =
-        env.DefinedTypes.Values
-        |> Seq.map (fun (tb, gbs) -> if tb.IsCreated () then tb :> ClrType else tb.CreateType ())
-        |> Seq.toArray
     env.Assembly.Save (config.OutputPath)
     types
 
