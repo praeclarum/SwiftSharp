@@ -110,6 +110,16 @@ type Env (config) =
         learnType ("Array", 1) (mscorlib.GetType ("System.Collections.Generic.List`1"))
         learnType ("Action", 1) (mscorlib.GetType ("System.Action`1"))
 
+    let methodReplacements =
+        Map.ofList
+            [
+                (("System.String", "hasPrefix"), "StartsWith")
+            ]
+
+    member this.GetMemberReplacement (fullTypeName, methodName) =
+        match methodReplacements.TryFind (fullTypeName, methodName) with
+        | Some n -> n
+        | _ -> methodName
 
     member this.Assembly = asm
 
@@ -223,9 +233,54 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
         locals := (name, loc) :: !locals
         loc
 
-    let typeof e =
+    let (|NamedType|_|) e =
+        match e with
+        | Variable name -> tu.FindClrType (name)
+        | _ -> None
+
+    let resolveOverload name xs args getAttrs =
+        match tu.Env.ExportAttributeType with
+        | Some ex ->
+            let mats = xs |> Array.choose (fun x -> 
+                match getAttrs x ex |> Seq.toList with
+                | [e : CustomAttributeData] when e.ConstructorArguments.Count = 1 -> 
+                    let n = e.ConstructorArguments.[0].Value.ToString ()
+                    let ans = n.Split ([|':'|], StringSplitOptions.RemoveEmptyEntries)
+                    let a0 = ans.[0]
+                    if a0.StartsWith ("initWith") && a0.Length > 8 then
+                        ans.[0] <- (Char.ToLowerInvariant (a0.[8])).ToString () + a0.Substring (9)
+                    Some (ans, x)
+                | _ -> None)
+            let anames = args |> Seq.map fst |> Seq.toArray
+            let argMatch m a =
+                match a with
+                | Some x -> x = m
+                | None -> true
+            let argsMatch ((mnames : string array), m) =
+                anames |> Array.map2 argMatch mnames |> Array.forall (id)
+            match mats |> Seq.tryFind argsMatch with
+            | Some (_, x) -> Some x
+            | None -> omg "I can't find a ctor %A" (mats, args)
+        | _ -> omg "I don't know how to choose an overload of init %A" (xs, args)
+
+    let findMethod (typ : ClrType) methodName (args : Argument list) =
+        let name = tu.Env.GetMemberReplacement (typ.FullName, methodName)
+        match typ.GetMethods () |> Array.filter (fun x -> x.Name = name && (x.GetParameters ()).Length = args.Length) with
+        | [||] -> None
+        | [|x|] -> Some x
+        | xs -> resolveOverload name xs args (fun x ex -> x.__GetCustomAttributes (ex, true))
+
+    let findCtor (typ : ClrType) (args : Argument list) =
+        match typ.GetConstructors () |> Array.filter (fun x -> (x.GetParameters ()).Length = args.Length) with
+        | [||] -> None
+        | [|x|] -> Some x
+        | xs -> resolveOverload "init" xs args (fun x ex -> x.__GetCustomAttributes (ex, true))
+
+    let rec typeof e =
         match e with
         | Str _ -> tu.Env.StringType
+        | FlatBinary _ -> flatten e tu.Env.GetOperatorPrecedence |> typeof
+        | Binary (_, TernaryConditionalBinary (e, _)) -> typeof e
         | Variable name ->
             match !locals |> List.tryFind (fun (n,_) -> n = name) with
             | Some (_, loc) -> loc.LocalType
@@ -233,52 +288,29 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
                 match ps |> List.tryFind (fun (x, _) -> x.Name = name) with
                 | Some (_,t) -> t
                 | _ -> omg "Can't find the type of variable %s" name
-        | Funcall (Variable name, args) ->
-            match tu.FindClrType (name) with
-            | Some x -> x
-            | _ -> failwith (sprintf "Don't know the type of funcall %A" name)
+        | Funcall (NamedType x, args) -> x
+        | Funcall (Member (Some (NamedType t), name), args) ->
+            match findMethod t name args with
+            | Some x -> x.ReturnType
+            | _ -> omg "Could not find method on type %A" (t, name, args)
         | _ -> failwith (sprintf "Don't know the type of %A" e)
 
-    let findCtor (typ : ClrType) (args : Argument list) =
-        match typ.GetConstructors () |> Array.filter (fun x -> (x.GetParameters ()).Length = args.Length) with
-        | [||] -> None
-        | [|x|] -> Some x
-        | xs ->
-            match tu.Env.ExportAttributeType with
-            | Some ex ->
-                let mats = xs |> Array.choose (fun x -> 
-                    match x.__GetCustomAttributes (ex, true) |> Seq.toList with
-                    | [e] when e.ConstructorArguments.Count = 1 -> 
-                        let n = e.ConstructorArguments.[0].Value.ToString ()
-                        let ans = n.Split ([|':'|], StringSplitOptions.RemoveEmptyEntries)
-                        let a0 = ans.[0]
-                        if a0.StartsWith ("initWith") && a0.Length > 8 then
-                            ans.[0] <- (Char.ToLowerInvariant (a0.[8])).ToString () + a0.Substring (9)
-                        Some (ans, x)
-                    | _ -> None)
-                let anames = args |> Seq.map fst |> Seq.toArray
-                let argMatch m a =
-                    match a with
-                    | Some x -> x = m
-                    | None -> true
-                let argsMatch ((mnames : string array), m) =
-                    anames |> Array.map2 argMatch mnames |> Array.forall (id)
-                match mats |> Seq.tryFind argsMatch with
-                | Some (_, x) -> Some x
-                | None -> omg "I can't find a ctor %A" (mats, args)
-            | _ ->
-                let pts = args |> Seq.map (snd >> typeof) |> Seq.toArray
-                omg "Too many overloads of init %A" (pts, xs)
+    let rec apply f args =
+        match f with
+        | Member (Some o, name) ->
+            let ot = typeof o
+            match findMethod ot name args with
+            | Some meth ->
+                args |> List.iter (snd >> eval)
+                eval o
+                il.EmitCall (OpCodes.Callvirt, meth, [||])
+            | _ -> omg "Cannot find method %A" (ot, name)
+        | _ -> omg "Don't know how to apply %A" f
 
-    let findMethod (typ : ClrType) name (args : Argument list) =
-        match typ.GetMethods () |> Array.filter (fun x -> x.Name = name && (x.GetParameters ()).Length = args.Length) with
-        | [||] -> None
-        | [|x|] -> Some x
-        | x -> omg "Too many overloads of %s" name 
-
-    let rec eval e =
+    and eval e =
         match e with
         | Str s -> il.Emit (OpCodes.Ldstr, s)
+        | FlatBinary _ -> flatten e tu.Env.GetOperatorPrecedence |> eval
         | Variable name ->
             match !locals |> List.tryFind (fun (n,_) -> n = name) with
             | Some (_, loc) -> il.Emit (OpCodes.Ldloc, loc.LocalIndex)
@@ -286,26 +318,41 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
                 match ps |> List.tryFindIndex (fun (x,_) -> x.Name = name) with
                 | Some i -> il.Emit (OpCodes.Ldarg, i)
                 | _ -> omg "Can't find variable %s for eval" name
+        | Binary (c, TernaryConditionalBinary (t, f)) ->
+            let falseLabel = il.DefineLabel ()
+            let endLabel = il.DefineLabel ()
+            eval c
+            il.Emit (OpCodes.Brfalse, falseLabel)
+            eval t
+            il.Emit (OpCodes.Br, endLabel)
+            il.MarkLabel (falseLabel)
+            eval f
+            il.MarkLabel (endLabel)
         | Closure (head, body) ->
             let ctypeName = sprintf "%sClosure%d" methodName !cid
             cid := !cid + 1
             let nt = typ.DefineNestedType (ctypeName)
             nt.CreateType () |> ignore
             pass "Closure, closure %A" head
-        | Funcall (Variable name, args) ->
-            match tu.FindClrType (name) with
-            | Some x ->
-                match findCtor x args with
-                | None -> omg "Couldn't find constructor for %A" args
-                | Some ctor ->
-                    args |> List.iter (snd >> eval)
-                    il.Emit (OpCodes.Newobj, ctor)
-            | _ ->
-                match findMethod typ name args with
-                | None -> omg "Couldn't find method for %A" typ
-                | Some meth ->
-                    args |> List.iter (snd >> eval)
-                    il.EmitCall (OpCodes.Callvirt, meth, [||])
+        | Funcall ((NamedType t), args) ->
+            match findCtor t args with
+            | None -> omg "Couldn't find constructor for %A" args
+            | Some ctor ->
+                args |> List.iter (snd >> eval)
+                il.Emit (OpCodes.Newobj, ctor)
+        | Funcall (Member (Some (NamedType t), name), args) ->
+            match findMethod t name args with
+            | Some meth ->
+                args |> List.iter (snd >> eval)
+                il.EmitCall (OpCodes.Callvirt, meth, [||])
+            | _ -> omg "Could not find method on type %A" (t, name, args)
+        | Funcall (Variable name as f, args) ->
+            match findMethod typ name args with
+            | Some meth ->
+                args |> List.iter (snd >> eval)
+                il.EmitCall (OpCodes.Callvirt, meth, [||])
+            | _ -> apply f args
+        | Funcall (f, args) -> apply f args
         | _ -> failwith (sprintf "Can't eval %A" e)
 
     let assign left right =
