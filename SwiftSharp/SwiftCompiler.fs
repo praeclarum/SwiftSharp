@@ -24,6 +24,7 @@ type DefinedClrType = TypeBuilder * (GenericTypeParameterBuilder array)
 
 type TypeId = (string * int) list
 
+let strToId n = [(n, 0)]
 let swiftToId ((n, g) : SwiftTypeElement) : TypeId = [(n, g.Length)]
 let rec clrToId (clrType : ClrType) : TypeId =
     let g =
@@ -75,6 +76,14 @@ type Env (config) =
         |> List.iter (fun a ->
             modl.__AddAssemblyReference (a.GetName (), a))
 
+    let getRegisteredName (t : ClrType) =
+        match registerAttributeType with
+        | Some r ->
+            match t.__GetCustomAttributes (r, true) |> Seq.toList with
+            | [] -> None
+            | x :: _ -> Some (x.ConstructorArguments.[0].Value.ToString ())
+        | _ -> None
+
     //
     // Read the namespaces
     //
@@ -82,7 +91,7 @@ type Env (config) =
     do
         refs
         |> List.iter (fun a ->
-            a.GetTypes () |> Array.iter (fun t ->
+            let types = a.GetTypes () |> Array.choose (fun t ->
                 let k = if t.Namespace <> null then t.Namespace.Split ('.') |> Array.toList else []
                 let ns =
                     match namespaces.TryGetValue (k) with
@@ -92,7 +101,16 @@ type Env (config) =
                         namespaces.Add (k, x)
                         x
                 if t.IsPublic then
-                    ns.Add (clrToId t, t)))
+                    ns.Add (clrToId t, t)
+                    Some (ns, t)
+                else None)
+            types |> Array.iter (fun (ns, t) ->                
+                match getRegisteredName t with
+                | Some rname when rname <> t.Name ->
+                    let rid = strToId rname
+                    if not (ns.ContainsKey (rid)) then
+                        ns.Add (rid, t)
+                | _ -> ()))
 
     let definedTypes = new Dictionary<TypeId, DefinedClrType> ()
 
@@ -248,7 +266,11 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
                     let ans = n.Split ([|':'|], StringSplitOptions.RemoveEmptyEntries)
                     let a0 = ans.[0]
                     if a0.StartsWith ("initWith") && a0.Length > 8 then
-                        ans.[0] <- (Char.ToLowerInvariant (a0.[8])).ToString () + a0.Substring (9)
+                        ans.[0] <-
+                            if a0.Length > 9 && Char.IsUpper (a0.[9]) then
+                                a0.Substring (8)
+                            else
+                                (Char.ToLowerInvariant (a0.[8])).ToString () + a0.Substring (9)
                     Some (ans, x)
                 | _ -> None)
             let anames = args |> Seq.map fst |> Seq.toArray
@@ -276,7 +298,36 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
         | [|x|] -> Some x
         | xs -> resolveOverload "init" xs args (fun x ex -> x.__GetCustomAttributes (ex, true))
 
-    let rec typeof e =
+    let canAssignType (sourceType : ClrType, destType : ClrType) =
+        destType.IsAssignableFrom (sourceType)
+
+    let typesCompatible (sourceTypes : ClrType seq, destTypes : ClrType seq) =
+        sourceTypes |> Seq.zip destTypes |> Seq.forall canAssignType
+
+    let findMethodWithParamTypes (typ : ClrType) name (argTypes : ClrType array) =
+        match typ.GetMethods () |> Array.filter (fun x ->
+            let ps = x.GetParameters ()
+            x.Name = name &&
+                ps.Length = argTypes.Length &&
+                typesCompatible (argTypes, ps |> Seq.map (fun x -> x.ParameterType))) with
+        | [||] -> None
+        | [|x|] -> Some x
+        | xs -> omg "Cannot determine overload %A" (typ, name, argTypes, xs)
+
+    let rec findBinaryOp (typ : ClrType) opName arg : MethodInfo option =
+        let n =
+            match opName with
+            | "+" -> "op_Addition"
+            | _ -> "op_" + opName
+        match typ.GetMethods () |> Array.filter (fun x -> x.Name = n) with
+        | [|x|] -> Some x
+        | [||] ->
+            match typ.FullName, opName with
+            | "System.String", "+" -> findMethodWithParamTypes typ "Concat" [|typ; typeof arg|]
+            | _ -> omg "I don't know the operator %A" (typ, opName)
+        | xs -> omg "I don't know how to overload op %A" (opName, n, xs)
+
+    and typeof e =
         match e with
         | Str _ -> tu.Env.StringType
         | FlatBinary _ -> flatten e tu.Env.GetOperatorPrecedence |> typeof
@@ -328,6 +379,17 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
             il.MarkLabel (falseLabel)
             eval f
             il.MarkLabel (endLabel)
+        | Binary (x, OpBinary (op, y)) ->
+            let xt = typeof x
+            match findBinaryOp xt op y with
+            | Some meth ->
+                eval y
+                eval x
+                il.Emit (OpCodes.Callvirt, meth)
+            | _ ->
+                match xt.FullName, op with
+                | ("System.String", "+") -> omg "Don't know how to add string %A" (xt, op)
+                | _ -> omg "Cannot find operator %A for eval" (xt, x, op, y)
         | Closure (head, body) ->
             let ctypeName = sprintf "%sClosure%d" methodName !cid
             cid := !cid + 1
@@ -507,7 +569,6 @@ let compileFile file =
             References = [ typeof<String>.Assembly.Location ]
         }
     compile config
-
 
 //compileFile "/Users/fak/Dropbox/Projects/SwiftSharp/SwiftSharp.Test/TestFiles/SODAClient.swift"
 
