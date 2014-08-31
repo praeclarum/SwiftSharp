@@ -147,7 +147,7 @@ let isNum c = Char.IsDigit (c) || c = '.'
 
 let isLeadNum c = Char.IsDigit (c)
 
-let (|Number|) (i : Position) =
+let (|IntToken|_|) (i : Position) =
     if i.Eof then None
     else
         let ch = i.Document.Body.[i.Index]
@@ -157,7 +157,23 @@ let (|Number|) (i : Position) =
             let mutable e = i.Index + 1
             while e < n && isNum body.[e] do e <- e + 1
             let numStr = body.Substring (i.Index, e - i.Index)
-            Some (Double.Parse (numStr), i.Advance (e - i.Index))
+            if numStr.IndexOf('.') >= 0 then None
+            else Some (Int32.Parse (numStr), i.Advance (e - i.Index))
+
+        else None
+
+let (|DoubleToken|_|) (i : Position) =
+    if i.Eof then None
+    else
+        let ch = i.Document.Body.[i.Index]
+        if isLeadNum ch then
+            let body = i.Document.Body
+            let n = body.Length
+            let mutable e = i.Index + 1
+            while e < n && isNum body.[e] do e <- e + 1
+            let numStr = body.Substring (i.Index, e - i.Index)
+            if numStr.IndexOf('.') >= 0 then Some (Double.Parse (numStr), i.Advance (e - i.Index))
+            else None
         else None
 
 let (|Binary_operator|) = (|Operator|)

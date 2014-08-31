@@ -120,6 +120,7 @@ type Env (config) =
     //
     let stringType = mscorlib.GetType ("System.String")
     let intType = mscorlib.GetType ("System.Int32")
+    let doubleType = mscorlib.GetType ("System.Double")
     let voidType = mscorlib.GetType ("System.Void")
     let objectType = mscorlib.GetType ("System.Object")
     let exportAttributeType = match monotouch with | Some x -> Some (x.GetType ("MonoTouch.Foundation.ExportAttribute")) | _ -> None
@@ -182,6 +183,7 @@ type Env (config) =
         learnType ("AnyObject", 0) objectType
         learnType ("Int", 0) intType
         learnType ("String", 0) stringType
+        learnType ("Double", 0) doubleType
         learnType ("Void", 0) voidType
         learnType ("Dictionary", 2) (mscorlib.GetType ("System.Collections.Generic.Dictionary`2"))
         learnType ("Array", 1) (mscorlib.GetType ("System.Collections.Generic.List`1"))
@@ -199,6 +201,8 @@ type Env (config) =
     member this.VoidType = ClrTypeRef voidType
     member this.ObjectType = ClrTypeRef objectType
     member this.StringType = ClrTypeRef stringType
+    member this.IntType = ClrTypeRef intType
+    member this.DoubleType = ClrTypeRef doubleType
     member this.ExportAttributeType = exportAttributeType
 
     member this.GetMemberReplacement (fullTypeName, methodName) =
@@ -307,10 +311,10 @@ let compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : strin
     let cid = ref 1
     let locals = ref []
 
-    let declareLocal name clrType =
-        let loc = il.DeclareLocal clrType
+    let declareLocal name (tr : TypeRef) =
+        let loc = il.DeclareLocal (tr.ClrType)
         loc.SetLocalSymInfo (name)
-        locals := (name, loc) :: !locals
+        locals := (name, loc, tr) :: !locals
         loc
 
     let (|NamedType|_|) e =
@@ -398,11 +402,13 @@ let compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : strin
     and typeof e : TypeRef =
         match e with
         | Str _ -> tu.Env.StringType
+        | IntExpr _ -> tu.Env.IntType
+        | DoubleExpr _ -> tu.Env.DoubleType
         | FlatBinary _ -> flatten e tu.Env.GetOperatorPrecedence |> typeof
         | Binary (_, TernaryConditionalBinary (e, _)) -> typeof e
         | Variable name ->
-            match !locals |> List.tryFind (fun (n,_) -> n = name) with
-            | Some (_, loc) -> ClrTypeRef loc.LocalType
+            match !locals |> List.tryFind (fun (n,_,_) -> n = name) with
+            | Some (_, _, lt) -> lt
             | None ->
                 match ps |> List.tryFind (fun (x, _) -> x.Name = name) with
                 | Some (_, t) -> t
@@ -438,10 +444,12 @@ let compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : strin
     and eval e =
         match e with
         | Str s -> il.Emit (OpCodes.Ldstr, s)
+        | DoubleExpr n -> il.Emit (OpCodes.Ldc_R8, n)
+        | IntExpr n -> il.Emit (OpCodes.Ldc_I4, n)
         | FlatBinary _ -> flatten e tu.Env.GetOperatorPrecedence |> eval
         | Variable name ->
-            match !locals |> List.tryFind (fun (n,_) -> n = name) with
-            | Some (_, loc) -> il.Emit (OpCodes.Ldloc, loc.LocalIndex)
+            match !locals |> List.tryFind (fun (n,_,_) -> n = name) with
+            | Some (_,loc,_) -> il.Emit (OpCodes.Ldloc, loc.LocalIndex)
             | None ->
                 match ps |> List.tryFindIndex (fun (x,_) -> x.Name = name) with
                 | Some i -> il.Emit (OpCodes.Ldarg, i)
@@ -492,18 +500,32 @@ let compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : strin
         | Funcall (f, args) -> apply f args
         | _ -> failwith (sprintf "Can't eval %A" e)
 
+    let emitStloc i =
+        match i with
+        | 0 -> il.Emit (OpCodes.Stloc_0)
+        | 1 -> il.Emit (OpCodes.Stloc_1)
+        | 2 -> il.Emit (OpCodes.Stloc_2)
+        | 3 -> il.Emit (OpCodes.Stloc_3)
+        | _ -> il.Emit (OpCodes.Stloc, i)
+
     let assign left right =
         match left with
         | Member (Some (Variable "self"), name) ->
             match (DefinedTypeRef typ).GetMember (name) with
             | [||] -> failwith (sprintf "Can't find member %A" name)
             | [|:? FieldBuilder as field|] ->
-                eval right
                 il.Emit (OpCodes.Ldloc_0);
+                eval right
                 il.Emit (OpCodes.Stfld, field)
             | [|m|] -> failwith (sprintf "Don't know how to assign %A" m)
             | _ -> failwith (sprintf "Ambiguous member %A" name)
-        | _ -> pass "Can't assign %A" left
+        | Variable name ->
+            match !locals |> List.tryFind (fun (n,_,_) -> n = name) with
+            | Some (_,loc,_) ->
+                eval right
+                emitStloc loc.LocalIndex
+            | None -> omg "Can't assign unknown variable %A" name
+        | _ -> omg "Can't assign %A" left
 
     let rec run s =
         match s with
@@ -516,10 +538,21 @@ let compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : strin
                 if il.__StackHeight > h then
                     il.Emit (OpCodes.Pop)
         | DeclarationStatement (ConstantDeclaration [(IdentifierPattern (name, None), Some e)]) ->
-            let loc = declareLocal name (typeof e).ClrType
+            let loc = declareLocal name (typeof e)
             loc.SetLocalSymInfo (name)
             eval e
-            il.Emit (OpCodes.Stloc, loc.LocalIndex)
+            emitStloc loc.LocalIndex
+        | DeclarationStatement (ConstantDeclaration [(IdentifierPattern (name, Some t), oe)]) ->
+            let loc = declareLocal name (tu.GetClrType (t))
+            loc.SetLocalSymInfo (name)
+            if oe.IsSome then
+                eval oe.Value
+            emitStloc loc.LocalIndex
+        | DeclarationStatement (PatternVariableDeclaration ([], [(IdentifierPattern (name, None), Some e)])) ->
+            let loc = declareLocal name (typeof e)
+            loc.SetLocalSymInfo (name)
+            eval e
+            emitStloc loc.LocalIndex
         | x -> failwith (sprintf "Don't know how to compile statement %A" x)
 
     body |> List.iter run
@@ -606,6 +639,7 @@ let declareType (tu : TranslationUnit) stmt : DeclaredType list =
 
 let isTopLevelStatement stmt =
     match stmt with
+    | DeclarationStatement (PatternVariableDeclaration _)
     | DeclarationStatement (ConstantDeclaration _) -> true
     | ReturnStatement _
     | DeclarationStatement _ -> false
@@ -640,7 +674,7 @@ and compile asts config =
             tdecls |> List.collect (fun (typ, decls) ->
                 decls |> List.choose (declareField tu typ)))
 
-    // Create the top level type
+    // Create globals
     let tattribs = TypeAttributes.Public
     let topLevelType = env.DefineType "Globals" [] tattribs env.ObjectType
     let topLevelExe = tus |> List.map (fun x -> (x, x.Statements |> List.filter isTopLevelStatement))
@@ -649,7 +683,8 @@ and compile asts config =
         let attribs = MethodAttributes.Public ||| MethodAttributes.Static
         let builder = topLevelType.Builder.DefineMethod (name, attribs, env.VoidType.ClrType, [||])
         (builder, fun () -> compileMethod tu topLevelType name [] body (builder.GetILGenerator ())))
-
+    
+    // Create main
     if config.OutputPath.EndsWith (".exe") then
         let name = sprintf "Main"
         let attribs = MethodAttributes.Public ||| MethodAttributes.Static ||| MethodAttributes.HideBySig
@@ -660,7 +695,7 @@ and compile asts config =
         il.Emit (OpCodes.Ret)
         env.Assembly.SetEntryPoint (builder)
 
-    // Fourth pass: Compile code, finally
+    // Fourth pass: Compile methods, finally
     for fc in fieldCompilers do fc ()
     for mc in methodCompilers do mc ()
     for mc in topLevelCompilers do (snd mc) ()
@@ -672,7 +707,7 @@ and compile asts config =
             | DefinedTypeRef t -> if not (t.Builder.IsCreated ()) then t.Builder.CreateType () |> ignore
             | _ -> ())
 
-    // Save it
+    // This is it
     env.Assembly
 
 

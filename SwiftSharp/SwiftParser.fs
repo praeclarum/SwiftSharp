@@ -202,7 +202,8 @@ and (|Array_literal|) p1 =
             
 and (|Literal|) p1 =
     match p1 with
-    | Number (Some (v1, p2)) -> Some (Number v1, p2)
+    | DoubleToken (v1, p2) -> Some (DoubleExpr v1, p2)
+    | IntToken (v1, p2) -> Some (IntExpr v1, p2)
     | String (Some (v1, p2)) -> Some (Str v1, p2)
     | Dictionary_literal (Some (v1, p2)) -> Some (DictionaryLiteral v1, p2)
     | Array_literal (Some (v1, p2)) -> Some (ArrayLiteral v1, p2)

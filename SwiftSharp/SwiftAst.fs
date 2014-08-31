@@ -49,7 +49,8 @@ and Declaration =
 and Argument = (string option) * Expression
 
 and Expression =
-    | Number of float
+    | DoubleExpr of float
+    | IntExpr of int
     | Str of string
     | DictionaryLiteral of (Expression * Expression) list
     | ArrayLiteral of Expression list
