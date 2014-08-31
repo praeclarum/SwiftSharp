@@ -1,0 +1,195 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH19"></a><a name="//apple_ref/doc/uid/TP40014097-CH19-XID_220"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">Deinitialization</h2>
+
+
+      <section id="mini_toc" class="hideInXcode" role="navigation">
+	<div id="mini_toc_button">
+  	<p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH19-XID_221">
+	  				How Deinitialization Works
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH19-XID_222">
+	  				Deinitializers in Action
+	  			</a>
+  			</p>
+  		</li>
+	</ul>
+</section>
+
+  
+  	<section class="section">
+  		<p class="para">
+  A <em>deinitializer</em> is called immediately before a class instance is deallocated. You write deinitializers with the <code class="code-voice">deinit</code> keyword, similar to how intializers are written with the <code class="code-voice">init</code> keyword. Deinitializers are only available on class types.
+</p>
+
+		</section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH19-XID_221"></a>
+  <h3 class="section-name" tabindex="0">How Deinitialization Works</h3>
+  <p class="para">
+  Swift automatically deallocates your instances when they are no longer needed, to free up resources. Swift handles the memory management of instances through <em>automatic reference counting</em> (<em>ARC</em>), as described in <span class="x-name"><a href="AutomaticReferenceCounting.html#//apple_ref/doc/uid/TP40014097-CH20-XID_88" data-id="//apple_ref/doc/uid/TP40014097-CH20-XID_88">Automatic Reference Counting</a></span>. Typically you don’t need to perform manual clean-up when your instances are deallocated. However, when you are working with your own resources, you might need to perform some additional clean-up yourself. For example, if you create a custom class to open a file and write some data to it, you might need to close the file before the class instance is deallocated.
+</p><p class="para">
+  Class definitions can have at most one deinitializer per class. The deinitializer does not take any parameters and is written without parentheses:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">deinit</span> {</code></li>
+          <li><code class="code-voice">    <span class="c">// perform the deinitialization</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Deinitializers are called automatically, just before instance deallocation takes place. You are not allowed to call a deinitializer yourself. Superclass deinitializers are inherited by their subclasses, and the superclass deinitializer is called automatically at the end of a subclass deinitializer implementation. Superclass deinitializers are always called, even if a subclass does not provide its own deinitializer.
+</p><p class="para">
+  Because an instance is not deallocated until after its deinitializer is called, a deinitializer can access all properties of the instance it is called on and can modify its behavior based on those properties (such as looking up the name of a file that needs to be closed).
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH19-XID_222"></a>
+  <h3 class="section-name" tabindex="0">Deinitializers in Action</h3>
+  <p class="para">
+  Here’s an example of a deinitializer in action. This example defines two new types, <code class="code-voice">Bank</code> and <code class="code-voice">Player</code>, for a simple game. The <code class="code-voice">Bank</code> structure manages a made-up currency, which can never have more than 10,000 coins in circulation. There can only ever be one <code class="code-voice">Bank</code> in the game, and so the <code class="code-voice">Bank</code> is implemented as a structure with static properties and methods to store and manage its current state:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Bank</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">static</span> <span class="kt">var</span> <span class="vc">coinsInBank</span> = <span class="m">10_000</span></code></li>
+          <li><code class="code-voice">    <span class="kt">static</span> <span class="kt">func</span> <span class="vc">vendCoins</span>(<span class="kt">var</span> <span class="vc">numberOfCoinsToVend</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Int<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="vc">numberOfCoinsToVend</span> = <span class="vc">min</span>(<span class="vc">numberOfCoinsToVend</span>, <span class="vc">coinsInBank</span>)</code></li>
+          <li><code class="code-voice">        <span class="vc">coinsInBank</span> -= <span class="vc">numberOfCoinsToVend</span></code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="vc">numberOfCoinsToVend</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">static</span> <span class="kt">func</span> <span class="vc">receiveCoins</span>(<span class="vc">coins</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">coinsInBank</span> += <span class="vc">coins</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  <code class="code-voice">Bank</code> keeps track of the current number of coins it holds with its <code class="code-voice">coinsInBank</code> property. It also offers two methods—<code class="code-voice">vendCoins</code> and <code class="code-voice">receiveCoins</code>—to handle the distribution and collection of coins.
+</p><p class="para">
+  <code class="code-voice">vendCoins</code> checks that there are enough coins in the bank before distributing them. If there are not enough coins, <code class="code-voice">Bank</code> returns a smaller number than the number that was requested (and returns zero if no coins are left in the bank). <code class="code-voice">vendCoins</code> declares <code class="code-voice">numberOfCoinsToVend</code> as a variable parameter, so that the number can be modified within the method’s body without the need to declare a new variable. It returns an integer value to indicate the actual number of coins that were provided.
+</p><p class="para">
+  The <code class="code-voice">receiveCoins</code> method simply adds the received number of coins back into the bank’s coin store.
+</p><p class="para">
+  The <code class="code-voice">Player</code> class describes a player in the game. Each player has a certain number of coins stored in their purse at any time. This is represented by the player’s <code class="code-voice">coinsInPurse</code> property:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Player</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">coinsInPurse</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">coins</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">coinsInPurse</span> = <span class="vc">Bank</span>.<span class="vc">vendCoins</span>(<span class="vc">coins</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">winCoins</span>(<span class="vc">coins</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">coinsInPurse</span> += <span class="vc">Bank</span>.<span class="vc">vendCoins</span>(<span class="vc">coins</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">deinit</span> {</code></li>
+          <li><code class="code-voice">        <span class="vc">Bank</span>.<span class="vc">receiveCoins</span>(<span class="vc">coinsInPurse</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Each <code class="code-voice">Player</code> instance is initialized with a starting allowance of a specified number of coins from the bank during initialization, although a <code class="code-voice">Player</code> instance may receive fewer than that number if not enough coins are available.
+</p><p class="para">
+  The <code class="code-voice">Player</code> class defines a <code class="code-voice">winCoins</code> method, which retrieves a certain number of coins from the bank and adds them to the player’s purse. The <code class="code-voice">Player</code> class also implements a deinitializer, which is called just before a <code class="code-voice">Player</code> instance is deallocated. Here, the deinitializer simply returns all of the player’s coins to the bank:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">playerOne</span>: <span class="n"><!-- a href="" -->Player<!-- /a --></span>? = <span class="vc">Player</span>(<span class="vc">coins</span>: <span class="m">100</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"A new player has joined the game with </span>\(<span class="vc">playerOne</span>!.<span class="vc">coinsInPurse</span>)<span class="s"> coins"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "A new player has joined the game with 100 coins"</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"There are now </span>\(<span class="vc">Bank</span>.<span class="vc">coinsInBank</span>)<span class="s"> coins left in the bank"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "There are now 9900 coins left in the bank"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  A new <code class="code-voice">Player</code> instance is created, with a request for 100 coins if they are available. This <code class="code-voice">Player</code> instance is stored in an optional <code class="code-voice">Player</code> variable called <code class="code-voice">playerOne</code>. An optional variable is used here, because players can leave the game at any point. The optional lets you track whether there is currently a player in the game.
+</p><p class="para">
+  Because <code class="code-voice">playerOne</code> is an optional, it is qualified with an exclamation mark (<code class="code-voice">!</code>) when its <code class="code-voice">coinsInPurse</code> property is accessed to print its default number of coins, and whenever its <code class="code-voice">winCoins</code> method is called:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">playerOne</span>!.<span class="vc">winCoins</span>(<span class="m">2_000</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"PlayerOne won 2000 coins &amp; now has </span>\(<span class="vc">playerOne</span>!.<span class="vc">coinsInPurse</span>)<span class="s"> coins"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "PlayerOne won 2000 coins &amp; now has 2100 coins"</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The bank now only has </span>\(<span class="vc">Bank</span>.<span class="vc">coinsInBank</span>)<span class="s"> coins left"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "The bank now only has 7900 coins left"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Here, the player has won 2,000 coins. The player’s purse now contains 2,100 coins, and the bank has only 7,900 coins left.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">playerOne</span> = <span class="kt">nil</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"PlayerOne has left the game"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "PlayerOne has left the game"</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The bank now has </span>\(<span class="vc">Bank</span>.<span class="vc">coinsInBank</span>)<span class="s"> coins"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "The bank now has 10000 coins"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The player has now left the game. This is indicated by setting the optional <code class="code-voice">playerOne</code> variable to <code class="code-voice">nil</code>, meaning “no <code class="code-voice">Player</code> instance.” At the point that this happens, the <code class="code-voice">playerOne</code> variable’s reference to the <code class="code-voice">Player</code> instance is broken. No other properties or variables are still referring to the <code class="code-voice">Player</code> instance, and so it is deallocated in order to free up its memory. Just before this happens, its deinitializer is called automatically, and its coins are returned to the bank.
+</p>
+  
+</section>
+
+  	
+ 	<section id="next_previous" class="">
+    		<p class="previous-link"><a href="Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_306" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_306">Initialization</a></p>
+  			<p class="next-link"><a href="AutomaticReferenceCounting.html#//apple_ref/doc/uid/TP40014097-CH20-XID_88" data-id="//apple_ref/doc/uid/TP40014097-CH20-XID_88">Automatic Reference Counting</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>

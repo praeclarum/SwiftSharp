@@ -1,0 +1,587 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13"></a><a name="//apple_ref/doc/uid/TP40014097-CH13-XID_135"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">Classes and Structures</h2>
+
+
+      <section id="mini_toc" class="hideInXcode" role="navigation">
+	<div id="mini_toc_button">
+  	<p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH13-XID_137">
+	  				Comparing Classes and Structures
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH13-XID_145">
+	  				Structures and Enumerations Are Value Types
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH13-XID_146">
+	  				Classes Are Reference Types
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH13-XID_149">
+	  				Choosing Between Classes and Structures
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH13-XID_150">
+	  				Assignment and Copy Behavior for Strings, Arrays, and Dictionaries
+	  			</a>
+  			</p>
+  		</li>
+	</ul>
+</section>
+
+  
+  	<section class="section">
+  		<p class="para">
+  <em>Classes</em> and <em>structures</em> are general-purpose, flexible constructs that become the building blocks of your program’s code. You define properties and methods to add functionality to your classes and structures by using exactly the same syntax as for constants, variables, and functions.
+</p>
+<p class="para">
+  Unlike other programming languages, Swift does not require you to create separate interface and implementation files for custom classes and structures. In Swift, you define a class or a structure in a single file, and the external interface to that class or structure is automatically made available for other code to use.
+</p>
+<div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_136"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">An instance of a <em>class</em> is traditionally known as an <em>object</em>. However, Swift classes and structures are much closer in functionality than in other languages, and much of this chapter describes functionality that can apply to instances of <em>either</em> a class or a structure type. Because of this, the more general term <em>instance</em> is used.
+    	</p>
+    
+  </aside>
+</div>
+
+		</section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_137"></a>
+  <h3 class="section-name" tabindex="0">Comparing Classes and Structures</h3>
+  <p class="para">
+  Classes and structures in Swift have many things in common. Both can:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  Define properties to store values
+</p>
+</li><li class="item"><p class="para">
+  Define methods to provide functionality
+</p>
+</li><li class="item"><p class="para">
+  Define subscripts to provide access to their values using subscript syntax
+</p>
+</li><li class="item"><p class="para">
+  Define initializers to set up their initial state
+</p>
+</li><li class="item"><p class="para">
+  Be extended to expand their functionality beyond a default implementation
+</p>
+</li><li class="item"><p class="para">
+  Conform to protocols to provide standard functionality of a certain kind
+</p>
+</li>
+</ul><p class="para">
+  For more information, see <span class="x-name"><a href="Properties.html#//apple_ref/doc/uid/TP40014097-CH14-XID_368" data-id="//apple_ref/doc/uid/TP40014097-CH14-XID_368">Properties</a></span>, <span class="x-name"><a href="Methods.html#//apple_ref/doc/uid/TP40014097-CH15-XID_344" data-id="//apple_ref/doc/uid/TP40014097-CH15-XID_344">Methods</a></span>, <span class="x-name"><a href="Subscripts.html#//apple_ref/doc/uid/TP40014097-CH16-XID_448" data-id="//apple_ref/doc/uid/TP40014097-CH16-XID_448">Subscripts</a></span>, <span class="x-name"><a href="Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_306" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_306">Initialization</a></span>, <span class="x-name"><a href="Extensions.html#//apple_ref/doc/uid/TP40014097-CH24-XID_229" data-id="//apple_ref/doc/uid/TP40014097-CH24-XID_229">Extensions</a></span>, and <span class="x-name"><a href="Protocols.html#//apple_ref/doc/uid/TP40014097-CH25-XID_390" data-id="//apple_ref/doc/uid/TP40014097-CH25-XID_390">Protocols</a></span>.
+</p><p class="para">
+  Classes have additional capabilities that structures do not:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  Inheritance enables one class to inherit the characteristics of another.
+</p>
+</li><li class="item"><p class="para">
+  Type casting enables you to check and interpret the type of a class instance at runtime.
+</p>
+</li><li class="item"><p class="para">
+  Deinitializers enable an instance of a class to free up any resources it has assigned.
+</p>
+</li><li class="item"><p class="para">
+  Reference counting allows more than one reference to a class instance.
+</p>
+</li>
+</ul><p class="para">
+  For more information, see <span class="x-name"><a href="Inheritance.html#//apple_ref/doc/uid/TP40014097-CH17-XID_293" data-id="//apple_ref/doc/uid/TP40014097-CH17-XID_293">Inheritance</a></span>, <span class="x-name"><a href="TypeCasting.html#//apple_ref/doc/uid/TP40014097-CH22-XID_498" data-id="//apple_ref/doc/uid/TP40014097-CH22-XID_498">Type Casting</a></span>, <span class="x-name"><a href="Deinitialization.html#//apple_ref/doc/uid/TP40014097-CH19-XID_220" data-id="//apple_ref/doc/uid/TP40014097-CH19-XID_220">Deinitialization</a></span>, and <span class="x-name"><a href="AutomaticReferenceCounting.html#//apple_ref/doc/uid/TP40014097-CH20-XID_88" data-id="//apple_ref/doc/uid/TP40014097-CH20-XID_88">Automatic Reference Counting</a></span>.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_138"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Structures are always copied when they are passed around in your code, and do not use reference counting.
+    	</p>
+    
+  </aside>
+</div>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_139"></a>
+  <h3 class="section-name" tabindex="0">Definition Syntax</h3>
+  <p class="para">
+  Classes and structures have a similar definition syntax. You introduce classes with the <code class="code-voice">class</code> keyword and structures with the <code class="code-voice">struct</code> keyword. Both place their entire definition within a pair of braces:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">SomeClass</span> {</code></li>
+          <li><code class="code-voice">    <span class="c">// class definition goes here</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">SomeStructure</span> {</code></li>
+          <li><code class="code-voice">    <span class="c">// structure definition goes here</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_140"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Whenever you define a new class or structure, you effectively define a brand new Swift type. Give types <code class="code-voice">UpperCamelCase</code> names (such as <code class="code-voice">SomeClass</code> and <code class="code-voice">SomeStructure</code> here) to match the capitalization of standard Swift types (such as <code class="code-voice">String</code>, <code class="code-voice">Int</code>, and <code class="code-voice">Bool</code>). Conversely, always give properties and methods <code class="code-voice">lowerCamelCase</code> names (such as <code class="code-voice">frameRate</code> and <code class="code-voice">incrementCount</code>) to differentiate them from type names.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  Here’s an example of a structure definition and a class definition:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Resolution</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">width</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">height</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">VideoMode</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">resolution</span> = <span class="vc">Resolution</span>()</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">interlaced</span> = <span class="kt">false</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">frameRate</span> = <span class="m">0.0</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The example above defines a new structure called <code class="code-voice">Resolution</code>, to describe a pixel-based display resolution. This structure has two stored properties called <code class="code-voice">width</code> and <code class="code-voice">height</code>. Stored properties are constants or variables that are bundled up and stored as part of the class or structure. These two properties are inferred to be of type <code class="code-voice">Int</code> by setting them to an initial integer value of <code class="code-voice">0</code>.
+</p><p class="para">
+  The example above also defines a new class called <code class="code-voice">VideoMode</code>, to describe a specific video mode for video display. This class has four variable stored properties. The first, <code class="code-voice">resolution</code>, is initialized with a new <code class="code-voice">Resolution</code> structure instance, which infers a property type of <code class="code-voice">Resolution</code>. For the other three properties, new <code class="code-voice">VideoMode</code> instances will be initialized with an <code class="code-voice">interlaced</code> setting of <code class="code-voice">false</code> (meaning “non-interlaced video”), a playback frame rate of <code class="code-voice">0.0</code>, and an optional <code class="code-voice">String</code> value called <code class="code-voice">name</code>. The <code class="code-voice">name</code> property is automatically given a default value of <code class="code-voice">nil</code>, or “no <code class="code-voice">name</code> value”, because it is of an optional type.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_141"></a>
+  <h3 class="section-name" tabindex="0">Class and Structure Instances</h3>
+  <p class="para">
+  The <code class="code-voice">Resolution</code> structure definition and the <code class="code-voice">VideoMode</code> class definition only describe what a <code class="code-voice">Resolution</code> or <code class="code-voice">VideoMode</code> will look like. They themselves do not describe a specific resolution or video mode. To do that, you need to create an instance of the structure or class.
+</p><p class="para">
+  The syntax for creating instances is very similar for both structures and classes:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">someResolution</span> = <span class="vc">Resolution</span>()</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">someVideoMode</span> = <span class="vc">VideoMode</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Structures and classes both use initializer syntax for new instances. The simplest form of initializer syntax uses the type name of the class or structure followed by empty parentheses, such as <code class="code-voice">Resolution()</code> or <code class="code-voice">VideoMode()</code>. This creates a new instance of the class or structure, with any properties initialized to their default values. Class and structure initialization is described in more detail in <span class="x-name"><a href="Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_306" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_306">Initialization</a></span>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_142"></a>
+  <h3 class="section-name" tabindex="0">Accessing Properties</h3>
+  <p class="para">
+  You can access the properties of an instance using <em>dot syntax</em>. In dot syntax, you write the property name immediately after the instance name, separated by a period (<code class="code-voice">.</code>), without any spaces:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The width of someResolution is </span>\(<span class="vc">someResolution</span>.<span class="vc">width</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "The width of someResolution is 0"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  In this example, <code class="code-voice">someResolution.width</code> refers to the <code class="code-voice">width</code> property of <code class="code-voice">someResolution</code>, and returns its default initial value of <code class="code-voice">0</code>.
+</p><p class="para">
+  You can drill down into sub-properties, such as the <code class="code-voice">width</code> property in the <code class="code-voice">resolution</code> property of a <code class="code-voice">VideoMode</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The width of someVideoMode is </span>\(<span class="vc">someVideoMode</span>.<span class="vc">resolution</span>.<span class="vc">width</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "The width of someVideoMode is 0"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can also use dot syntax to assign a new value to a variable property:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">someVideoMode</span>.<span class="vc">resolution</span>.<span class="vc">width</span> = <span class="m">1280</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The width of someVideoMode is now </span>\(<span class="vc">someVideoMode</span>.<span class="vc">resolution</span>.<span class="vc">width</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "The width of someVideoMode is now 1280"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_143"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Unlike Objective-C, Swift enables you to set sub-properties of a structure property directly. In the last example above, the <code class="code-voice">width</code> property of the <code class="code-voice">resolution</code> property of <code class="code-voice">someVideoMode</code> is set directly, without your needing to set the entire <code class="code-voice">resolution</code> property to a new value.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_144"></a>
+  <h3 class="section-name" tabindex="0">Memberwise Initializers for Structure Types</h3>
+  <p class="para">
+  All structures have an automatically-generated <em>memberwise initializer</em>, which you can use to initialize the member properties of new structure instances. Initial values for the properties of the new instance can be passed to the memberwise initializer by name:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">vga</span> = <span class="vc">Resolution</span>(<span class="vc">width</span>: <span class="m">640</span>, <span class="vc">height</span>: <span class="m">480</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Unlike structures, class instances do not receive a default memberwise initializer. Initializers are described in more detail in <span class="x-name"><a href="Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_306" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_306">Initialization</a></span>.
+</p>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_145"></a>
+  <h3 class="section-name" tabindex="0">Structures and Enumerations Are Value Types</h3>
+  <p class="para">
+  A <em>value type</em> is a type whose value is <em>copied</em> when it is assigned to a variable or constant, or when it is passed to a function.
+</p><p class="para">
+  You’ve actually been using value types extensively throughout the previous chapters. In fact, all of the basic types in Swift—integers, floating-point numbers, Booleans, strings, arrays and dictionaries—are value types, and are implemented as structures behind the scenes.
+</p><p class="para">
+  All structures and enumerations are value types in Swift. This means that any structure and enumeration instances you create—and any value types they have as properties—are always copied when they are passed around in your code.
+</p><p class="para">
+  Consider this example, which uses the <code class="code-voice">Resolution</code> structure from the previous example:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">hd</span> = <span class="vc">Resolution</span>(<span class="vc">width</span>: <span class="m">1920</span>, <span class="vc">height</span>: <span class="m">1080</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">cinema</span> = <span class="vc">hd</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This example declares a constant called <code class="code-voice">hd</code> and sets it to a <code class="code-voice">Resolution</code> instance initialized with the width and height of full HD video (<code class="code-voice">1920</code> pixels wide by <code class="code-voice">1080</code> pixels high).
+</p><p class="para">
+  It then declares a variable called <code class="code-voice">cinema</code> and sets it to the current value of <code class="code-voice">hd</code>. Because <code class="code-voice">Resolution</code> is a structure, a <em>copy</em> of the existing instance is made, and this new copy is assigned to <code class="code-voice">cinema</code>. Even though <code class="code-voice">hd</code> and <code class="code-voice">cinema</code> now have the same width and height, they are two completely different instances behind the scenes.
+</p><p class="para">
+  Next, the <code class="code-voice">width</code> property of <code class="code-voice">cinema</code> is amended to be the width of the slightly-wider 2K standard used for digital cinema projection (<code class="code-voice">2048</code> pixels wide and <code class="code-voice">1080</code> pixels high):
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">cinema</span>.<span class="vc">width</span> = <span class="m">2048</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Checking the <code class="code-voice">width</code> property of <code class="code-voice">cinema</code> shows that it has indeed changed to be <code class="code-voice">2048</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"cinema is now </span>\(<span class="vc">cinema</span>.<span class="vc">width</span>)<span class="s"> pixels wide"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "cinema is now 2048 pixels wide"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  However, the <code class="code-voice">width</code> property of the original <code class="code-voice">hd</code> instance still has the old value of <code class="code-voice">1920</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"hd is still </span>\(<span class="vc">hd</span>.<span class="vc">width</span>)<span class="s"> pixels wide"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "hd is still 1920 pixels wide"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  When <code class="code-voice">cinema</code> was given the current value of <code class="code-voice">hd</code>, the <em>values</em> stored in <code class="code-voice">hd</code> were copied into the new <code class="code-voice">cinema</code> instance. The end result is two completely separate instances, which just happened to contain the same numeric values. Because they are separate instances, setting the width of <code class="code-voice">cinema</code> to <code class="code-voice">2048</code> doesn’t affect the width stored in <code class="code-voice">hd</code>.
+</p><p class="para">
+  The same behavior applies to enumerations:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">enum</span> <span class="vc">CompassPoint</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">case</span> <span class="vc">North</span>, <span class="vc">South</span>, <span class="vc">East</span>, <span class="vc">West</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">currentDirection</span> = <span class="vc">CompassPoint</span>.<span class="vc">West</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">rememberedDirection</span> = <span class="vc">currentDirection</span></code></li>
+          <li><code class="code-voice"><span class="vc">currentDirection</span> = .<span class="vc">East</span></code></li>
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">rememberedDirection</span> == .<span class="vc">West</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"The remembered direction is still .West"</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "The remembered direction is still .West"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  When <code class="code-voice">rememberedDirection</code> is assigned the value of <code class="code-voice">currentDirection</code>, it is actually set to a copy of that value. Changing the value of <code class="code-voice">currentDirection</code> thereafter does not affect the copy of the original value that was stored in <code class="code-voice">rememberedDirection</code>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_146"></a>
+  <h3 class="section-name" tabindex="0">Classes Are Reference Types</h3>
+  <p class="para">
+  Unlike value types, <em>reference types</em> are <em>not</em> copied when they are assigned to a variable or constant, or when they are passed to a function. Rather than a copy, a reference to the same existing instance is used instead.
+</p><p class="para">
+  Here’s an example, using the <code class="code-voice">VideoMode</code> class defined above:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">tenEighty</span> = <span class="vc">VideoMode</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">tenEighty</span>.<span class="vc">resolution</span> = <span class="vc">hd</span></code></li>
+          <li><code class="code-voice"><span class="vc">tenEighty</span>.<span class="vc">interlaced</span> = <span class="kt">true</span></code></li>
+          <li><code class="code-voice"><span class="vc">tenEighty</span>.<span class="vc">name</span> = <span class="s">"1080i"</span></code></li>
+          <li><code class="code-voice"><span class="vc">tenEighty</span>.<span class="vc">frameRate</span> = <span class="m">25.0</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This example declares a new constant called <code class="code-voice">tenEighty</code> and sets it to refer to a new instance of the <code class="code-voice">VideoMode</code> class. The video mode is assigned a copy of the HD resolution of <code class="code-voice">1920</code> by <code class="code-voice">1080</code> from before. It is set to be interlaced, and is given a name of <code class="code-voice">"1080i"</code>. Finally, it is set to a frame rate of <code class="code-voice">25.0</code> frames per second.
+</p><p class="para">
+  Next, <code class="code-voice">tenEighty</code> is assigned to a new constant, called <code class="code-voice">alsoTenEighty</code>, and the frame rate of <code class="code-voice">alsoTenEighty</code> is modified:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">alsoTenEighty</span> = <span class="vc">tenEighty</span></code></li>
+          <li><code class="code-voice"><span class="vc">alsoTenEighty</span>.<span class="vc">frameRate</span> = <span class="m">30.0</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Because classes are reference types, <code class="code-voice">tenEighty</code> and <code class="code-voice">alsoTenEighty</code> actually both refer to the <em>same</em> <code class="code-voice">VideoMode</code> instance. Effectively, they are just two different names for the same single instance.
+</p><p class="para">
+  Checking the <code class="code-voice">frameRate</code> property of <code class="code-voice">tenEighty</code> shows that it correctly reports the new frame rate of <code class="code-voice">30.0</code> from the underlying <code class="code-voice">VideoMode</code> instance:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The frameRate property of tenEighty is now </span>\(<span class="vc">tenEighty</span>.<span class="vc">frameRate</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "The frameRate property of tenEighty is now 30.0"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Note that <code class="code-voice">tenEighty</code> and <code class="code-voice">alsoTenEighty</code> are declared as <em>constants</em>, rather than variables. However, you can still change <code class="code-voice">tenEighty.frameRate</code> and <code class="code-voice">alsoTenEighty.frameRate</code> because the values of the <code class="code-voice">tenEighty</code> and <code class="code-voice">alsoTenEighty</code> constants themselves do not actually change. <code class="code-voice">tenEighty</code> and <code class="code-voice">alsoTenEighty</code> themselves do not “store” the <code class="code-voice">VideoMode</code> instance—instead, they both <em>refer</em> to a <code class="code-voice">VideoMode</code> instance behind the scenes. It is the <code class="code-voice">frameRate</code> property of the underlying <code class="code-voice">VideoMode</code> that is changed, not the values of the constant references to that <code class="code-voice">VideoMode</code>.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_147"></a>
+  <h3 class="section-name" tabindex="0">Identity Operators</h3>
+  <p class="para">
+  Because classes are reference types, it is possible for multiple constants and variables to refer to the same single instance of a class behind the scenes. (The same is not true for structures and enumerations, because they are always copied when they are assigned to a constant or variable, or passed to a function.)
+</p><p class="para">
+  It can sometimes be useful to find out if two constants or variables refer to exactly the same instance of a class. To enable this, Swift provides two identity operators:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  Identical to (<code class="code-voice">===</code>)
+</p>
+</li><li class="item"><p class="para">
+  Not identical to (<code class="code-voice">!==</code>)
+</p>
+</li>
+</ul><p class="para">
+  Use these operators to check whether two constants or variables refer to the same single instance:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">tenEighty</span> === <span class="vc">alsoTenEighty</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"tenEighty and alsoTenEighty refer to the same VideoMode instance."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "tenEighty and alsoTenEighty refer to the same VideoMode instance."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Note that “identical to” (represented by three equals signs, or <code class="code-voice">===</code>) does not mean the same thing as “equal to” (represented by two equals signs, or <code class="code-voice">==</code>):
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  “Identical to” means that two constants or variables of class type refer to exactly the same class instance.
+</p>
+</li><li class="item"><p class="para">
+  “Equal to” means that two instances are considered “equal” or “equivalent” in value, for some appropriate meaning of “equal”, as defined by the type’s designer.
+</p>
+</li>
+</ul><p class="para">
+  When you define your own custom classes and structures, it is your responsibility to decide what qualifies as two instances being “equal”. The process of defining your own implementations of the “equal to” and “not equal to” operators is described in <span class="x-name"><a href="AdvancedOperators.html#//apple_ref/doc/uid/TP40014097-CH27-XID_84" data-id="//apple_ref/doc/uid/TP40014097-CH27-XID_84">Equivalence Operators</a></span>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_148"></a>
+  <h3 class="section-name" tabindex="0">Pointers</h3>
+  <p class="para">
+  If you have experience with C, C++, or Objective-C, you may know that these languages use <em>pointers</em> to refer to addresses in memory. A Swift constant or variable that refers to an instance of some reference type is similar to a pointer in C, but is not a direct pointer to an address in memory, and does not require you to write an asterisk (<code class="code-voice">*</code>) to indicate that you are creating a reference. Instead, these references are defined like any other constant or variable in Swift.
+</p>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_149"></a>
+  <h3 class="section-name" tabindex="0">Choosing Between Classes and Structures</h3>
+  <p class="para">
+  You can use both classes and structures to define custom data types to use as the building blocks of your program’s code.
+</p><p class="para">
+  However, structure instances are always passed by <em>value</em>, and class instances are always passed by <em>reference</em>. This means that they are suited to different kinds of tasks. As you consider the data constructs and functionality that you need for a project, decide whether each data construct should be defined as a class or as a structure.
+</p><p class="para">
+  As a general guideline, consider creating a structure when one or more of these conditions apply:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  The structure’s primary purpose is to encapsulate a few relatively simple data values.
+</p>
+</li><li class="item"><p class="para">
+  It is reasonable to expect that the encapsulated values will be copied rather than referenced when you assign or pass around an instance of that structure.
+</p>
+</li><li class="item"><p class="para">
+  Any properties stored by the structure are themselves value types, which would also be expected to be copied rather than referenced.
+</p>
+</li><li class="item"><p class="para">
+  The structure does not need to inherit properties or behavior from another existing type.
+</p>
+</li>
+</ul><p class="para">
+  Examples of good candidates for structures include:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  The size of a geometric shape, perhaps encapsulating a <code class="code-voice">width</code> property and a <code class="code-voice">height</code> property, both of type <code class="code-voice">Double</code>.
+</p>
+</li><li class="item"><p class="para">
+  A way to refer to ranges within a series, perhaps encapsulating a <code class="code-voice">start</code> property and a <code class="code-voice">length</code> property, both of type <code class="code-voice">Int</code>.
+</p>
+</li><li class="item"><p class="para">
+  A point in a 3D coordinate system, perhaps encapsulating <code class="code-voice">x</code>, <code class="code-voice">y</code> and <code class="code-voice">z</code> properties, each of type <code class="code-voice">Double</code>.
+</p>
+</li>
+</ul><p class="para">
+  In all other cases, define a class, and create instances of that class to be managed and passed by reference. In practice, this means that most custom data constructs should be classes, not structures.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_150"></a>
+  <h3 class="section-name" tabindex="0">Assignment and Copy Behavior for Strings, Arrays, and Dictionaries</h3>
+  <p class="para">
+  Swift’s <code class="code-voice">String</code>, <code class="code-voice">Array</code>, and <code class="code-voice">Dictionary</code> types are implemented as structures. This means that strings, arrays, and dictionaries are copied when they are assigned to a new constant or variable, or when they are passed to a function or method.
+</p><p class="para">
+  This behavior is different from <code class="code-voice">NSString</code>, <code class="code-voice">NSArray</code>, and <code class="code-voice">NSDictionary</code> in Foundation, which are implemented as classes, not structures. <code class="code-voice">NSString</code>, <code class="code-voice">NSArray</code>, and <code class="code-voice">NSDictionary</code> instances are always assigned and passed around as a reference to an existing instance, rather than as a copy.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH13-XID_151"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">The description above refers to the “copying” of strings, arrays, and dictionaries. The behavior you see in your code will always be as if a copy took place. However, Swift only performs an <em>actual</em> copy behind the scenes when it is absolutely necessary to do so. Swift manages all value copying to ensure optimal performance, and you should not avoid assignment to try to preempt this optimization.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+
+  	
+ 	<section id="next_previous" class="">
+    		<p class="previous-link"><a href="Enumerations.html#//apple_ref/doc/uid/TP40014097-CH12-XID_223" data-id="//apple_ref/doc/uid/TP40014097-CH12-XID_223">Enumerations</a></p>
+  			<p class="next-link"><a href="Properties.html#//apple_ref/doc/uid/TP40014097-CH14-XID_368" data-id="//apple_ref/doc/uid/TP40014097-CH14-XID_368">Properties</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>

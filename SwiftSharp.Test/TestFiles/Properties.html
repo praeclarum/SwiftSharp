@@ -1,0 +1,694 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14"></a><a name="//apple_ref/doc/uid/TP40014097-CH14-XID_368"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">Properties</h2>
+
+
+      <section id="mini_toc" class="hideInXcode" role="navigation">
+	<div id="mini_toc_button">
+  	<p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH14-XID_369">
+	  				Stored Properties
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH14-XID_374">
+	  				Computed Properties
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH14-XID_378">
+	  				Property Observers
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH14-XID_382">
+	  				Global and Local Variables
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH14-XID_384">
+	  				Type Properties
+	  			</a>
+  			</p>
+  		</li>
+	</ul>
+</section>
+
+  
+  	<section class="section">
+  		<p class="para">
+  <em>Properties</em> associate values with a particular class, structure, or enumeration. Stored properties store constant and variable values as part of an instance, whereas computed properties calculate (rather than store) a value. Computed properties are provided by classes, structures, and enumerations. Stored properties are provided only by classes and structures.
+</p>
+<p class="para">
+  Stored and computed properties are usually associated with instances of a particular type. However, properties can also be associated with the type itself. Such properties are known as type properties.
+</p>
+<p class="para">
+  In addition, you can define property observers to monitor changes in a property’s value, which you can respond to with custom actions. Property observers can be added to stored properties you define yourself, and also to properties that a subclass inherits from its superclass.
+</p>
+
+		</section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_369"></a>
+  <h3 class="section-name" tabindex="0">Stored Properties</h3>
+  <p class="para">
+  In its simplest form, a stored property is a constant or variable that is stored as part of an instance of a particular class or structure. Stored properties can be either <em>variable stored properties</em> (introduced by the <code class="code-voice">var</code> keyword) or <em>constant stored properties</em> (introduced by the <code class="code-voice">let</code> keyword).
+</p><p class="para">
+  You can provide a default value for a stored property as part of its definition, as described in <span class="x-name"><a href="Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_310" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_310">Default Property Values</a></span>. You can also set and modify the initial value for a stored property during initialization. This is true even for constant stored properties, as described in <span class="x-name"><a href="Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_317" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_317">Modifying Constant Properties During Initialization</a></span>.
+</p><p class="para">
+  The example below defines a structure called <code class="code-voice">FixedLengthRange</code>, which describes a range of integers whose range length cannot be changed once it is created:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">FixedLengthRange</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">firstValue</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">length</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">rangeOfThreeItems</span> = <span class="vc">FixedLengthRange</span>(<span class="vc">firstValue</span>: <span class="m">0</span>, <span class="vc">length</span>: <span class="m">3</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// the range represents integer values 0, 1, and 2</span></code></li>
+          <li><code class="code-voice"><span class="vc">rangeOfThreeItems</span>.<span class="vc">firstValue</span> = <span class="m">6</span></code></li>
+          <li><code class="code-voice"><span class="c">// the range now represents integer values 6, 7, and 8</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Instances of <code class="code-voice">FixedLengthRange</code> have a variable stored property called <code class="code-voice">firstValue</code> and a constant stored property called <code class="code-voice">length</code>. In the example above, <code class="code-voice">length</code> is initialized when the new range is created and cannot be changed thereafter, because it is a constant property.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_370"></a>
+  <h3 class="section-name" tabindex="0">Stored Properties of Constant Structure Instances</h3>
+  <p class="para">
+  If you create an instance of a structure and assign that instance to a constant, you cannot modify the instance’s properties, even if they were declared as variable properties:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">rangeOfFourItems</span> = <span class="vc">FixedLengthRange</span>(<span class="vc">firstValue</span>: <span class="m">0</span>, <span class="vc">length</span>: <span class="m">4</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// this range represents integer values 0, 1, 2, and 3</span></code></li>
+          <li><code class="code-voice"><span class="vc">rangeOfFourItems</span>.<span class="vc">firstValue</span> = <span class="m">6</span></code></li>
+          <li><code class="code-voice"><span class="c">// this will report an error, even though firstValue is a variable property</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Because <code class="code-voice">rangeOfFourItems</code> is declared as a constant (with the <code class="code-voice">let</code> keyword), it is not possible to change its <code class="code-voice">firstValue</code> property, even though <code class="code-voice">firstValue</code> is a variable property.
+</p><p class="para">
+  This behavior is due to structures being <em>value types</em>. When an instance of a value type is marked as a constant, so are all of its properties.
+</p><p class="para">
+  The same is not true for classes, which are <em>reference types</em>. If you assign an instance of a reference type to a constant, you can still change that instance’s variable properties.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_371"></a>
+  <h3 class="section-name" tabindex="0">Lazy Stored Properties</h3>
+  <p class="para">
+  A <em>lazy stored property</em> is a property whose initial value is not calculated until the first time it is used. You indicate a lazy stored property by writing the <code class="code-voice">lazy</code> modifier before its declaration.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_372"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">You must always declare a lazy property as a variable (with the <code class="code-voice">var</code> keyword), because its initial value might not be retrieved until after instance initialization completes. Constant properties must always have a value <em>before</em> initialization completes, and therefore cannot be declared as lazy.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  Lazy properties are useful when the initial value for a property is dependent on outside factors whose values are not known until after an instance’s initialization is complete. Lazy properties are also useful when the initial value for a property requires complex or computationally expensive setup that should not be performed unless or until it is needed.
+</p><p class="para">
+  The example below uses a lazy stored property to avoid unnecessary initialization of a complex class. This example defines two classes called <code class="code-voice">DataImporter</code> and <code class="code-voice">DataManager</code>, neither of which is shown in full:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">DataImporter</span> {</code></li>
+          <li><code class="code-voice">    <span class="c">/*</span></code></li>
+          <li><code class="code-voice"><span class="c">    DataImporter is a class to import data from an external file.</span></code></li>
+          <li><code class="code-voice"><span class="c">    The class is assumed to take a non-trivial amount of time to initialize.</span></code></li>
+          <li><code class="code-voice"><span class="c">    */</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">fileName</span> = <span class="s">"data.txt"</span></code></li>
+          <li><code class="code-voice">    <span class="c">// the DataImporter class would provide data importing functionality here</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">DataManager</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">lazy</span> <span class="kt">var</span> <span class="vc">importer</span> = <span class="vc">DataImporter</span>()</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">data</span> = [<span class="vc">String</span>]()</code></li>
+          <li><code class="code-voice">    <span class="c">// the DataManager class would provide data management functionality here</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">manager</span> = <span class="vc">DataManager</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">manager</span>.<span class="vc">data</span>.<span class="vc">append</span>(<span class="s">"Some data"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">manager</span>.<span class="vc">data</span>.<span class="vc">append</span>(<span class="s">"Some more data"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// the DataImporter instance for the importer property has not yet been created</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">DataManager</code> class has a stored property called <code class="code-voice">data</code>, which is initialized with a new, empty array of <code class="code-voice">String</code> values. Although the rest of its functionality is not shown, the purpose of this <code class="code-voice">DataManager</code> class is to manage and provide access to this array of <code class="code-voice">String</code> data.
+</p><p class="para">
+  Part of the functionality of the <code class="code-voice">DataManager</code> class is the ability to import data from a file. This functionality is provided by the <code class="code-voice">DataImporter</code> class, which is assumed to take a non-trivial amount of time to initialize. This might be because a <code class="code-voice">DataImporter</code> instance needs to open a file and read its contents into memory when the <code class="code-voice">DataImporter</code> instance is initialized.
+</p><p class="para">
+  It is possible for a <code class="code-voice">DataManager</code> instance to manage its data without ever importing data from a file, so there is no need to create a new <code class="code-voice">DataImporter</code> instance when the <code class="code-voice">DataManager</code> itself is created. Instead, it makes more sense to create the <code class="code-voice">DataImporter</code> instance if and when it is first used.
+</p><p class="para">
+  Because it is marked with the <code class="code-voice">lazy</code> modifier, the <code class="code-voice">DataImporter</code> instance for the <code class="code-voice">importer</code> property is only created when the <code class="code-voice">importer</code> property is first accessed, such as when its <code class="code-voice">fileName</code> property is queried:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">manager</span>.<span class="vc">importer</span>.<span class="vc">fileName</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// the DataImporter instance for the importer property has now been created</span></code></li>
+          <li><code class="code-voice"><span class="c">// prints "data.txt"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_373"></a>
+  <h3 class="section-name" tabindex="0">Stored Properties and Instance Variables</h3>
+  <p class="para">
+  If you have experience with Objective-C, you may know that it provides <em>two</em> ways to store values and references as part of a class instance. In addition to properties, you can use instance variables as a backing store for the values stored in a property.
+</p><p class="para">
+  Swift unifies these concepts into a single property declaration. A Swift property does not have a corresponding instance variable, and the backing store for a property is not accessed directly. This approach avoids confusion about how the value is accessed in different contexts and simplifies the property’s declaration into a single, definitive statement. All information about the property—including its name, type, and memory management characteristics—is defined in a single location as part of the type’s definition.
+</p>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_374"></a>
+  <h3 class="section-name" tabindex="0">Computed Properties</h3>
+  <p class="para">
+  In addition to stored properties, classes, structures, and enumerations can define <em>computed properties</em>, which do not actually store a value. Instead, they provide a getter and an optional setter to retrieve and set other properties and values indirectly.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Point</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">x</span> = <span class="m">0.0</span>, <span class="vc">y</span> = <span class="m">0.0</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Size</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">width</span> = <span class="m">0.0</span>, <span class="vc">height</span> = <span class="m">0.0</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Rect</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">origin</span> = <span class="vc">Point</span>()</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">size</span> = <span class="vc">Size</span>()</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">center</span>: <span class="n"><!-- a href="" -->Point<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">get</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">let</span> <span class="vc">centerX</span> = <span class="vc">origin</span>.<span class="vc">x</span> + (<span class="vc">size</span>.<span class="vc">width</span> / <span class="m">2</span>)</code></li>
+          <li><code class="code-voice">            <span class="kt">let</span> <span class="vc">centerY</span> = <span class="vc">origin</span>.<span class="vc">y</span> + (<span class="vc">size</span>.<span class="vc">height</span> / <span class="m">2</span>)</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="vc">Point</span>(<span class="vc">x</span>: <span class="vc">centerX</span>, <span class="vc">y</span>: <span class="vc">centerY</span>)</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">        <span class="kt">set</span>(<span class="vc">newCenter</span>) {</code></li>
+          <li><code class="code-voice">            <span class="vc">origin</span>.<span class="vc">x</span> = <span class="vc">newCenter</span>.<span class="vc">x</span> - (<span class="vc">size</span>.<span class="vc">width</span> / <span class="m">2</span>)</code></li>
+          <li><code class="code-voice">            <span class="vc">origin</span>.<span class="vc">y</span> = <span class="vc">newCenter</span>.<span class="vc">y</span> - (<span class="vc">size</span>.<span class="vc">height</span> / <span class="m">2</span>)</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">square</span> = <span class="vc">Rect</span>(<span class="vc">origin</span>: <span class="vc">Point</span>(<span class="vc">x</span>: <span class="m">0.0</span>, <span class="vc">y</span>: <span class="m">0.0</span>),</code></li>
+          <li><code class="code-voice">    <span class="vc">size</span>: <span class="vc">Size</span>(<span class="vc">width</span>: <span class="m">10.0</span>, <span class="vc">height</span>: <span class="m">10.0</span>))</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">initialSquareCenter</span> = <span class="vc">square</span>.<span class="vc">center</span></code></li>
+          <li><code class="code-voice"><span class="vc">square</span>.<span class="vc">center</span> = <span class="vc">Point</span>(<span class="vc">x</span>: <span class="m">15.0</span>, <span class="vc">y</span>: <span class="m">15.0</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"square.origin is now at (</span>\(<span class="vc">square</span>.<span class="vc">origin</span>.<span class="vc">x</span>)<span class="s">, </span>\(<span class="vc">square</span>.<span class="vc">origin</span>.<span class="vc">y</span>)<span class="s">)"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "square.origin is now at (10.0, 10.0)"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This example defines three structures for working with geometric shapes:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  <code class="code-voice">Point</code> encapsulates an <code class="code-voice">(x, y)</code> coordinate.
+</p>
+</li><li class="item"><p class="para">
+  <code class="code-voice">Size</code> encapsulates a <code class="code-voice">width</code> and a <code class="code-voice">height</code>.
+</p>
+</li><li class="item"><p class="para">
+  <code class="code-voice">Rect</code> defines a rectangle by an origin point and a size.
+</p>
+</li>
+</ul><p class="para">
+  The <code class="code-voice">Rect</code> structure also provides a computed property called <code class="code-voice">center</code>. The current center position of a <code class="code-voice">Rect</code> can always be determined from its <code class="code-voice">origin</code> and <code class="code-voice">size</code>, and so you don’t need to store the center point as an explicit <code class="code-voice">Point</code> value. Instead, <code class="code-voice">Rect</code> defines a custom getter and setter for a computed variable called <code class="code-voice">center</code>, to enable you to work with the rectangle’s <code class="code-voice">center</code> as if it were a real stored property.
+</p><p class="para">
+  The preceding example creates a new <code class="code-voice">Rect</code> variable called <code class="code-voice">square</code>. The <code class="code-voice">square</code> variable is initialized with an origin point of <code class="code-voice">(0, 0)</code>, and a width and height of <code class="code-voice">10</code>. This square is represented by the blue square in the diagram below.
+</p><p class="para">
+  The <code class="code-voice">square</code> variable’s <code class="code-voice">center</code> property is then accessed through dot syntax (<code class="code-voice">square.center</code>), which causes the getter for <code class="code-voice">center</code> to be called, to retrieve the current property value. Rather than returning an existing value, the getter actually calculates and returns a new <code class="code-voice">Point</code> to represent the center of the square. As can be seen above, the getter correctly returns a center point of <code class="code-voice">(5, 5)</code>.
+</p><p class="para">
+  The <code class="code-voice">center</code> property is then set to a new value of <code class="code-voice">(15, 15)</code>, which moves the square up and to the right, to the new position shown by the orange square in the diagram below. Setting the <code class="code-voice">center</code> property calls the setter for <code class="code-voice">center</code>, which modifies the <code class="code-voice">x</code> and <code class="code-voice">y</code> values of the stored <code class="code-voice">origin</code> property, and moves the square to its new position.
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/computedProperties_2x.png" alt="image: ../Art/computedProperties_2x.png" width="388" height="387"/>
+</figure>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_375"></a>
+  <h3 class="section-name" tabindex="0">Shorthand Setter Declaration</h3>
+  <p class="para">
+  If a computed property’s setter does not define a name for the new value to be set, a default name of <code class="code-voice">newValue</code> is used. Here’s an alternative version of the <code class="code-voice">Rect</code> structure, which takes advantage of this shorthand notation:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">AlternativeRect</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">origin</span> = <span class="vc">Point</span>()</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">size</span> = <span class="vc">Size</span>()</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">center</span>: <span class="n"><!-- a href="" -->Point<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">get</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">let</span> <span class="vc">centerX</span> = <span class="vc">origin</span>.<span class="vc">x</span> + (<span class="vc">size</span>.<span class="vc">width</span> / <span class="m">2</span>)</code></li>
+          <li><code class="code-voice">            <span class="kt">let</span> <span class="vc">centerY</span> = <span class="vc">origin</span>.<span class="vc">y</span> + (<span class="vc">size</span>.<span class="vc">height</span> / <span class="m">2</span>)</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="vc">Point</span>(<span class="vc">x</span>: <span class="vc">centerX</span>, <span class="vc">y</span>: <span class="vc">centerY</span>)</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">        <span class="kt">set</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">origin</span>.<span class="vc">x</span> = <span class="vc">newValue</span>.<span class="vc">x</span> - (<span class="vc">size</span>.<span class="vc">width</span> / <span class="m">2</span>)</code></li>
+          <li><code class="code-voice">            <span class="vc">origin</span>.<span class="vc">y</span> = <span class="vc">newValue</span>.<span class="vc">y</span> - (<span class="vc">size</span>.<span class="vc">height</span> / <span class="m">2</span>)</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_376"></a>
+  <h3 class="section-name" tabindex="0">Read-Only Computed Properties</h3>
+  <p class="para">
+  A computed property with a getter but no setter is known as a <em>read-only computed property</em>. A read-only computed property always returns a value, and can be accessed through dot syntax, but cannot be set to a different value.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_377"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">You must declare computed properties—including read-only computed properties—as variable properties with the <code class="code-voice">var</code> keyword, because their value is not fixed. The <code class="code-voice">let</code> keyword is only used for constant properties, to indicate that their values cannot be changed once they are set as part of instance initialization.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  You can simplify the declaration of a read-only computed property by removing the <code class="code-voice">get</code> keyword and its braces:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Cuboid</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">width</span> = <span class="m">0.0</span>, <span class="vc">height</span> = <span class="m">0.0</span>, <span class="vc">depth</span> = <span class="m">0.0</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">volume</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="vc">width</span> * <span class="vc">height</span> * <span class="vc">depth</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">fourByFiveByTwo</span> = <span class="vc">Cuboid</span>(<span class="vc">width</span>: <span class="m">4.0</span>, <span class="vc">height</span>: <span class="m">5.0</span>, <span class="vc">depth</span>: <span class="m">2.0</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"the volume of fourByFiveByTwo is </span>\(<span class="vc">fourByFiveByTwo</span>.<span class="vc">volume</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "the volume of fourByFiveByTwo is 40.0"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This example defines a new structure called <code class="code-voice">Cuboid</code>, which represents a 3D rectangular box with <code class="code-voice">width</code>, <code class="code-voice">height</code>, and <code class="code-voice">depth</code> properties. This structure also has a read-only computed property called <code class="code-voice">volume</code>, which calculates and returns the current volume of the cuboid. It doesn’t make sense for <code class="code-voice">volume</code> to be settable, because it would be ambiguous as to which values of <code class="code-voice">width</code>, <code class="code-voice">height</code>, and <code class="code-voice">depth</code> should be used for a particular <code class="code-voice">volume</code> value. Nonetheless, it is useful for a <code class="code-voice">Cuboid</code> to provide a read-only computed property to enable external users to discover its current calculated volume.
+</p>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_378"></a>
+  <h3 class="section-name" tabindex="0">Property Observers</h3>
+  <p class="para">
+  <em>Property observers</em> observe and respond to changes in a property’s value. Property observers are called every time a property’s value is set, even if the new value is the same as the property’s current value.
+</p><p class="para">
+  You can add property observers to any stored properties you define, apart from lazy stored properties. You can also add property observers to any inherited property (whether stored or computed) by overriding the property within a subclass. Property overriding is described in <span class="x-name"><a href="Inheritance.html#//apple_ref/doc/uid/TP40014097-CH17-XID_297" data-id="//apple_ref/doc/uid/TP40014097-CH17-XID_297">Overriding</a></span>.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_379"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">You don’t need to define property observers for non-overridden computed properties, because you can observe and respond to changes to their value from directly within the computed property’s setter.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  You have the option to define either or both of these observers on a property:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  <code class="code-voice">willSet</code> is called just before the value is stored.
+</p>
+</li><li class="item"><p class="para">
+  <code class="code-voice">didSet</code> is called immediately after the new value is stored.
+</p>
+</li>
+</ul><p class="para">
+  If you implement a <code class="code-voice">willSet</code> observer, it is passed the new property value as a constant parameter. You can specify a name for this parameter as part of your <code class="code-voice">willSet</code> implementation. If you choose not to write the parameter name and parentheses within your implementation, the parameter will still be made available with a default parameter name of <code class="code-voice">newValue</code>.
+</p><p class="para">
+  Similarly, if you implement a <code class="code-voice">didSet</code> observer, it will be passed a constant parameter containing the old property value. You can name the parameter if you wish, or use the default parameter name of <code class="code-voice">oldValue</code>.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_380"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para"><code class="code-voice">willSet</code> and <code class="code-voice">didSet</code> observers are not called when a property is first initialized. They are only called when the property’s value is set outside of an initialization context.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  Here’s an example of <code class="code-voice">willSet</code> and <code class="code-voice">didSet</code> in action. The example below defines a new class called <code class="code-voice">StepCounter</code>, which tracks the total number of steps that a person takes while walking. This class might be used with input data from a pedometer or other step counter to keep track of a person’s exercise during their daily routine.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">StepCounter</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">totalSteps</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> = <span class="m">0</span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">willSet</span>(<span class="vc">newTotalSteps</span>) {</code></li>
+          <li><code class="code-voice">            <span class="vc">println</span>(<span class="s">"About to set totalSteps to </span>\(<span class="vc">newTotalSteps</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">        <span class="kt">didSet</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">if</span> <span class="vc">totalSteps</span> &gt; <span class="vc">oldValue</span>  {</code></li>
+          <li><code class="code-voice">                <span class="vc">println</span>(<span class="s">"Added </span>\(<span class="vc">totalSteps</span> - <span class="vc">oldValue</span>)<span class="s"> steps"</span>)</code></li>
+          <li><code class="code-voice">            }</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">stepCounter</span> = <span class="vc">StepCounter</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">stepCounter</span>.<span class="vc">totalSteps</span> = <span class="m">200</span></code></li>
+          <li><code class="code-voice"><span class="c">// About to set totalSteps to 200</span></code></li>
+          <li><code class="code-voice"><span class="c">// Added 200 steps</span></code></li>
+          <li><code class="code-voice"><span class="vc">stepCounter</span>.<span class="vc">totalSteps</span> = <span class="m">360</span></code></li>
+          <li><code class="code-voice"><span class="c">// About to set totalSteps to 360</span></code></li>
+          <li><code class="code-voice"><span class="c">// Added 160 steps</span></code></li>
+          <li><code class="code-voice"><span class="vc">stepCounter</span>.<span class="vc">totalSteps</span> = <span class="m">896</span></code></li>
+          <li><code class="code-voice"><span class="c">// About to set totalSteps to 896</span></code></li>
+          <li><code class="code-voice"><span class="c">// Added 536 steps</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">StepCounter</code> class declares a <code class="code-voice">totalSteps</code> property of type <code class="code-voice">Int</code>. This is a stored property with <code class="code-voice">willSet</code> and <code class="code-voice">didSet</code> observers.
+</p><p class="para">
+  The <code class="code-voice">willSet</code> and <code class="code-voice">didSet</code> observers for <code class="code-voice">totalSteps</code> are called whenever the property is assigned a new value. This is true even if the new value is the same as the current value.
+</p><p class="para">
+  This example’s <code class="code-voice">willSet</code> observer uses a custom parameter name of <code class="code-voice">newTotalSteps</code> for the upcoming new value. In this example, it simply prints out the value that is about to be set.
+</p><p class="para">
+  The <code class="code-voice">didSet</code> observer is called after the value of <code class="code-voice">totalSteps</code> is updated. It compares the new value of <code class="code-voice">totalSteps</code> against the old value. If the total number of steps has increased, a message is printed to indicate how many new steps have been taken. The <code class="code-voice">didSet</code> observer does not provide a custom parameter name for the old value, and the default name of <code class="code-voice">oldValue</code> is used instead.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_381"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">If you assign a value to a property within its own <code class="code-voice">didSet</code> observer, the new value that you assign will replace the one that was just set.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_382"></a>
+  <h3 class="section-name" tabindex="0">Global and Local Variables</h3>
+  <p class="para">
+  The capabilities described above for computing and observing properties are also available to <em>global variables</em> and <em>local variables</em>. Global variables are variables that are defined outside of any function, method, closure, or type context. Local variables are variables that are defined within a function, method, or closure context.
+</p><p class="para">
+  The global and local variables you have encountered in previous chapters have all been <em>stored variables</em>. Stored variables, like stored properties, provide storage for a value of a certain type and allow that value to be set and retrieved.
+</p><p class="para">
+  However, you can also define <em>computed variables</em> and define observers for stored variables, in either a global or local scope. Computed variables calculate rather than store a value, and are written in the same way as computed properties.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_383"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Global constants and variables are always computed lazily, in a similar manner to <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH14-XID_371" data-id="//apple_ref/doc/uid/TP40014097-CH14-XID_371">Lazy Stored Properties</a></span>. Unlike lazy stored properties, global constants and variables do not need to be marked with the <code class="code-voice">lazy</code> modifier.
+    	</p>
+    <p class="para">
+  Local constants and variables are never computed lazily.
+</p>
+
+  </aside>
+</div>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_384"></a>
+  <h3 class="section-name" tabindex="0">Type Properties</h3>
+  <p class="para">
+  Instance properties are properties that belong to an instance of a particular type. Every time you create a new instance of that type, it has its own set of property values, separate from any other instance.
+</p><p class="para">
+  You can also define properties that belong to the type itself, not to any one instance of that type. There will only ever be one copy of these properties, no matter how many instances of that type you create. These kinds of properties are called <em>type properties</em>.
+</p><p class="para">
+  Type properties are useful for defining values that are universal to <em>all</em> instances of a particular type, such as a constant property that all instances can use (like a static constant in C), or a variable property that stores a value that is global to all instances of that type (like a static variable in C).
+</p><p class="para">
+  For value types (that is, structures and enumerations), you can define stored and computed type properties. For classes, you can define computed type properties only.
+</p><p class="para">
+  Stored type properties for value types can be variables or constants. Computed type properties are always declared as variable properties, in the same way as computed instance properties.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_385"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Unlike stored instance properties, you must always give stored type properties a default value. This is because the type itself does not have an initializer that can assign a value to a stored type property at initialization time.
+    	</p>
+    
+  </aside>
+</div>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_386"></a>
+  <h3 class="section-name" tabindex="0">Type Property Syntax</h3>
+  <p class="para">
+  In C and Objective-C, you define static constants and variables associated with a type as <em>global</em> static variables. In Swift, however, type properties are written as part of the type’s definition, within the type’s outer curly braces, and each type property is explicitly scoped to the type it supports.
+</p><p class="para">
+  You define type properties for value types with the <code class="code-voice">static</code> keyword, and type properties for class types with the <code class="code-voice">class</code> keyword. The example below shows the syntax for stored and computed type properties:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">SomeStructure</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">static</span> <span class="kt">var</span> <span class="vc">storedTypeProperty</span> = <span class="s">"Some value."</span></code></li>
+          <li><code class="code-voice">    <span class="kt">static</span> <span class="kt">var</span> <span class="vc">computedTypeProperty</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="c">// return an Int value here</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">enum</span> <span class="vc">SomeEnumeration</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">static</span> <span class="kt">var</span> <span class="vc">storedTypeProperty</span> = <span class="s">"Some value."</span></code></li>
+          <li><code class="code-voice">    <span class="kt">static</span> <span class="kt">var</span> <span class="vc">computedTypeProperty</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="c">// return an Int value here</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">SomeClass</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">class</span> <span class="kt">var</span> <span class="vc">computedTypeProperty</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="c">// return an Int value here</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_387"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">The computed type property examples above are for read-only computed type properties, but you can also define read-write computed type properties with the same syntax as for computed instance properties.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_388"></a>
+  <h3 class="section-name" tabindex="0">Querying and Setting Type Properties</h3>
+  <p class="para">
+  Type properties are queried and set with dot syntax, just like instance properties. However, type properties are queried and set on the <em>type</em>, not on an instance of that type. For example:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">SomeClass</span>.<span class="vc">computedTypeProperty</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "42"</span></code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">SomeStructure</span>.<span class="vc">storedTypeProperty</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Some value."</span></code></li>
+          <li><code class="code-voice"><span class="vc">SomeStructure</span>.<span class="vc">storedTypeProperty</span> = <span class="s">"Another value."</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">SomeStructure</span>.<span class="vc">storedTypeProperty</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Another value."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The examples that follow use two stored type properties as part of a structure that models an audio level meter for a number of audio channels. Each channel has an integer audio level between <code class="code-voice">0</code> and <code class="code-voice">10</code> inclusive.
+</p><p class="para">
+  The figure below illustrates how two of these audio channels can be combined to model a stereo audio level meter. When a channel’s audio level is <code class="code-voice">0</code>, none of the lights for that channel are lit. When the audio level is <code class="code-voice">10</code>, all of the lights for that channel are lit. In this figure, the left channel has a current level of <code class="code-voice">9</code>, and the right channel has a current level of <code class="code-voice">7</code>:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/staticPropertiesVUMeter_2x.png" alt="image: ../Art/staticPropertiesVUMeter_2x.png" width="243" height="357"/>
+</figure><p class="para">
+  The audio channels described above are represented by instances of the <code class="code-voice">AudioChannel</code> structure:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">AudioChannel</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">static</span> <span class="kt">let</span> <span class="vc">thresholdLevel</span> = <span class="m">10</span></code></li>
+          <li><code class="code-voice">    <span class="kt">static</span> <span class="kt">var</span> <span class="vc">maxInputLevelForAllChannels</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">currentLevel</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> = <span class="m">0</span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">didSet</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">if</span> <span class="vc">currentLevel</span> &gt; <span class="vc">AudioChannel</span>.<span class="vc">thresholdLevel</span> {</code></li>
+          <li><code class="code-voice">                <span class="c">// cap the new audio level to the threshold level</span></code></li>
+          <li><code class="code-voice">                <span class="vc">currentLevel</span> = <span class="vc">AudioChannel</span>.<span class="vc">thresholdLevel</span></code></li>
+          <li><code class="code-voice">            }</code></li>
+          <li><code class="code-voice">            <span class="kt">if</span> <span class="vc">currentLevel</span> &gt; <span class="vc">AudioChannel</span>.<span class="vc">maxInputLevelForAllChannels</span> {</code></li>
+          <li><code class="code-voice">                <span class="c">// store this as the new overall maximum input level</span></code></li>
+          <li><code class="code-voice">                <span class="vc">AudioChannel</span>.<span class="vc">maxInputLevelForAllChannels</span> = <span class="vc">currentLevel</span></code></li>
+          <li><code class="code-voice">            }</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">AudioChannel</code> structure defines two stored type properties to support its functionality. The first, <code class="code-voice">thresholdLevel</code>, defines the maximum threshold value an audio level can take. This is a constant value of <code class="code-voice">10</code> for all <code class="code-voice">AudioChannel</code> instances. If an audio signal comes in with a higher value than <code class="code-voice">10</code>, it will be capped to this threshold value (as described below).
+</p><p class="para">
+  The second type property is a variable stored property called <code class="code-voice">maxInputLevelForAllChannels</code>. This keeps track of the maximum input value that has been received by <em>any</em> <code class="code-voice">AudioChannel</code> instance. It starts with an initial value of <code class="code-voice">0</code>.
+</p><p class="para">
+  The <code class="code-voice">AudioChannel</code> structure also defines a stored instance property called <code class="code-voice">currentLevel</code>, which represents the channel’s current audio level on a scale of <code class="code-voice">0</code> to <code class="code-voice">10</code>.
+</p><p class="para">
+  The <code class="code-voice">currentLevel</code> property has a <code class="code-voice">didSet</code> property observer to check the value of <code class="code-voice">currentLevel</code> whenever it is set. This observer performs two checks:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  If the new value of <code class="code-voice">currentLevel</code> is greater than the allowed <code class="code-voice">thresholdLevel</code>, the property observer caps <code class="code-voice">currentLevel</code> to <code class="code-voice">thresholdLevel</code>.
+</p>
+</li><li class="item"><p class="para">
+  If the new value of <code class="code-voice">currentLevel</code> (after any capping) is higher than any value previously received by <em>any</em> <code class="code-voice">AudioChannel</code> instance, the property observer stores the new <code class="code-voice">currentLevel</code> value in the <code class="code-voice">maxInputLevelForAllChannels</code> static property.
+</p>
+</li>
+</ul><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH14-XID_389"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">In the first of these two checks, the <code class="code-voice">didSet</code> observer sets <code class="code-voice">currentLevel</code> to a different value. This does not, however, cause the observer to be called again.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  You can use the <code class="code-voice">AudioChannel</code> structure to create two new audio channels called <code class="code-voice">leftChannel</code> and <code class="code-voice">rightChannel</code>, to represent the audio levels of a stereo sound system:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">leftChannel</span> = <span class="vc">AudioChannel</span>()</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">rightChannel</span> = <span class="vc">AudioChannel</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  If you set the <code class="code-voice">currentLevel</code> of the <em>left</em> channel to <code class="code-voice">7</code>, you can see that the <code class="code-voice">maxInputLevelForAllChannels</code> type property is updated to equal <code class="code-voice">7</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">leftChannel</span>.<span class="vc">currentLevel</span> = <span class="m">7</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">leftChannel</span>.<span class="vc">currentLevel</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "7"</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">AudioChannel</span>.<span class="vc">maxInputLevelForAllChannels</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "7"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  If you try to set the <code class="code-voice">currentLevel</code> of the <em>right</em> channel to <code class="code-voice">11</code>, you can see that the right channel’s <code class="code-voice">currentLevel</code> property is capped to the maximum value of <code class="code-voice">10</code>, and the <code class="code-voice">maxInputLevelForAllChannels</code> type property is updated to equal <code class="code-voice">10</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">rightChannel</span>.<span class="vc">currentLevel</span> = <span class="m">11</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">rightChannel</span>.<span class="vc">currentLevel</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "10"</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">AudioChannel</span>.<span class="vc">maxInputLevelForAllChannels</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "10"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+
+</section>
+
+  	
+ 	<section id="next_previous" class="">
+    		<p class="previous-link"><a href="ClassesAndStructures.html#//apple_ref/doc/uid/TP40014097-CH13-XID_135" data-id="//apple_ref/doc/uid/TP40014097-CH13-XID_135">Classes and Structures</a></p>
+  			<p class="next-link"><a href="Methods.html#//apple_ref/doc/uid/TP40014097-CH15-XID_344" data-id="//apple_ref/doc/uid/TP40014097-CH15-XID_344">Methods</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>

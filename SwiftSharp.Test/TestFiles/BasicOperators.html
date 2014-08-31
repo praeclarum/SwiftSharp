@@ -1,0 +1,947 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6"></a><a name="//apple_ref/doc/uid/TP40014097-CH6-XID_109"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">Basic Operators</h2>
+
+
+      <section id="mini_toc" class="hideInXcode" role="navigation">
+	<div id="mini_toc_button">
+  	<p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH6-XID_110">
+	  				Terminology
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH6-XID_111">
+	  				Assignment Operator
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH6-XID_112">
+	  				Arithmetic Operators
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH6-XID_119">
+	  				Compound Assignment Operators
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH6-XID_121">
+	  				Comparison Operators
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH6-XID_123">
+	  				Ternary Conditional Operator
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH6-XID_124">
+	  				Nil Coalescing Operator
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH6-XID_126">
+	  				Range Operators
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH6-XID_129">
+	  				Logical Operators
+	  			</a>
+  			</p>
+  		</li>
+	</ul>
+</section>
+
+  
+  	<section class="section">
+  		<p class="para">
+  An <em>operator</em> is a special symbol or phrase that you use to check, change, or combine values. For example, the addition operator (<code class="code-voice">+</code>) adds two numbers together (as in <code class="code-voice">let i = 1 + 2</code>). More complex examples include the logical AND operator <code class="code-voice">&amp;&amp;</code> (as in <code class="code-voice">if enteredDoorCode &amp;&amp; passedRetinaScan</code>) and the increment operator <code class="code-voice">++i</code>, which is a shortcut to increase the value of <code class="code-voice">i</code> by <code class="code-voice">1</code>.
+</p>
+<p class="para">
+  Swift supports most standard C operators and improves several capabilities to eliminate common coding errors. The assignment operator (<code class="code-voice">=</code>) does not return a value, to prevent it from being mistakenly used when the equal to operator (<code class="code-voice">==</code>) is intended. Arithmetic operators (<code class="code-voice">+</code>, <code class="code-voice">-</code>, <code class="code-voice">*</code>, <code class="code-voice">/</code>, <code class="code-voice">%</code> and so forth) detect and disallow value overflow, to avoid unexpected results when working with numbers that become larger or smaller than the allowed value range of the type that stores them. You can opt in to value overflow behavior by using Swift’s overflow operators, as described in <span class="x-name"><a href="AdvancedOperators.html#//apple_ref/doc/uid/TP40014097-CH27-XID_74" data-id="//apple_ref/doc/uid/TP40014097-CH27-XID_74">Overflow Operators</a></span>.
+</p>
+<p class="para">
+  Unlike C, Swift lets you perform remainder (<code class="code-voice">%</code>) calculations on floating-point numbers. Swift also provides two range operators (<code class="code-voice">a..&lt;b</code> and <code class="code-voice">a...b</code>) not found in C, as a shortcut for expressing a range of values.
+</p>
+<p class="para">
+  This chapter describes the common operators in Swift. <span class="x-name"><a href="AdvancedOperators.html#//apple_ref/doc/uid/TP40014097-CH27-XID_65" data-id="//apple_ref/doc/uid/TP40014097-CH27-XID_65">Advanced Operators</a></span> covers Swift’s advanced operators, and describes how to define your own custom operators and implement the standard operators for your own custom types.
+</p>
+
+		</section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_110"></a>
+  <h3 class="section-name" tabindex="0">Terminology</h3>
+  <p class="para">
+  Operators are unary, binary, or ternary:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  <em>Unary</em> operators operate on a single target (such as <code class="code-voice">-a</code>). Unary <em>prefix</em> operators appear immediately before their target (such as <code class="code-voice">!b</code>), and unary <em>postfix</em> operators appear immediately after their target (such as <code class="code-voice">i++</code>).
+</p>
+</li><li class="item"><p class="para">
+  <em>Binary</em> operators operate on two targets (such as <code class="code-voice">2 + 3</code>) and are <em>infix</em> because they appear in between their two targets.
+</p>
+</li><li class="item"><p class="para">
+  <em>Ternary</em> operators operate on three targets. Like C, Swift has only one ternary operator, the ternary conditional operator (<code class="code-voice">a ? b : c</code>).
+</p>
+</li>
+</ul><p class="para">
+  The values that operators affect are <em>operands</em>. In the expression <code class="code-voice">1 + 2</code>, the <code class="code-voice">+</code> symbol is a binary operator and its two operands are the values <code class="code-voice">1</code> and <code class="code-voice">2</code>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_111"></a>
+  <h3 class="section-name" tabindex="0">Assignment Operator</h3>
+  <p class="para">
+  The <em>assignment operator</em> (<code class="code-voice">a = b</code>) initializes or updates the value of <code class="code-voice">a</code> with the value of <code class="code-voice">b</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">b</span> = <span class="m">10</span></code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">a</span> = <span class="m">5</span></code></li>
+          <li><code class="code-voice"><span class="vc">a</span> = <span class="vc">b</span></code></li>
+          <li><code class="code-voice"><span class="c">// a is now equal to 10</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  If the right side of the assignment is a tuple with multiple values, its elements can be decomposed into multiple constants or variables at once:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> (<span class="vc">x</span>, <span class="vc">y</span>) = (<span class="m">1</span>, <span class="m">2</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// x is equal to 1, and y is equal to 2</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Unlike the assignment operator in C and Objective-C, the assignment operator in Swift does not itself return a value. The following statement is not valid:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">x</span> = <span class="vc">y</span> {</code></li>
+          <li><code class="code-voice">    <span class="c">// this is not valid, because x = y does not return a value</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This feature prevents the assignment operator (<code class="code-voice">=</code>) from being used by accident when the equal to operator (<code class="code-voice">==</code>) is actually intended. By making <code class="code-voice">if x = y</code> invalid, Swift helps you to avoid these kinds of errors in your code.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_112"></a>
+  <h3 class="section-name" tabindex="0">Arithmetic Operators</h3>
+  <p class="para">
+  Swift supports the four standard <em>arithmetic operators</em> for all number types:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  Addition (<code class="code-voice">+</code>)
+</p>
+</li><li class="item"><p class="para">
+  Subtraction (<code class="code-voice">-</code>)
+</p>
+</li><li class="item"><p class="para">
+  Multiplication (<code class="code-voice">*</code>)
+</p>
+</li><li class="item"><p class="para">
+  Division (<code class="code-voice">/</code>)
+</p>
+</li>
+</ul><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="m">1</span> + <span class="m">2</span>       <span class="c">// equals 3</span></code></li>
+          <li><code class="code-voice"><span class="m">5</span> - <span class="m">3</span>       <span class="c">// equals 2</span></code></li>
+          <li><code class="code-voice"><span class="m">2</span> * <span class="m">3</span>       <span class="c">// equals 6</span></code></li>
+          <li><code class="code-voice"><span class="m">10.0</span> / <span class="m">2.5</span>  <span class="c">// equals 4.0</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Unlike the arithmetic operators in C and Objective-C, the Swift arithmetic operators do not allow values to overflow by default. You can opt in to value overflow behavior by using Swift’s overflow operators (such as <code class="code-voice">a &amp;+ b</code>). See <span class="x-name"><a href="AdvancedOperators.html#//apple_ref/doc/uid/TP40014097-CH27-XID_74" data-id="//apple_ref/doc/uid/TP40014097-CH27-XID_74">Overflow Operators</a></span>.
+</p><p class="para">
+  The addition operator is also supported for <code class="code-voice">String</code> concatenation:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="s">"hello, "</span> + <span class="s">"world"</span>  <span class="c">// equals "hello, world"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Two <code class="code-voice">Character</code> values, or one <code class="code-voice">Character</code> value and one <code class="code-voice">String</code> value, can be added together to make a new <code class="code-voice">String</code> value:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">dog</span>: <span class="n"><!-- a href="" -->Character<!-- /a --></span> = <span class="s">"🐶"</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">cow</span>: <span class="n"><!-- a href="" -->Character<!-- /a --></span> = <span class="s">"🐮"</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">dogCow</span> = <span class="vc">dog</span> + <span class="vc">cow</span></code></li>
+          <li><code class="code-voice"><span class="c">// dogCow is equal to "🐶🐮"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  See also <span class="x-name"><a href="StringsAndCharacters.html#//apple_ref/doc/uid/TP40014097-CH7-XID_428" data-id="//apple_ref/doc/uid/TP40014097-CH7-XID_428">Concatenating Strings and Characters</a></span>.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_113"></a>
+  <h3 class="section-name" tabindex="0">Remainder Operator</h3>
+  <p class="para">
+  The <em>remainder operator</em> (<code class="code-voice">a % b</code>) works out how many multiples of <code class="code-voice">b</code> will fit inside <code class="code-voice">a</code> and returns the value that is left over (known as the <em>remainder</em>).
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_114"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">The remainder operator (<code class="code-voice">%</code>) is also known as a <em>modulo operator</em> in other languages. However, its behavior in Swift for negative numbers means that it is, strictly speaking, a remainder rather than a modulo operation.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  Here’s how the remainder operator works. To calculate <code class="code-voice">9 % 4</code>, you first work out how many <code class="code-voice">4</code>s will fit inside <code class="code-voice">9</code>:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/remainderInteger_2x.png" alt="image: ../Art/remainderInteger_2x.png" width="337" height="66"/>
+</figure><p class="para">
+  You can fit two <code class="code-voice">4</code>s inside <code class="code-voice">9</code>, and the remainder is <code class="code-voice">1</code> (shown in orange).
+</p><p class="para">
+  In Swift, this would be written as:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="m">9</span> % <span class="m">4</span>    <span class="c">// equals 1</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  To determine the answer for <code class="code-voice">a % b</code>, the <code class="code-voice">%</code> operator calculates the following equation and returns <code class="code-voice">remainder</code> as its output:
+</p><p class="para">
+  <code class="code-voice">a</code> = (<code class="code-voice">b</code> × <code class="code-voice">some multiplier</code>) + <code class="code-voice">remainder</code>
+</p><p class="para">
+  where <code class="code-voice">some multiplier</code> is the largest number of multiples of <code class="code-voice">b</code> that will fit inside <code class="code-voice">a</code>.
+</p><p class="para">
+  Inserting <code class="code-voice">9</code> and <code class="code-voice">4</code> into this equation yields:
+</p><p class="para">
+  <code class="code-voice">9</code> = (<code class="code-voice">4</code> × <code class="code-voice">2</code>) + <code class="code-voice">1</code>
+</p><p class="para">
+  The same method is applied when calculating the remainder for a negative value of <code class="code-voice">a</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice">-<span class="m">9</span> % <span class="m">4</span>   <span class="c">// equals -1</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Inserting <code class="code-voice">-9</code> and <code class="code-voice">4</code> into the equation yields:
+</p><p class="para">
+  <code class="code-voice">-9</code> = (<code class="code-voice">4</code> × <code class="code-voice">-2</code>) + <code class="code-voice">-1</code>
+</p><p class="para">
+  giving a remainder value of <code class="code-voice">-1</code>.
+</p><p class="para">
+  The sign of <code class="code-voice">b</code> is ignored for negative values of <code class="code-voice">b</code>. This means that <code class="code-voice">a % b</code> and <code class="code-voice">a % -b</code> always give the same answer.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_115"></a>
+  <h3 class="section-name" tabindex="0">Floating-Point Remainder Calculations</h3>
+  <p class="para">
+  Unlike the remainder operator in C and Objective-C, Swift’s remainder operator can also operate on floating-point numbers:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="m">8</span> % <span class="m">2.5</span>   <span class="c">// equals 0.5</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  In this example, <code class="code-voice">8</code> divided by <code class="code-voice">2.5</code> equals <code class="code-voice">3</code>, with a remainder of <code class="code-voice">0.5</code>, so the remainder operator returns a <code class="code-voice">Double</code> value of <code class="code-voice">0.5</code>.
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/remainderFloat_2x.png" alt="image: ../Art/remainderFloat_2x.png" width="301" height="66"/>
+</figure>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_116"></a>
+  <h3 class="section-name" tabindex="0">Increment and Decrement Operators</h3>
+  <p class="para">
+  Like C, Swift provides an <em>increment operator</em> (<code class="code-voice">++</code>) and a <em>decrement operator</em> (<code class="code-voice">--</code>) as a shortcut to increase or decrease the value of a numeric variable by <code class="code-voice">1</code>. You can use these operators with variables of any integer or floating-point type.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">i</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">++<span class="vc">i</span>      <span class="c">// i now equals 1</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Each time you call <code class="code-voice">++i</code>, the value of <code class="code-voice">i</code> is increased by <code class="code-voice">1</code>. Essentially, <code class="code-voice">++i</code> is shorthand for saying <code class="code-voice">i = i + 1</code>. Likewise, <code class="code-voice">--i</code> can be used as shorthand for <code class="code-voice">i = i - 1</code>.
+</p><p class="para">
+  The <code class="code-voice">++</code> and <code class="code-voice">--</code> symbols can be used as prefix operators or as postfix operators. <code class="code-voice">++i</code> and <code class="code-voice">i++</code> are both valid ways to increase the value of <code class="code-voice">i</code> by <code class="code-voice">1</code>. Similarly, <code class="code-voice">--i</code> and <code class="code-voice">i--</code> are both valid ways to decrease the value of <code class="code-voice">i</code> by <code class="code-voice">1</code>.
+</p><p class="para">
+  Note that these operators modify <code class="code-voice">i</code> and also return a value. If you only want to increment or decrement the value stored in <code class="code-voice">i</code>, you can ignore the returned value. However, if you <em>do</em> use the returned value, it will be different based on whether you used the prefix or postfix version of the operator, according to the following rules:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  If the operator is written <em>before</em> the variable, it increments the variable <em>before</em> returning its value.
+</p>
+</li><li class="item"><p class="para">
+  If the operator is written <em>after</em> the variable, it increments the variable <em>after</em> returning its value.
+</p>
+</li>
+</ul><p class="para">
+  For example:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">a</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">b</span> = ++<span class="vc">a</span></code></li>
+          <li><code class="code-voice"><span class="c">// a and b are now both equal to 1</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">c</span> = <span class="vc">a</span>++</code></li>
+          <li><code class="code-voice"><span class="c">// a is now equal to 2, but c has been set to the pre-increment value of 1</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  In the example above, <code class="code-voice">let b = ++a</code> increments <code class="code-voice">a</code> <em>before</em> returning its value. This is why both <code class="code-voice">a</code> and <code class="code-voice">b</code> are equal to to the new value of <code class="code-voice">1</code>.
+</p><p class="para">
+  However, <code class="code-voice">let c = a++</code> increments <code class="code-voice">a</code> <em>after</em> returning its value. This means that <code class="code-voice">c</code> gets the old value of <code class="code-voice">1</code>, and <code class="code-voice">a</code> is then updated to equal <code class="code-voice">2</code>.
+</p><p class="para">
+  Unless you need the specific behavior of <code class="code-voice">i++</code>, it is recommended that you use <code class="code-voice">++i</code> and <code class="code-voice">--i</code> in all cases, because they have the typical expected behavior of modifying <code class="code-voice">i</code> and returning the result.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_117"></a>
+  <h3 class="section-name" tabindex="0">Unary Minus Operator</h3>
+  <p class="para">
+  The sign of a numeric value can be toggled using a prefixed <code class="code-voice">-</code>, known as the <em>unary minus operator</em>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">three</span> = <span class="m">3</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">minusThree</span> = -<span class="vc">three</span>       <span class="c">// minusThree equals -3</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">plusThree</span> = -<span class="vc">minusThree</span>   <span class="c">// plusThree equals 3, or "minus minus three"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The unary minus operator (<code class="code-voice">-</code>) is prepended directly before the value it operates on, without any white space.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_118"></a>
+  <h3 class="section-name" tabindex="0">Unary Plus Operator</h3>
+  <p class="para">
+  The <em>unary plus operator</em> (<code class="code-voice">+</code>) simply returns the value it operates on, without any change:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">minusSix</span> = -<span class="m">6</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">alsoMinusSix</span> = +<span class="vc">minusSix</span>  <span class="c">// alsoMinusSix equals -6</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Although the unary plus operator doesn’t actually do anything, you can use it to provide symmetry in your code for positive numbers when also using the unary minus operator for negative numbers.
+</p>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_119"></a>
+  <h3 class="section-name" tabindex="0">Compound Assignment Operators</h3>
+  <p class="para">
+  Like C, Swift provides <em>compound assignment operators</em> that combine assignment (<code class="code-voice">=</code>) with another operation. One example is the <em>addition assignment operator</em> (<code class="code-voice">+=</code>):
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">a</span> = <span class="m">1</span></code></li>
+          <li><code class="code-voice"><span class="vc">a</span> += <span class="m">2</span></code></li>
+          <li><code class="code-voice"><span class="c">// a is now equal to 3</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The expression <code class="code-voice">a += 2</code> is shorthand for <code class="code-voice">a = a + 2</code>. Effectively, the addition and the assignment are combined into one operator that performs both tasks at the same time.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_120"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">The compound assignment operators do not return a value. You cannot write <code class="code-voice">let b = a += 2</code>, for example. This behavior is different from the increment and decrement operators mentioned above.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  A complete list of compound assignment operators can be found in <span class="x-name"><a href="Expressions.html#//apple_ref/doc/uid/TP40014097-CH32-XID_720" data-id="//apple_ref/doc/uid/TP40014097-CH32-XID_720">Expressions</a></span>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_121"></a>
+  <h3 class="section-name" tabindex="0">Comparison Operators</h3>
+  <p class="para">
+  Swift supports all standard C <em>comparison operators</em>:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  Equal to (<code class="code-voice">a == b</code>)
+</p>
+</li><li class="item"><p class="para">
+  Not equal to (<code class="code-voice">a != b</code>)
+</p>
+</li><li class="item"><p class="para">
+  Greater than (<code class="code-voice">a &gt; b</code>)
+</p>
+</li><li class="item"><p class="para">
+  Less than (<code class="code-voice">a &lt; b</code>)
+</p>
+</li><li class="item"><p class="para">
+  Greater than or equal to (<code class="code-voice">a &gt;= b</code>)
+</p>
+</li><li class="item"><p class="para">
+  Less than or equal to (<code class="code-voice">a &lt;= b</code>)
+</p>
+</li>
+</ul><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_122"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Swift also provides two <em>identity operators</em> (<code class="code-voice">===</code> and <code class="code-voice">!==</code>), which you use to test whether two object references both refer to the same object instance. For more information, see <span class="x-name"><a href="ClassesAndStructures.html#//apple_ref/doc/uid/TP40014097-CH13-XID_135" data-id="//apple_ref/doc/uid/TP40014097-CH13-XID_135">Classes and Structures</a></span>.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  Each of the comparison operators returns a <code class="code-voice">Bool</code> value to indicate whether or not the statement is true:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="m">1</span> == <span class="m">1</span>   <span class="c">// true, because 1 is equal to 1</span></code></li>
+          <li><code class="code-voice"><span class="m">2</span> != <span class="m">1</span>   <span class="c">// true, because 2 is not equal to 1</span></code></li>
+          <li><code class="code-voice"><span class="m">2</span> &gt; <span class="m">1</span>    <span class="c">// true, because 2 is greater than 1</span></code></li>
+          <li><code class="code-voice"><span class="m">1</span> &lt; <span class="m">2</span>    <span class="c">// true, because 1 is less than 2</span></code></li>
+          <li><code class="code-voice"><span class="m">1</span> &gt;= <span class="m">1</span>   <span class="c">// true, because 1 is greater than or equal to 1</span></code></li>
+          <li><code class="code-voice"><span class="m">2</span> &lt;= <span class="m">1</span>   <span class="c">// false, because 2 is not less than or equal to 1</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Comparison operators are often used in conditional statements, such as the <code class="code-voice">if</code> statement:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">name</span> = <span class="s">"world"</span></code></li>
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">name</span> == <span class="s">"world"</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"hello, world"</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"I'm sorry </span>\(<span class="vc">name</span>)<span class="s">, but I don't recognize you"</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "hello, world", because name is indeed equal to "world"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  For more on the <code class="code-voice">if</code> statement, see <span class="x-name"><a href="ControlFlow.html#//apple_ref/doc/uid/TP40014097-CH9-XID_191" data-id="//apple_ref/doc/uid/TP40014097-CH9-XID_191">Control Flow</a></span>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_123"></a>
+  <h3 class="section-name" tabindex="0">Ternary Conditional Operator</h3>
+  <p class="para">
+  The <em>ternary conditional operator</em> is a special operator with three parts, which takes the form <code class="code-voice">question ? answer1 : answer2</code>. It is a shortcut for evaluating one of two expressions based on whether <code class="code-voice">question</code> is true or false. If <code class="code-voice">question</code> is true, it evaluates <code class="code-voice">answer1</code> and returns its value; otherwise, it evaluates <code class="code-voice">answer2</code> and returns its value.
+</p><p class="para">
+  The ternary conditional operator is shorthand for the code below:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">question</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">answer1</span></code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">answer2</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Here’s an example, which calculates the height for a table row. The row height should be 50 points taller than the content height if the row has a header, and 20 points taller if the row doesn’t have a header:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">contentHeight</span> = <span class="m">40</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">hasHeader</span> = <span class="kt">true</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">rowHeight</span> = <span class="vc">contentHeight</span> + (<span class="vc">hasHeader</span> ? <span class="m">50</span> : <span class="m">20</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// rowHeight is equal to 90</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The preceding example is shorthand for the code below:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">contentHeight</span> = <span class="m">40</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">hasHeader</span> = <span class="kt">true</span></code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">rowHeight</span> = <span class="vc">contentHeight</span></code></li>
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">hasHeader</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">rowHeight</span> = <span class="vc">rowHeight</span> + <span class="m">50</span></code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">rowHeight</span> = <span class="vc">rowHeight</span> + <span class="m">20</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// rowHeight is equal to 90</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The first example’s use of the ternary conditional operator means that <code class="code-voice">rowHeight</code> can be set to the correct value on a single line of code. This is more concise than the second example, and removes the need for <code class="code-voice">rowHeight</code> to be a variable, because its value does not need to be modified within an <code class="code-voice">if</code> statement.
+</p><p class="para">
+  The ternary conditional operator provides an efficient shorthand for deciding which of two expressions to consider. Use the ternary conditional operator with care, however. Its conciseness can lead to hard-to-read code if overused. Avoid combining multiple instances of the ternary conditional operator into one compound statement.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_124"></a>
+  <h3 class="section-name" tabindex="0">Nil Coalescing Operator</h3>
+  <p class="para">
+  The <em>nil coalescing operator</em> (<code class="code-voice">a ?? b</code>) unwraps an optional <code class="code-voice">a</code> if it contains a value, or returns a default value <code class="code-voice">b</code> if <code class="code-voice">a</code> is <code class="code-voice">nil</code>. The expression <code class="code-voice">a</code> is always of an optional type. The expression <code class="code-voice">b</code> must match the type that is stored inside <code class="code-voice">a</code>.
+</p><p class="para">
+  The nil coalescing operator is shorthand for the code below:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">a</span> != <span class="kt">nil</span> ? <span class="vc">a</span>! : <span class="vc">b</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The code above uses the ternary conditional operator and forced unwrapping (<code class="code-voice">a!</code>) to access the value wrapped inside <code class="code-voice">a</code> when <code class="code-voice">a</code> is not <code class="code-voice">nil</code>, and to return <code class="code-voice">b</code> otherwise. The nil coalescing operator provides a more elegant way to encapsulate this conditional checking and unwrapping in a concise and readable form.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_125"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">If the value of <code class="code-voice">a</code> is non-<code class="code-voice">nil</code>, the value of <code class="code-voice">b</code> will not be evaluated. This is known as <em>short-circuit evaluation</em>.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  The example below uses the nil coalescing operator to choose between a default color name and an optional user-defined color name:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">defaultColorName</span> = <span class="s">"red"</span></code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">userDefinedColorName</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?   <span class="c">// defaults to nil</span></code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">colorNameToUse</span> = <span class="vc">userDefinedColorName</span> ?? <span class="vc">defaultColorName</span></code></li>
+          <li><code class="code-voice"><span class="c">// userDefinedColorName is nil, so colorNameToUse is set to the default of "red"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">userDefinedColorName</code> variable is defined as an optional <code class="code-voice">String</code>, with a default value of <code class="code-voice">nil</code>. Because <code class="code-voice">userDefinedColorName</code> is of an optional type, you can use the nil coalescing operator to consider its value. In the example above, the operator is used to determine an initial value for a <code class="code-voice">String</code> variable called <code class="code-voice">colorNameToUse</code>. Because <code class="code-voice">userDefinedColorName</code> is <code class="code-voice">nil</code>, the expression <code class="code-voice">userDefinedColorName ?? defaultColorName</code> returns the value of <code class="code-voice">defaultColorName</code>, or <code class="code-voice">"red"</code>.
+</p><p class="para">
+  If you assign a non-<code class="code-voice">nil</code> value to <code class="code-voice">userDefinedColorName</code>, and perform the nil coalescing operator check again, the value wrapped inside <code class="code-voice">userDefinedColorName</code> is used instead of the default:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">userDefinedColorName</span> = <span class="s">"green"</span></code></li>
+          <li><code class="code-voice"><span class="vc">colorNameToUse</span> = <span class="vc">userDefinedColorName</span> ?? <span class="vc">defaultColorName</span></code></li>
+          <li><code class="code-voice"><span class="c">// userDefinedColorName is not nil, so colorNameToUse is set to "green"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_126"></a>
+  <h3 class="section-name" tabindex="0">Range Operators</h3>
+  <p class="para">
+  Swift includes two <em>range operators</em>, which are shortcuts for expressing a range of values.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_127"></a>
+  <h3 class="section-name" tabindex="0">Closed Range Operator</h3>
+  <p class="para">
+  The <em>closed range operator</em> (<code class="code-voice">a...b</code>) defines a range that runs from <code class="code-voice">a</code> to <code class="code-voice">b</code>, and includes the values <code class="code-voice">a</code> and <code class="code-voice">b</code>. The value of <code class="code-voice">a</code> must not be greater than <code class="code-voice">b</code>.
+</p><p class="para">
+  The closed range operator is useful when iterating over a range in which you want all of the values to be used, such as with a <code class="code-voice">for</code>-<code class="code-voice">in</code> loop:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">for</span> <span class="vc">index</span> <span class="kt">in</span> <span class="m">1</span>...<span class="m">5</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">index</span>)<span class="s"> times 5 is </span>\(<span class="vc">index</span> * <span class="m">5</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// 1 times 5 is 5</span></code></li>
+          <li><code class="code-voice"><span class="c">// 2 times 5 is 10</span></code></li>
+          <li><code class="code-voice"><span class="c">// 3 times 5 is 15</span></code></li>
+          <li><code class="code-voice"><span class="c">// 4 times 5 is 20</span></code></li>
+          <li><code class="code-voice"><span class="c">// 5 times 5 is 25</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  For more on <code class="code-voice">for</code>-<code class="code-voice">in</code> loops, see <span class="x-name"><a href="ControlFlow.html#//apple_ref/doc/uid/TP40014097-CH9-XID_191" data-id="//apple_ref/doc/uid/TP40014097-CH9-XID_191">Control Flow</a></span>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_128"></a>
+  <h3 class="section-name" tabindex="0">Half-Open Range Operator</h3>
+  <p class="para">
+  The <em>half-open range operator</em> (<code class="code-voice">a..&lt;b</code>) defines a range that runs from <code class="code-voice">a</code> to <code class="code-voice">b</code>, but does not include <code class="code-voice">b</code>. It is said to be <em>half-open</em> because it contains its first value, but not its final value. As with the closed range operator, the value of <code class="code-voice">a</code> must not be greater than <code class="code-voice">b</code>.
+</p><p class="para">
+  Half-open ranges are particularly useful when you work with zero-based lists such as arrays, where it is useful to count up to (but not including) the length of the list:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">names</span> = [<span class="s">"Anna"</span>, <span class="s">"Alex"</span>, <span class="s">"Brian"</span>, <span class="s">"Jack"</span>]</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">count</span> = <span class="vc">names</span>.<span class="vc">count</span></code></li>
+          <li><code class="code-voice"><span class="kt">for</span> <span class="vc">i</span> <span class="kt">in</span> <span class="m">0</span>..&lt;<span class="vc">count</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Person </span>\(<span class="vc">i</span> + <span class="m">1</span>)<span class="s"> is called </span>\(<span class="vc">names</span>[<span class="vc">i</span>])<span class="s">"</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// Person 1 is called Anna</span></code></li>
+          <li><code class="code-voice"><span class="c">// Person 2 is called Alex</span></code></li>
+          <li><code class="code-voice"><span class="c">// Person 3 is called Brian</span></code></li>
+          <li><code class="code-voice"><span class="c">// Person 4 is called Jack</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Note that the array contains four items, but <code class="code-voice">0..&lt;count</code> only counts as far as <code class="code-voice">3</code> (the index of the last item in the array), because it is a half-open range. For more on arrays, see <span class="x-name"><a href="CollectionTypes.html#//apple_ref/doc/uid/TP40014097-CH8-XID_172" data-id="//apple_ref/doc/uid/TP40014097-CH8-XID_172">Arrays</a></span>.
+</p>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_129"></a>
+  <h3 class="section-name" tabindex="0">Logical Operators</h3>
+  <p class="para">
+  <em>Logical operators</em> modify or combine the Boolean logic values <code class="code-voice">true</code> and <code class="code-voice">false</code>. Swift supports the three standard logical operators found in C-based languages:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  Logical NOT (<code class="code-voice">!a</code>)
+</p>
+</li><li class="item"><p class="para">
+  Logical AND (<code class="code-voice">a &amp;&amp; b</code>)
+</p>
+</li><li class="item"><p class="para">
+  Logical OR (<code class="code-voice">a || b</code>)
+</p>
+</li>
+</ul>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_130"></a>
+  <h3 class="section-name" tabindex="0">Logical NOT Operator</h3>
+  <p class="para">
+  The <em>logical NOT operator</em> (<code class="code-voice">!a</code>) inverts a Boolean value so that <code class="code-voice">true</code> becomes <code class="code-voice">false</code>, and <code class="code-voice">false</code> becomes <code class="code-voice">true</code>.
+</p><p class="para">
+  The logical NOT operator is a prefix operator, and appears immediately before the value it operates on, without any white space. It can be read as “not <code class="code-voice">a</code>”, as seen in the following example:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">allowedEntry</span> = <span class="kt">false</span></code></li>
+          <li><code class="code-voice"><span class="kt">if</span> !<span class="vc">allowedEntry</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"ACCESS DENIED"</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "ACCESS DENIED"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The phrase <code class="code-voice">if !allowedEntry</code> can be read as “if not allowed entry.” The subsequent line is only executed if “not allowed entry” is true; that is, if <code class="code-voice">allowedEntry</code> is <code class="code-voice">false</code>.
+</p><p class="para">
+  As in this example, careful choice of Boolean constant and variable names can help to keep code readable and concise, while avoiding double negatives or confusing logic statements.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_131"></a>
+  <h3 class="section-name" tabindex="0">Logical AND Operator</h3>
+  <p class="para">
+  The <em>logical AND operator</em> (<code class="code-voice">a &amp;&amp; b</code>) creates logical expressions where both values must be <code class="code-voice">true</code> for the overall expression to also be <code class="code-voice">true</code>.
+</p><p class="para">
+  If either value is <code class="code-voice">false</code>, the overall expression will also be <code class="code-voice">false</code>. In fact, if the <em>first</em> value is <code class="code-voice">false</code>, the second value won’t even be evaluated, because it can’t possibly make the overall expression equate to <code class="code-voice">true</code>. This is known as <em>short-circuit evaluation</em>.
+</p><p class="para">
+  This example considers two <code class="code-voice">Bool</code> values and only allows access if both values are <code class="code-voice">true</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">enteredDoorCode</span> = <span class="kt">true</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">passedRetinaScan</span> = <span class="kt">false</span></code></li>
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">enteredDoorCode</span> &amp;&amp; <span class="vc">passedRetinaScan</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Welcome!"</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"ACCESS DENIED"</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "ACCESS DENIED"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_132"></a>
+  <h3 class="section-name" tabindex="0">Logical OR Operator</h3>
+  <p class="para">
+  The <em>logical OR operator</em> (<code class="code-voice">a || b</code>) is an infix operator made from two adjacent pipe characters. You use it to create logical expressions in which only <em>one</em> of the two values has to be <code class="code-voice">true</code> for the overall expression to be <code class="code-voice">true</code>.
+</p><p class="para">
+  Like the Logical AND operator above, the Logical OR operator uses short-circuit evaluation to consider its expressions. If the left side of a Logical OR expression is <code class="code-voice">true</code>, the right side is not evaluated, because it cannot change the outcome of the overall expression.
+</p><p class="para">
+  In the example below, the first <code class="code-voice">Bool</code> value (<code class="code-voice">hasDoorKey</code>) is <code class="code-voice">false</code>, but the second value (<code class="code-voice">knowsOverridePassword</code>) is <code class="code-voice">true</code>. Because one value is <code class="code-voice">true</code>, the overall expression also evaluates to <code class="code-voice">true</code>, and access is allowed:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">hasDoorKey</span> = <span class="kt">false</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">knowsOverridePassword</span> = <span class="kt">true</span></code></li>
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">hasDoorKey</span> || <span class="vc">knowsOverridePassword</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Welcome!"</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"ACCESS DENIED"</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Welcome!"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_133"></a>
+  <h3 class="section-name" tabindex="0">Combining Logical Operators</h3>
+  <p class="para">
+  You can combine multiple logical operators to create longer compound expressions:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">enteredDoorCode</span> &amp;&amp; <span class="vc">passedRetinaScan</span> || <span class="vc">hasDoorKey</span> || <span class="vc">knowsOverridePassword</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Welcome!"</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"ACCESS DENIED"</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Welcome!"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This example uses multiple <code class="code-voice">&amp;&amp;</code> and <code class="code-voice">||</code> operators to create a longer compound expression. However, the <code class="code-voice">&amp;&amp;</code> and <code class="code-voice">||</code> operators still operate on only two values, so this is actually three smaller expressions chained together. It can be read as:
+</p><p class="para">
+  If we’ve entered the correct door code and passed the retina scan; or if we have a valid door key; or if we know the emergency override password, then allow access.
+</p><p class="para">
+  Based on the values of <code class="code-voice">enteredDoorCode</code>, <code class="code-voice">passedRetinaScan</code>, and <code class="code-voice">hasDoorKey</code>, the first two mini-expressions are <code class="code-voice">false</code>. However, the emergency override password is known, so the overall compound expression still evaluates to <code class="code-voice">true</code>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH6-XID_134"></a>
+  <h3 class="section-name" tabindex="0">Explicit Parentheses</h3>
+  <p class="para">
+  It is sometimes useful to include parentheses when they are not strictly needed, to make the intention of a complex expression easier to read. In the door access example above, it is useful to add parentheses around the first part of the compound expression to make its intent explicit:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> (<span class="vc">enteredDoorCode</span> &amp;&amp; <span class="vc">passedRetinaScan</span>) || <span class="vc">hasDoorKey</span> || <span class="vc">knowsOverridePassword</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Welcome!"</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"ACCESS DENIED"</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Welcome!"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The parentheses make it clear that the first two values are considered as part of a separate possible state in the overall logic. The output of the compound expression doesn’t change, but the overall intention is clearer to the reader. Readability is always preferred over brevity; use parentheses where they help to make your intentions clear.
+</p>
+  
+</section>
+
+</section>
+
+  	
+ 	<section id="next_previous" class="">
+    		<p class="previous-link"><a href="TheBasics.html#//apple_ref/doc/uid/TP40014097-CH5-XID_454" data-id="//apple_ref/doc/uid/TP40014097-CH5-XID_454">The Basics</a></p>
+  			<p class="next-link"><a href="StringsAndCharacters.html#//apple_ref/doc/uid/TP40014097-CH7-XID_418" data-id="//apple_ref/doc/uid/TP40014097-CH7-XID_418">Strings and Characters</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>

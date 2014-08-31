@@ -1,0 +1,934 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27"></a><a name="//apple_ref/doc/uid/TP40014097-CH27-XID_65"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">Advanced Operators</h2>
+
+
+      <section id="mini_toc" class="hideInXcode" role="navigation">
+	<div id="mini_toc_button">
+  	<p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH27-XID_66">
+	  				Bitwise Operators
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH27-XID_74">
+	  				Overflow Operators
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH27-XID_78">
+	  				Precedence and Associativity
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH27-XID_80">
+	  				Operator Functions
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH27-XID_85">
+	  				Custom Operators
+	  			</a>
+  			</p>
+  		</li>
+	</ul>
+</section>
+
+  
+  	<section class="section">
+  		<p class="para">
+  In addition to the operators described in <span class="x-name"><a href="BasicOperators.html#//apple_ref/doc/uid/TP40014097-CH6-XID_109" data-id="//apple_ref/doc/uid/TP40014097-CH6-XID_109">Basic Operators</a></span>, Swift provides several advanced operators that perform more complex value manipulation. These include all of the bitwise and bit shifting operators you will be familiar with from C and Objective-C.
+</p>
+<p class="para">
+  Unlike arithmetic operators in C, arithmetic operators in Swift do not overflow by default. Overflow behavior is trapped and reported as an error. To opt in to overflow behavior, use Swift’s second set of arithmetic operators that overflow by default, such as the overflow addition operator (<code class="code-voice">&amp;+</code>). All of these overflow operators begin with an ampersand (<code class="code-voice">&amp;</code>).
+</p>
+<p class="para">
+  When you define your own structures, classes, and enumerations, it can be useful to provide your own implementations of the standard Swift operators for these custom types. Swift makes it easy to provide tailored implementations of these operators and to determine exactly what their behavior should be for each type you create.
+</p>
+<p class="para">
+  You’re not just limited to the predefined operators. Swift gives you the freedom to define your own custom infix, prefix, postfix, and assignment operators, with custom precedence and associativity values. These operators can be used and adopted in your code just like any of the predefined operators, and you can even extend existing types to support the custom operators you define.
+</p>
+
+		</section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_66"></a>
+  <h3 class="section-name" tabindex="0">Bitwise Operators</h3>
+  <p class="para">
+  <em>Bitwise operators</em> enable you to manipulate the individual raw data bits within a data structure. They are often used in low-level programming, such as graphics programming and device driver creation. Bitwise operators can also be useful when you work with raw data from external sources, such as encoding and decoding data for communication over a custom protocol.
+</p><p class="para">
+  Swift supports all of the bitwise operators found in C, as described below.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_67"></a>
+  <h3 class="section-name" tabindex="0">Bitwise NOT Operator</h3>
+  <p class="para">
+  The <em>bitwise NOT operator</em> (<code class="code-voice">~</code>) inverts all bits in a number:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/bitwiseNOT_2x.png" alt="image: ../Art/bitwiseNOT_2x.png" width="447" height="129"/>
+</figure><p class="para">
+  The bitwise NOT operator is a prefix operator, and appears immediately before the value it operates on, without any white space:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">initialBits</span>: <span class="n"><!-- a href="" -->UInt8<!-- /a --></span> = <span class="m">0b00001111</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">invertedBits</span> = ~<span class="vc">initialBits</span>  <span class="c">// equals 11110000</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  <code class="code-voice">UInt8</code> integers have eight bits and can store any value between <code class="code-voice">0</code> and <code class="code-voice">255</code>. This example initializes a <code class="code-voice">UInt8</code> integer with the binary value <code class="code-voice">00001111</code>, which has its first four bits set to <code class="code-voice">0</code>, and its second four bits set to <code class="code-voice">1</code>. This is equivalent to a decimal value of <code class="code-voice">15</code>.
+</p><p class="para">
+  The bitwise NOT operator is then used to create a new constant called <code class="code-voice">invertedBits</code>, which is equal to <code class="code-voice">initialBits</code>, but with all of the bits inverted. Zeroes become ones, and ones become zeroes. The value of <code class="code-voice">invertedBits</code> is <code class="code-voice">11110000</code>, which is equal to an unsigned decimal value of <code class="code-voice">240</code>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_68"></a>
+  <h3 class="section-name" tabindex="0">Bitwise AND Operator</h3>
+  <p class="para">
+  The <em>bitwise AND operator</em> (<code class="code-voice">&amp;</code>) combines the bits of two numbers. It returns a new number whose bits are set to <code class="code-voice">1</code> only if the bits were equal to <code class="code-voice">1</code> in <em>both</em> input numbers:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/bitwiseAND_2x.png" alt="image: ../Art/bitwiseAND_2x.png" width="447" height="208"/>
+</figure><p class="para">
+  In the example below, the values of <code class="code-voice">firstSixBits</code> and <code class="code-voice">lastSixBits</code> both have four middle bits equal to <code class="code-voice">1</code>. The bitwise AND operator combines them to make the number <code class="code-voice">00111100</code>, which is equal to an unsigned decimal value of <code class="code-voice">60</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">firstSixBits</span>: <span class="n"><!-- a href="" -->UInt8<!-- /a --></span> = <span class="m">0b11111100</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">lastSixBits</span>: <span class="n"><!-- a href="" -->UInt8<!-- /a --></span>  = <span class="m">0b00111111</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">middleFourBits</span> = <span class="vc">firstSixBits</span> &amp; <span class="vc">lastSixBits</span>  <span class="c">// equals 00111100</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_69"></a>
+  <h3 class="section-name" tabindex="0">Bitwise OR Operator</h3>
+  <p class="para">
+  The <em>bitwise OR operator</em> (<code class="code-voice">|</code>) compares the bits of two numbers. The operator returns a new number whose bits are set to <code class="code-voice">1</code> if the bits are equal to <code class="code-voice">1</code> in <em>either</em> input number:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/bitwiseOR_2x.png" alt="image: ../Art/bitwiseOR_2x.png" width="447" height="208"/>
+</figure><p class="para">
+  In the example below, the values of <code class="code-voice">someBits</code> and <code class="code-voice">moreBits</code> have different bits set to <code class="code-voice">1</code>. The bitwise OR operator combines them to make the number <code class="code-voice">11111110</code>, which equals an unsigned decimal of <code class="code-voice">254</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">someBits</span>: <span class="n"><!-- a href="" -->UInt8<!-- /a --></span> = <span class="m">0b10110010</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">moreBits</span>: <span class="n"><!-- a href="" -->UInt8<!-- /a --></span> = <span class="m">0b01011110</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">combinedbits</span> = <span class="vc">someBits</span> | <span class="vc">moreBits</span>  <span class="c">// equals 11111110</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_70"></a>
+  <h3 class="section-name" tabindex="0">Bitwise XOR Operator</h3>
+  <p class="para">
+  The <em>bitwise XOR operator</em>, or “exclusive OR operator” (<code class="code-voice">^</code>), compares the bits of two numbers. The operator returns a new number whose bits are set to <code class="code-voice">1</code> where the input bits are different and are set to <code class="code-voice">0</code> where the input bits are the same:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/bitwiseXOR_2x.png" alt="image: ../Art/bitwiseXOR_2x.png" width="447" height="208"/>
+</figure><p class="para">
+  In the example below, the values of <code class="code-voice">firstBits</code> and <code class="code-voice">otherBits</code> each have a bit set to <code class="code-voice">1</code> in a location that the other does not. The bitwise XOR operator sets both of these bits to <code class="code-voice">1</code> in its output value. All of the other bits in <code class="code-voice">firstBits</code> and <code class="code-voice">otherBits</code> match and are set to <code class="code-voice">0</code> in the output value:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">firstBits</span>: <span class="n"><!-- a href="" -->UInt8<!-- /a --></span> = <span class="m">0b00010100</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">otherBits</span>: <span class="n"><!-- a href="" -->UInt8<!-- /a --></span> = <span class="m">0b00000101</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">outputBits</span> = <span class="vc">firstBits</span> ^ <span class="vc">otherBits</span>  <span class="c">// equals 00010001</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_71"></a>
+  <h3 class="section-name" tabindex="0">Bitwise Left and Right Shift Operators</h3>
+  <p class="para">
+  The <em>bitwise left shift operator</em> (<code class="code-voice">&lt;&lt;</code>) and <em>bitwise right shift operator</em> (<code class="code-voice">&gt;&gt;</code>) move all bits in a number to the left or the right by a certain number of places, according to the rules defined below.
+</p><p class="para">
+  Bitwise left and right shifts have the effect of multiplying or dividing an integer number by a factor of two. Shifting an integer’s bits to the left by one position doubles its value, whereas shifting it to the right by one position halves its value.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_72"></a>
+  <h3 class="section-name" tabindex="0">Shifting Behavior for Unsigned Integers</h3>
+  <p class="para">
+  The bit-shifting behavior for unsigned integers is as follows:
+</p><ol class="list-number">
+  <li class="item"><p class="para">
+  Existing bits are moved to the left or right by the requested number of places.
+</p>
+</li><li class="item"><p class="para">
+  Any bits that are moved beyond the bounds of the integer’s storage are discarded.
+</p>
+</li><li class="item"><p class="para">
+  Zeroes are inserted in the spaces left behind after the original bits are moved to the left or right.
+</p>
+</li>
+</ol><p class="para">
+  This approach is known as a <em>logical shift</em>.
+</p><p class="para">
+  The illustration below shows the results of <code class="code-voice">11111111 &lt;&lt; 1</code> (which is <code class="code-voice">11111111</code> shifted to the left by <code class="code-voice">1</code> place), and <code class="code-voice">11111111 &gt;&gt; 1</code> (which is <code class="code-voice">11111111</code> shifted to the right by <code class="code-voice">1</code> place). Blue numbers are shifted, gray numbers are discarded, and orange zeroes are inserted:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/bitshiftUnsigned_2x.png" alt="image: ../Art/bitshiftUnsigned_2x.png" width="649" height="130"/>
+</figure><p class="para">
+  Here’s how bit shifting looks in Swift code:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">shiftBits</span>: <span class="n"><!-- a href="" -->UInt8<!-- /a --></span> = <span class="m">4</span>   <span class="c">// 00000100 in binary</span></code></li>
+          <li><code class="code-voice"><span class="vc">shiftBits</span> &lt;&lt; <span class="m">1</span>             <span class="c">// 00001000</span></code></li>
+          <li><code class="code-voice"><span class="vc">shiftBits</span> &lt;&lt; <span class="m">2</span>             <span class="c">// 00010000</span></code></li>
+          <li><code class="code-voice"><span class="vc">shiftBits</span> &lt;&lt; <span class="m">5</span>             <span class="c">// 10000000</span></code></li>
+          <li><code class="code-voice"><span class="vc">shiftBits</span> &lt;&lt; <span class="m">6</span>             <span class="c">// 00000000</span></code></li>
+          <li><code class="code-voice"><span class="vc">shiftBits</span> &gt;&gt; <span class="m">2</span>             <span class="c">// 00000001</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can use bit shifting to encode and decode values within other data types:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">pink</span>: <span class="n"><!-- a href="" -->UInt32<!-- /a --></span> = <span class="m">0xCC6699</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">redComponent</span> = (<span class="vc">pink</span> &amp; <span class="m">0xFF0000</span>) &gt;&gt; <span class="m">16</span>    <span class="c">// redComponent is 0xCC, or 204</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">greenComponent</span> = (<span class="vc">pink</span> &amp; <span class="m">0x00FF00</span>) &gt;&gt; <span class="m">8</span>   <span class="c">// greenComponent is 0x66, or 102</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">blueComponent</span> = <span class="vc">pink</span> &amp; <span class="m">0x0000FF</span>           <span class="c">// blueComponent is 0x99, or 153</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This example uses a <code class="code-voice">UInt32</code> constant called <code class="code-voice">pink</code> to store a Cascading Style Sheets color value for the color pink. The CSS color value <code class="code-voice">#CC6699</code> is written as <code class="code-voice">0xCC6699</code> in Swift’s hexadecimal number representation. This color is then decomposed into its red (<code class="code-voice">CC</code>), green (<code class="code-voice">66</code>), and blue (<code class="code-voice">99</code>) components by the bitwise AND operator (<code class="code-voice">&amp;</code>) and the bitwise right shift operator (<code class="code-voice">&gt;&gt;</code>).
+</p><p class="para">
+  The red component is obtained by performing a bitwise AND between the numbers <code class="code-voice">0xCC6699</code> and <code class="code-voice">0xFF0000</code>. The zeroes in <code class="code-voice">0xFF0000</code> effectively “mask” the second and third bytes of <code class="code-voice">0xCC6699</code>, causing the <code class="code-voice">6699</code> to be ignored and leaving <code class="code-voice">0xCC0000</code> as the result.
+</p><p class="para">
+  This number is then shifted 16 places to the right (<code class="code-voice">&gt;&gt; 16</code>). Each pair of characters in a hexadecimal number uses 8 bits, so a move 16 places to the right will convert <code class="code-voice">0xCC0000</code> into <code class="code-voice">0x0000CC</code>. This is the same as <code class="code-voice">0xCC</code>, which has a decimal value of <code class="code-voice">204</code>.
+</p><p class="para">
+  Similarly, the green component is obtained by performing a bitwise AND between the numbers <code class="code-voice">0xCC6699</code> and <code class="code-voice">0x00FF00</code>, which gives an output value of <code class="code-voice">0x006600</code>. This output value is then shifted eight places to the right, giving a value of <code class="code-voice">0x66</code>, which has a decimal value of <code class="code-voice">102</code>.
+</p><p class="para">
+  Finally, the blue component is obtained by performing a bitwise AND between the numbers <code class="code-voice">0xCC6699</code> and <code class="code-voice">0x0000FF</code>, which gives an output value of <code class="code-voice">0x000099</code>. There’s no need to shift this to the right, as <code class="code-voice">0x000099</code> already equals <code class="code-voice">0x99</code>, which has a decimal value of <code class="code-voice">153</code>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_73"></a>
+  <h3 class="section-name" tabindex="0">Shifting Behavior for Signed Integers</h3>
+  <p class="para">
+  The shifting behavior is more complex for signed integers than for unsigned integers, because of the way signed integers are represented in binary. (The examples below are based on 8-bit signed integers for simplicity, but the same principles apply for signed integers of any size.)
+</p><p class="para">
+  Signed integers use their first bit (known as the <em>sign bit</em>) to indicate whether the integer is positive or negative. A sign bit of <code class="code-voice">0</code> means positive, and a sign bit of <code class="code-voice">1</code> means negative.
+</p><p class="para">
+  The remaining bits (known as the <em>value bits</em>) store the actual value. Positive numbers are stored in exactly the same way as for unsigned integers, counting upwards from <code class="code-voice">0</code>. Here’s how the bits inside an <code class="code-voice">Int8</code> look for the number <code class="code-voice">4</code>:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/bitshiftSignedFour_2x.png" alt="image: ../Art/bitshiftSignedFour_2x.png" width="396" height="99"/>
+</figure><p class="para">
+  The sign bit is <code class="code-voice">0</code> (meaning “positive”), and the seven value bits are just the number <code class="code-voice">4</code>, written in binary notation.
+</p><p class="para">
+  Negative numbers, however, are stored differently. They are stored by subtracting their absolute value from <code class="code-voice">2</code> to the power of <code class="code-voice">n</code>, where <code class="code-voice">n</code> is the number of value bits. An eight-bit number has seven value bits, so this means <code class="code-voice">2</code> to the power of <code class="code-voice">7</code>, or <code class="code-voice">128</code>.
+</p><p class="para">
+  Here’s how the bits inside an <code class="code-voice">Int8</code> look for the number <code class="code-voice">-4</code>:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/bitshiftSignedMinusFour_2x.png" alt="image: ../Art/bitshiftSignedMinusFour_2x.png" width="396" height="99"/>
+</figure><p class="para">
+  This time, the sign bit is <code class="code-voice">1</code> (meaning “negative”), and the seven value bits have a binary value of <code class="code-voice">124</code> (which is <code class="code-voice">128 - 4</code>):
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/bitshiftSignedMinusFourValue_2x.png" alt="image: ../Art/bitshiftSignedMinusFourValue_2x.png" width="393" height="85"/>
+</figure><p class="para">
+  The encoding for negative numbers is known as a <em>two’s complement</em> representation. It may seem an unusual way to represent negative numbers, but it has several advantages.
+</p><p class="para">
+  First, you can add <code class="code-voice">-1</code> to <code class="code-voice">-4</code>, simply by performing a standard binary addition of all eight bits (including the sign bit), and discarding anything that doesn’t fit in the eight bits once you’re done:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/bitshiftSignedAddition_2x.png" alt="image: ../Art/bitshiftSignedAddition_2x.png" width="446" height="199"/>
+</figure><p class="para">
+  Second, the two’s complement representation also lets you shift the bits of negative numbers to the left and right like positive numbers, and still end up doubling them for every shift you make to the left, or halving them for every shift you make to the right. To achieve this, an extra rule is used when signed integers are shifted to the right:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  When you shift signed integers to the right, apply the same rules as for unsigned integers, but fill any empty bits on the left with the <em>sign bit</em>, rather than with a zero.
+</p>
+</li>
+</ul><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/bitshiftSigned_2x.png" alt="image: ../Art/bitshiftSigned_2x.png" width="649" height="130"/>
+</figure><p class="para">
+  This action ensures that signed integers have the same sign after they are shifted to the right, and is known as an <em>arithmetic shift</em>.
+</p><p class="para">
+  Because of the special way that positive and negative numbers are stored, shifting either of them to the right moves them closer to zero. Keeping the sign bit the same during this shift means that negative integers remain negative as their value moves closer to zero.
+</p>
+  
+</section>
+
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_74"></a>
+  <h3 class="section-name" tabindex="0">Overflow Operators</h3>
+  <p class="para">
+  If you try to insert a number into an integer constant or variable that cannot hold that value, by default Swift reports an error rather than allowing an invalid value to be created. This behavior gives extra safety when you work with numbers that are too large or too small.
+</p><p class="para">
+  For example, the <code class="code-voice">Int16</code> integer type can hold any signed integer number between <code class="code-voice">-32768</code> and <code class="code-voice">32767</code>. Trying to set an <code class="code-voice">Int16</code> constant or variable to a number outside of this range causes an error:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">potentialOverflow</span> = <span class="vc">Int16</span>.<span class="vc">max</span></code></li>
+          <li><code class="code-voice"><span class="c">// potentialOverflow equals 32767, which is the largest value an Int16 can hold</span></code></li>
+          <li><code class="code-voice"><span class="vc">potentialOverflow</span> += <span class="m">1</span></code></li>
+          <li><code class="code-voice"><span class="c">// this causes an error</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Providing error handling when values get too large or too small gives you much more flexibility when coding for boundary value conditions.
+</p><p class="para">
+  However, when you specifically want an overflow condition to truncate the number of available bits, you can opt in to this behavior rather than triggering an error. Swift provides five arithmetic <em>overflow operators</em> that opt in to the overflow behavior for integer calculations. These operators all begin with an ampersand (<code class="code-voice">&amp;</code>):
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  Overflow addition (<code class="code-voice">&amp;+</code>)
+</p>
+</li><li class="item"><p class="para">
+  Overflow subtraction (<code class="code-voice">&amp;-</code>)
+</p>
+</li><li class="item"><p class="para">
+  Overflow multiplication (<code class="code-voice">&amp;*</code>)
+</p>
+</li><li class="item"><p class="para">
+  Overflow division (<code class="code-voice">&amp;/</code>)
+</p>
+</li><li class="item"><p class="para">
+  Overflow remainder (<code class="code-voice">&amp;%</code>)
+</p>
+</li>
+</ul>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_75"></a>
+  <h3 class="section-name" tabindex="0">Value Overflow</h3>
+  <p class="para">
+  Here’s an example of what happens when an unsigned value is allowed to overflow, using the overflow addition operator (<code class="code-voice">&amp;+</code>):
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">willOverflow</span> = <span class="vc">UInt8</span>.<span class="vc">max</span></code></li>
+          <li><code class="code-voice"><span class="c">// willOverflow equals 255, which is the largest value a UInt8 can hold</span></code></li>
+          <li><code class="code-voice"><span class="vc">willOverflow</span> = <span class="vc">willOverflow</span> &amp;+ <span class="m">1</span></code></li>
+          <li><code class="code-voice"><span class="c">// willOverflow is now equal to 0</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The variable <code class="code-voice">willOverflow</code> is initialized with the largest value a <code class="code-voice">UInt8</code> can hold (<code class="code-voice">255</code>, or <code class="code-voice">11111111</code> in binary). It is then incremented by <code class="code-voice">1</code> using the overflow addition operator (<code class="code-voice">&amp;+</code>). This pushes its binary representation just over the size that a <code class="code-voice">UInt8</code> can hold, causing it to overflow beyond its bounds, as shown in the diagram below. The value that remains within the bounds of the <code class="code-voice">UInt8</code> after the overflow addition is <code class="code-voice">00000000</code>, or zero:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/overflowAddition_2x.png" alt="image: ../Art/overflowAddition_2x.png" width="486" height="165"/>
+</figure>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_76"></a>
+  <h3 class="section-name" tabindex="0">Value Underflow</h3>
+  <p class="para">
+  Numbers can also become too small to fit in their type’s maximum bounds. Here’s an example.
+</p><p class="para">
+  The <em>smallest</em> value that a UInt8 can hold is <code class="code-voice">0</code> (which is <code class="code-voice">00000000</code> in eight-bit binary form). If you subtract <code class="code-voice">1</code> from <code class="code-voice">00000000</code> using the overflow subtraction operator, the number will overflow back round to <code class="code-voice">11111111</code>, or <code class="code-voice">255</code> in decimal:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/overflowUnsignedSubtraction_2x.png" alt="image: ../Art/overflowUnsignedSubtraction_2x.png" width="486" height="165"/>
+</figure><p class="para">
+  Here’s how that looks in Swift code:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">willUnderflow</span> = <span class="vc">UInt8</span>.<span class="vc">min</span></code></li>
+          <li><code class="code-voice"><span class="c">// willUnderflow equals 0, which is the smallest value a UInt8 can hold</span></code></li>
+          <li><code class="code-voice"><span class="vc">willUnderflow</span> = <span class="vc">willUnderflow</span> &amp;- <span class="m">1</span></code></li>
+          <li><code class="code-voice"><span class="c">// willUnderflow is now equal to 255</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  A similar underflow occurs for signed integers. All subtraction for signed integers is performed as straight binary subtraction, with the sign bit included as part of the numbers being subtracted, as described in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH27-XID_71" data-id="//apple_ref/doc/uid/TP40014097-CH27-XID_71">Bitwise Left and Right Shift Operators</a></span>. The smallest number that an <code class="code-voice">Int8</code> can hold is <code class="code-voice">-128</code>, which is <code class="code-voice">10000000</code> in binary. Subtracting <code class="code-voice">1</code> from this binary number with the overflow operator gives a binary value of <code class="code-voice">01111111</code>, which toggles the sign bit and gives positive <code class="code-voice">127</code>, the largest positive value that an <code class="code-voice">Int8</code> can hold:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/overflowSignedSubtraction_2x.png" alt="image: ../Art/overflowSignedSubtraction_2x.png" width="486" height="199"/>
+</figure><p class="para">
+  Here’s the same thing in Swift code:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">signedUnderflow</span> = <span class="vc">Int8</span>.<span class="vc">min</span></code></li>
+          <li><code class="code-voice"><span class="c">// signedUnderflow equals -128, which is the smallest value an Int8 can hold</span></code></li>
+          <li><code class="code-voice"><span class="vc">signedUnderflow</span> = <span class="vc">signedUnderflow</span> &amp;- <span class="m">1</span></code></li>
+          <li><code class="code-voice"><span class="c">// signedUnderflow is now equal to 127</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The end result of the overflow and underflow behavior described above is that for both signed and unsigned integers, overflow always wraps around from the largest valid integer value back to the smallest, and underflow always wraps around from the smallest value to the largest.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_77"></a>
+  <h3 class="section-name" tabindex="0">Division by Zero</h3>
+  <p class="para">
+  Dividing a number by zero (<code class="code-voice">i / 0</code>), or trying to calculate remainder by zero (<code class="code-voice">i % 0</code>), causes an error:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">x</span> = <span class="m">1</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">y</span> = <span class="vc">x</span> / <span class="m">0</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  However, the overflow versions of these operators (<code class="code-voice">&amp;/</code> and <code class="code-voice">&amp;%</code>) return a value of zero if you divide by zero:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">x</span> = <span class="m">1</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">y</span> = <span class="vc">x</span> &amp;/ <span class="m">0</span></code></li>
+          <li><code class="code-voice"><span class="c">// y is equal to 0</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_78"></a>
+  <h3 class="section-name" tabindex="0">Precedence and Associativity</h3>
+  <p class="para">
+  Operator <em>precedence</em> gives some operators higher priority than others; these operators are applied first.
+</p><p class="para">
+  Operator <em>associativity</em> defines how operators of the same precedence are grouped together (or <em>associated</em>)—either grouped from the left, or grouped from the right. Think of it as meaning “they associate with the expression to their left,” or “they associate with the expression to their right.”
+</p><p class="para">
+  It is important to consider each operator’s precedence and associativity when working out the order in which a compound expression will be calculated. Here’s an example. Why does the following expression equal <code class="code-voice">4</code>?
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="m">2</span> + <span class="m">3</span> * <span class="m">4</span> % <span class="m">5</span></code></li>
+          <li><code class="code-voice"><span class="c">// this equals 4</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Taken strictly from left to right, you might expect this to read as follows:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  2 plus 3 equals 5;
+</p>
+</li><li class="item"><p class="para">
+  5 times 4 equals 20;
+</p>
+</li><li class="item"><p class="para">
+  20 remainder 5 equals 0
+</p>
+</li>
+</ul><p class="para">
+  However, the actual answer is <code class="code-voice">4</code>, not <code class="code-voice">0</code>. Higher-precedence operators are evaluated before lower-precedence ones. In Swift, as in C, the multiplication operator (<code class="code-voice">*</code>) and the remainder operator (<code class="code-voice">%</code>) have a higher precedence than the addition operator (<code class="code-voice">+</code>). As a result, they are both evaluated before the addition is considered.
+</p><p class="para">
+  However, multiplication and remainder have the <em>same</em> precedence as each other. To work out the exact evaluation order to use, you also need to consider their associativity. Multiplication and remainder both associate with the expression to their left. Think of this as adding implicit parentheses around these parts of the expression, starting from their left:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="m">2</span> + ((<span class="m">3</span> * <span class="m">4</span>) % <span class="m">5</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  <code class="code-voice">(3 * 4)</code> is <code class="code-voice">12</code>, so this is equivalent to:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="m">2</span> + (<span class="m">12</span> % <span class="m">5</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  <code class="code-voice">(12 % 5)</code> is <code class="code-voice">2</code>, so this is equivalent to:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="m">2</span> + <span class="m">2</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This calculation yields the final answer of <code class="code-voice">4</code>.
+</p><p class="para">
+  For a complete list of Swift operator precedences and associativity rules, see <span class="x-name"><a href="Expressions.html#//apple_ref/doc/uid/TP40014097-CH32-XID_720" data-id="//apple_ref/doc/uid/TP40014097-CH32-XID_720">Expressions</a></span>.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_79"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Swift’s operator precedences and associativity rules are simpler and more predictable than those found in C and Objective-C. However, this means that they are not the same as in C-based languages. Be careful to ensure that operator interactions still behave in the way you intend when porting existing code to Swift.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_80"></a>
+  <h3 class="section-name" tabindex="0">Operator Functions</h3>
+  <p class="para">
+  Classes and structures can provide their own implementations of existing operators. This is known as <em>overloading</em> the existing operators.
+</p><p class="para">
+  The example below shows how to implement the arithmetic addition operator (<code class="code-voice">+</code>) for a custom structure. The arithmetic addition operator is a <em>binary operator</em> because it operates on two targets and is said to be <em>infix</em> because it appears in between those two targets.
+</p><p class="para">
+  The example defines a <code class="code-voice">Vector2D</code> structure for a two-dimensional position vector <code class="code-voice">(x, y)</code>, followed by a definition of an <em>operator function</em> to add together instances of the <code class="code-voice">Vector2D</code> structure:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Vector2D</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">x</span> = <span class="m">0.0</span>, <span class="vc">y</span> = <span class="m">0.0</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">func</span> + (<span class="vc">left</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>, <span class="vc">right</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="vc">left</span>.<span class="vc">x</span> + <span class="vc">right</span>.<span class="vc">x</span>, <span class="vc">y</span>: <span class="vc">left</span>.<span class="vc">y</span> + <span class="vc">right</span>.<span class="vc">y</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The operator function is defined as a global function with a function name that matches the operator to be overloaded (<code class="code-voice">+</code>). Because the arithmetic addition operator is a binary operator, this operator function takes two input parameters of type <code class="code-voice">Vector2D</code> and returns a single output value, also of type <code class="code-voice">Vector2D</code>.
+</p><p class="para">
+  In this implementation, the input parameters are named <code class="code-voice">left</code> and <code class="code-voice">right</code> to represent the <code class="code-voice">Vector2D</code> instances that will be on the left side and right side of the <code class="code-voice">+</code> operator. The function returns a new <code class="code-voice">Vector2D</code> instance, whose <code class="code-voice">x</code> and <code class="code-voice">y</code> properties are initialized with the sum of the <code class="code-voice">x</code> and <code class="code-voice">y</code> properties from the two <code class="code-voice">Vector2D</code> instances that are added together.
+</p><p class="para">
+  The function is defined globally, rather than as a method on the <code class="code-voice">Vector2D</code> structure, so that it can be used as an infix operator between existing <code class="code-voice">Vector2D</code> instances:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">vector</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">3.0</span>, <span class="vc">y</span>: <span class="m">1.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">anotherVector</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">2.0</span>, <span class="vc">y</span>: <span class="m">4.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">combinedVector</span> = <span class="vc">vector</span> + <span class="vc">anotherVector</span></code></li>
+          <li><code class="code-voice"><span class="c">// combinedVector is a Vector2D instance with values of (5.0, 5.0)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This example adds together the vectors <code class="code-voice">(3.0, 1.0)</code> and <code class="code-voice">(2.0, 4.0)</code> to make the vector <code class="code-voice">(5.0, 5.0)</code>, as illustrated below.
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/vectorAddition_2x.png" alt="image: ../Art/vectorAddition_2x.png" width="387" height="387"/>
+</figure>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_81"></a>
+  <h3 class="section-name" tabindex="0">Prefix and Postfix Operators</h3>
+  <p class="para">
+  The example shown above demonstrates a custom implementation of a binary infix operator. Classes and structures can also provide implementations of the standard <em>unary operators</em>. Unary operators operate on a single target. They are <em>prefix</em> if they precede their target (such as <code class="code-voice">-a</code>) and <em>postfix</em> operators if they follow their target (such as <code class="code-voice">i++</code>).
+</p><p class="para">
+  You implement a prefix or postfix unary operator by writing the <code class="code-voice">prefix</code> or <code class="code-voice">postfix</code> modifier before the <code class="code-voice">func</code> keyword when declaring the operator function:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">prefix</span> <span class="kt">func</span> - (<span class="vc">vector</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">Vector2D</span>(<span class="vc">x</span>: -<span class="vc">vector</span>.<span class="vc">x</span>, <span class="vc">y</span>: -<span class="vc">vector</span>.<span class="vc">y</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The example above implements the unary minus operator (<code class="code-voice">-a</code>) for <code class="code-voice">Vector2D</code> instances. The unary minus operator is a prefix operator, and so this function has to be qualified with the <code class="code-voice">prefix</code> modifier.
+</p><p class="para">
+  For simple numeric values, the unary minus operator converts positive numbers into their negative equivalent and vice versa. The corresponding implementation for <code class="code-voice">Vector2D</code> instances performs this operation on both the <code class="code-voice">x</code> and <code class="code-voice">y</code> properties:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">positive</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">3.0</span>, <span class="vc">y</span>: <span class="m">4.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">negative</span> = -<span class="vc">positive</span></code></li>
+          <li><code class="code-voice"><span class="c">// negative is a Vector2D instance with values of (-3.0, -4.0)</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">alsoPositive</span> = -<span class="vc">negative</span></code></li>
+          <li><code class="code-voice"><span class="c">// alsoPositive is a Vector2D instance with values of (3.0, 4.0)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_82"></a>
+  <h3 class="section-name" tabindex="0">Compound Assignment Operators</h3>
+  <p class="para">
+  <em>Compound assignment operators</em> combine assignment (<code class="code-voice">=</code>) with another operation. For example, the addition assignment operator (<code class="code-voice">+=</code>) combines addition and assignment into a single operation. You mark a compound assignment operator’s left input parameter as <code class="code-voice">inout</code>, because the parameter’s value will be modified directly from within the operator function.
+</p><p class="para">
+  The example below implements an addition assignment operator function for <code class="code-voice">Vector2D</code> instances:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> += (<span class="kt">inout</span> <span class="vc">left</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>, <span class="vc">right</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">    <span class="vc">left</span> = <span class="vc">left</span> + <span class="vc">right</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Because an addition operator was defined earlier, you don’t need to reimplement the addition process here. Instead, the addition assignment operator function takes advantage of the existing addition operator function, and uses it to set the left value to be the left value plus the right value:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">original</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">1.0</span>, <span class="vc">y</span>: <span class="m">2.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">vectorToAdd</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">3.0</span>, <span class="vc">y</span>: <span class="m">4.0</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">original</span> += <span class="vc">vectorToAdd</span></code></li>
+          <li><code class="code-voice"><span class="c">// original now has values of (4.0, 6.0)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can combine assignment with either the <code class="code-voice">prefix</code> or <code class="code-voice">postfix</code> modifier, as in this implementation of the prefix increment operator (<code class="code-voice">++a</code>) for <code class="code-voice">Vector2D</code> instances:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">prefix</span> <span class="kt">func</span> ++ (<span class="kt">inout</span> <span class="vc">vector</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">vector</span> += <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">1.0</span>, <span class="vc">y</span>: <span class="m">1.0</span>)</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">vector</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The prefix increment operator function above takes advantage of the addition assignment operator defined earlier. It adds a <code class="code-voice">Vector2D</code> with <code class="code-voice">x</code> and <code class="code-voice">y</code> values of <code class="code-voice">1.0</code> to the <code class="code-voice">Vector2D</code> on which it is called, and returns the result:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">toIncrement</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">3.0</span>, <span class="vc">y</span>: <span class="m">4.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">afterIncrement</span> = ++<span class="vc">toIncrement</span></code></li>
+          <li><code class="code-voice"><span class="c">// toIncrement now has values of (4.0, 5.0)</span></code></li>
+          <li><code class="code-voice"><span class="c">// afterIncrement also has values of (4.0, 5.0)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_83"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">It is not possible to overload the default assignment operator (<code class="code-voice">=</code>). Only the compound assignment operators can be overloaded. Similarly, the ternary conditional operator (<code class="code-voice">a ? b : c</code>) cannot be overloaded.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_84"></a>
+  <h3 class="section-name" tabindex="0">Equivalence Operators</h3>
+  <p class="para">
+  Custom classes and structures do not receive a default implementation of the <em>equivalence operators</em>, known as the “equal to” operator (<code class="code-voice">==</code>) and “not equal to” operator (<code class="code-voice">!=</code>). It is not possible for Swift to guess what would qualify as “equal” for your own custom types, because the meaning of “equal” depends on the roles that those types play in your code.
+</p><p class="para">
+  To use the equivalence operators to check for equivalence of your own custom type, provide an implementation of the operators in the same way as for other infix operators:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> == (<span class="vc">left</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>, <span class="vc">right</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Bool<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> (<span class="vc">left</span>.<span class="vc">x</span> == <span class="vc">right</span>.<span class="vc">x</span>) &amp;&amp; (<span class="vc">left</span>.<span class="vc">y</span> == <span class="vc">right</span>.<span class="vc">y</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">func</span> != (<span class="vc">left</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>, <span class="vc">right</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Bool<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> !(<span class="vc">left</span> == <span class="vc">right</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The above example implements an “equal to” operator (<code class="code-voice">==</code>) to check if two <code class="code-voice">Vector2D</code> instances have equivalent values. In the context of <code class="code-voice">Vector2D</code>, it makes sense to consider “equal” as meaning “both instances have the same <code class="code-voice">x</code> values and <code class="code-voice">y</code> values”, and so this is the logic used by the operator implementation. The example also implements the “not equal to” operator (<code class="code-voice">!=</code>), which simply returns the inverse of the result of the “equal to” operator.
+</p><p class="para">
+  You can now use these operators to check whether two <code class="code-voice">Vector2D</code> instances are equivalent:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">twoThree</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">2.0</span>, <span class="vc">y</span>: <span class="m">3.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">anotherTwoThree</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">2.0</span>, <span class="vc">y</span>: <span class="m">3.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">twoThree</span> == <span class="vc">anotherTwoThree</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"These two vectors are equivalent."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "These two vectors are equivalent."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_85"></a>
+  <h3 class="section-name" tabindex="0">Custom Operators</h3>
+  <p class="para">
+  You can declare and implement your own <em>custom operators</em> in addition to the standard operators provided by Swift. For a list of characters that can be used to define custom operators, see <span class="x-name"><a href="LexicalStructure.html#//apple_ref/doc/uid/TP40014097-CH30-XID_939" data-id="//apple_ref/doc/uid/TP40014097-CH30-XID_939">Operators</a></span>.
+</p><p class="para">
+  New operators are declared at a global level using the <code class="code-voice">operator</code> keyword, and are marked with the <code class="code-voice">prefix</code>, <code class="code-voice">infix</code> or <code class="code-voice">postfix</code> modifiers:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">prefix</span> <span class="kt">operator</span> +++ {}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The example above defines a new prefix operator called <code class="code-voice">+++</code>. This operator does not have an existing meaning in Swift, and so it is given its own custom meaning below in the specific context of working with <code class="code-voice">Vector2D</code> instances. For the purposes of this example, <code class="code-voice">+++</code> is treated as a new “prefix doubling incrementer” operator. It doubles the <code class="code-voice">x</code> and <code class="code-voice">y</code> values of a <code class="code-voice">Vector2D</code> instance, by adding the vector to itself with the addition assignment operator defined earlier:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">prefix</span> <span class="kt">func</span> +++ (<span class="kt">inout</span> <span class="vc">vector</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">vector</span> += <span class="vc">vector</span></code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">vector</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This implementation of <code class="code-voice">+++</code> is very similar to the implementation of <code class="code-voice">++</code> for <code class="code-voice">Vector2D</code>, except that this operator function adds the vector to itself, rather than adding <code class="code-voice">Vector2D(1.0, 1.0)</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">toBeDoubled</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">1.0</span>, <span class="vc">y</span>: <span class="m">4.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">afterDoubling</span> = +++<span class="vc">toBeDoubled</span></code></li>
+          <li><code class="code-voice"><span class="c">// toBeDoubled now has values of (2.0, 8.0)</span></code></li>
+          <li><code class="code-voice"><span class="c">// afterDoubling also has values of (2.0, 8.0)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_86"></a>
+  <h3 class="section-name" tabindex="0">Precedence and Associativity for Custom Infix Operators</h3>
+  <p class="para">
+  Custom <code class="code-voice">infix</code> operators can also specify a <em>precedence</em> and an <em>associativity</em>. See <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH27-XID_78" data-id="//apple_ref/doc/uid/TP40014097-CH27-XID_78">Precedence and Associativity</a></span> for an explanation of how these two characteristics affect an infix operator’s interaction with other infix operators.
+</p><p class="para">
+  The possible values for <code class="code-voice">associativity</code> are <code class="code-voice">left</code>, <code class="code-voice">right</code>, and <code class="code-voice">none</code>. Left-associative operators associate to the left if written next to other left-associative operators of the same precedence. Similarly, right-associative operators associate to the right if written next to other right-associative operators of the same precedence. Non-associative operators cannot be written next to other operators with the same precedence.
+</p><p class="para">
+  The <code class="code-voice">associativity</code> value defaults to <code class="code-voice">none</code> if it is not specified. The <code class="code-voice">precedence</code> value defaults to <code class="code-voice">100</code> if it is not specified.
+</p><p class="para">
+  The following example defines a new custom <code class="code-voice">infix</code> operator called <code class="code-voice">+-</code>, with <code class="code-voice">left</code> associativity and a precedence of <code class="code-voice">140</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">infix</span> <span class="kt">operator</span> +- { <span class="vc">associativity</span> <span class="vc">left</span> <span class="vc">precedence</span> <span class="m">140</span> }</code></li>
+          <li><code class="code-voice"><span class="kt">func</span> +- (<span class="vc">left</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>, <span class="vc">right</span>: <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Vector2D<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="vc">left</span>.<span class="vc">x</span> + <span class="vc">right</span>.<span class="vc">x</span>, <span class="vc">y</span>: <span class="vc">left</span>.<span class="vc">y</span> - <span class="vc">right</span>.<span class="vc">y</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">firstVector</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">1.0</span>, <span class="vc">y</span>: <span class="m">2.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">secondVector</span> = <span class="vc">Vector2D</span>(<span class="vc">x</span>: <span class="m">3.0</span>, <span class="vc">y</span>: <span class="m">4.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">plusMinusVector</span> = <span class="vc">firstVector</span> +- <span class="vc">secondVector</span></code></li>
+          <li><code class="code-voice"><span class="c">// plusMinusVector is a Vector2D instance with values of (4.0, -2.0)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This operator adds together the <code class="code-voice">x</code> values of two vectors, and subtracts the <code class="code-voice">y</code> value of the second vector from the first. Because it is in essence an “additive” operator, it has been given the same associativity and precedence values (<code class="code-voice">left</code> and <code class="code-voice">140</code>) as default additive infix operators such as <code class="code-voice">+</code> and <code class="code-voice">-</code>. For a complete list of the default Swift operator precedence and associativity settings, see <span class="x-name"><a href="Expressions.html#//apple_ref/doc/uid/TP40014097-CH32-XID_720" data-id="//apple_ref/doc/uid/TP40014097-CH32-XID_720">Expressions</a></span>.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH27-XID_87"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">You do not specify a precedence when defining a prefix or postfix operator. However, if you apply both a prefix and a postfix operator to the same operand, the postfix operator is applied first.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+
+</section>
+
+  	
+ 	<section id="next_previous" class="">
+    		<p class="previous-link"><a href="AccessControl.html#//apple_ref/doc/uid/TP40014097-CH41-XID_29" data-id="//apple_ref/doc/uid/TP40014097-CH41-XID_29">Access Control</a></p>
+  			<p class="next-link"><a href="AboutTheLanguageReference.html#//apple_ref/doc/uid/TP40014097-CH29-XID_508" data-id="//apple_ref/doc/uid/TP40014097-CH29-XID_508">About the Language Reference</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>

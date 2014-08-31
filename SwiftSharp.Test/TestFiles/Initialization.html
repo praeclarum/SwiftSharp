@@ -1,0 +1,1270 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18"></a><a name="//apple_ref/doc/uid/TP40014097-CH18-XID_306"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">Initialization</h2>
+
+
+      <section id="mini_toc" class="hideInXcode" role="navigation">
+	<div id="mini_toc_button">
+  	<p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_307">
+	  				Setting Initial Values for Stored Properties
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_312">
+	  				Customizing Initialization
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_319">
+	  				Default Initializers
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_321">
+	  				Initializer Delegation for Value Types
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_324">
+	  				Class Inheritance and Initialization
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_341">
+	  				Setting a Default Property Value with a Closure or Function
+	  			</a>
+  			</p>
+  		</li>
+	</ul>
+</section>
+
+  
+  	<section class="section">
+  		<p class="para">
+  <em>Initialization</em> is the process of preparing an instance of a class, structure, or enumeration for use. This process involves setting an initial value for each stored property on that instance and performing any other setup or initialization that is required before the new instance is ready for use.
+</p>
+<p class="para">
+  You implement this initialization process by defining <em>initializers</em>, which are like special methods that can be called to create a new instance of a particular type. Unlike Objective-C initializers, Swift initializers do not return a value. Their primary role is to ensure that new instances of a type are correctly initialized before they are used for the first time.
+</p>
+<p class="para">
+  Instances of class types can also implement a <em>deinitializer</em>, which performs any custom cleanup just before an instance of that class is deallocated. For more information about deinitializers, see <span class="x-name"><a href="Deinitialization.html#//apple_ref/doc/uid/TP40014097-CH19-XID_220" data-id="//apple_ref/doc/uid/TP40014097-CH19-XID_220">Deinitialization</a></span>.
+</p>
+
+		</section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_307"></a>
+  <h3 class="section-name" tabindex="0">Setting Initial Values for Stored Properties</h3>
+  <p class="para">
+  Classes and structures <em>must</em> set all of their stored properties to an appropriate initial value by the time an instance of that class or structure is created. Stored properties cannot be left in an indeterminate state.
+</p><p class="para">
+  You can set an initial value for a stored property within an initializer, or by assigning a default property value as part of the property’s definition. These actions are described in the following sections.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_308"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">When you assign a default value to a stored property, or set its initial value within an initializer, the value of that property is set directly, without calling any property observers.
+    	</p>
+    
+  </aside>
+</div>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_309"></a>
+  <h3 class="section-name" tabindex="0">Initializers</h3>
+  <p class="para">
+  <em>Initializers</em> are called to create a new instance of a particular type. In its simplest form, an initializer is like an instance method with no parameters, written using the <code class="code-voice">init</code> keyword:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">init</span>() {</code></li>
+          <li><code class="code-voice">    <span class="c">// perform some initialization here</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The example below defines a new structure called <code class="code-voice">Fahrenheit</code> to store temperatures expressed in the Fahrenheit scale. The <code class="code-voice">Fahrenheit</code> structure has one stored property, <code class="code-voice">temperature</code>, which is of type <code class="code-voice">Double</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Fahrenheit</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">temperature</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>() {</code></li>
+          <li><code class="code-voice">        <span class="vc">temperature</span> = <span class="m">32.0</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">f</span> = <span class="vc">Fahrenheit</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The default temperature is </span>\(<span class="vc">f</span>.<span class="vc">temperature</span>)<span class="s">° Fahrenheit"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "The default temperature is 32.0° Fahrenheit"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The structure defines a single initializer, <code class="code-voice">init</code>, with no parameters, which initializes the stored temperature with a value of <code class="code-voice">32.0</code> (the freezing point of water when expressed in the Fahrenheit scale).
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_310"></a>
+  <h3 class="section-name" tabindex="0">Default Property Values</h3>
+  <p class="para">
+  You can set the initial value of a stored property from within an initializer, as shown above. Alternatively, specify a <em>default property value</em> as part of the property’s declaration. You specify a default property value by assigning an initial value to the property when it is defined.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_311"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">If a property always takes the same initial value, provide a default value rather than setting a value within an initializer. The end result is the same, but the default value ties the property’s initialization more closely to its declaration. It makes for shorter, clearer initializers and enables you to infer the type of the property from its default value. The default value also makes it easier for you to take advantage of default initializers and initializer inheritance, as described later in this chapter.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  You can write the <code class="code-voice">Fahrenheit</code> structure from above in a simpler form by providing a default value for its <code class="code-voice">temperature</code> property at the point that the property is declared:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Fahrenheit</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">temperature</span> = <span class="m">32.0</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_312"></a>
+  <h3 class="section-name" tabindex="0">Customizing Initialization</h3>
+  <p class="para">
+  You can customize the initialization process with input parameters and optional property types, or by modifying constant properties during initialization, as described in the following sections.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_313"></a>
+  <h3 class="section-name" tabindex="0">Initialization Parameters</h3>
+  <p class="para">
+  You can provide <em>initialization parameters</em> as part of an initializer’s definition, to define the types and names of values that customize the initialization process. Initialization parameters have the same capabilities and syntax as function and method parameters.
+</p><p class="para">
+  The following example defines a structure called <code class="code-voice">Celsius</code>, which stores temperatures expressed in the Celsius scale. The <code class="code-voice">Celsius</code> structure implements two custom initializers called <code class="code-voice">init(fromFahrenheit:)</code> and <code class="code-voice">init(fromKelvin:)</code>, which initialize a new instance of the structure with a value from a different temperature scale:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Celsius</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">temperatureInCelsius</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">fromFahrenheit</span> <span class="vc">fahrenheit</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">temperatureInCelsius</span> = (<span class="vc">fahrenheit</span> - <span class="m">32.0</span>) / <span class="m">1.8</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">fromKelvin</span> <span class="vc">kelvin</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">temperatureInCelsius</span> = <span class="vc">kelvin</span> - <span class="m">273.15</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">boilingPointOfWater</span> = <span class="vc">Celsius</span>(<span class="vc">fromFahrenheit</span>: <span class="m">212.0</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// boilingPointOfWater.temperatureInCelsius is 100.0</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">freezingPointOfWater</span> = <span class="vc">Celsius</span>(<span class="vc">fromKelvin</span>: <span class="m">273.15</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// freezingPointOfWater.temperatureInCelsius is 0.0</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The first initializer has a single initialization parameter with an external name of <code class="code-voice">fromFahrenheit</code> and a local name of <code class="code-voice">fahrenheit</code>. The second initializer has a single initialization parameter with an external name of <code class="code-voice">fromKelvin</code> and a local name of <code class="code-voice">kelvin</code>. Both initializers convert their single argument into a value in the Celsius scale and store this value in a property called <code class="code-voice">temperatureInCelsius</code>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_314"></a>
+  <h3 class="section-name" tabindex="0">Local and External Parameter Names</h3>
+  <p class="para">
+  As with function and method parameters, initialization parameters can have both a local name for use within the initializer’s body and an external name for use when calling the initializer.
+</p><p class="para">
+  However, initializers do not have an identifying function name before their parentheses in the way that functions and methods do. Therefore, the names and types of an initializer’s parameters play a particularly important role in identifying which initializer should be called. Because of this, Swift provides an automatic external name for <em>every</em> parameter in an initializer if you don’t provide an external name yourself. This automatic external name is the same as the local name, as if you had written a hash symbol before every initialization parameter.
+</p><p class="para">
+  The following example defines a structure called <code class="code-voice">Color</code>, with three constant properties called <code class="code-voice">red</code>, <code class="code-voice">green</code>, and <code class="code-voice">blue</code>. These properties store a value between <code class="code-voice">0.0</code> and <code class="code-voice">1.0</code> to indicate the amount of red, green, and blue in the color.
+</p><p class="para">
+  <code class="code-voice">Color</code> provides an initializer with three appropriately named parameters of type <code class="code-voice">Double</code> for its red, green, and blue components. <code class="code-voice">Color</code> also provides a second initializer with a single <code class="code-voice">white</code> parameter, which is used to provide the same value for all three color components.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Color</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">red</span>, <span class="vc">green</span>, <span class="vc">blue</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">red</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>, <span class="vc">green</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>, <span class="vc">blue</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">red</span>   = <span class="vc">red</span></code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">green</span> = <span class="vc">green</span></code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">blue</span>  = <span class="vc">blue</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">white</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">red</span>   = <span class="vc">white</span></code></li>
+          <li><code class="code-voice">        <span class="vc">green</span> = <span class="vc">white</span></code></li>
+          <li><code class="code-voice">        <span class="vc">blue</span>  = <span class="vc">white</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Both initializers can be used to create a new <code class="code-voice">Color</code> instance, by providing named values for each initializer parameter:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">magenta</span> = <span class="vc">Color</span>(<span class="vc">red</span>: <span class="m">1.0</span>, <span class="vc">green</span>: <span class="m">0.0</span>, <span class="vc">blue</span>: <span class="m">1.0</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">halfGray</span> = <span class="vc">Color</span>(<span class="vc">white</span>: <span class="m">0.5</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Note that it is not possible to call these initializers without using external parameter names. External names must always be used in an initializer if they are defined, and omitting them is a compile-time error:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">veryGreen</span> = <span class="vc">Color</span>(<span class="m">0.0</span>, <span class="m">1.0</span>, <span class="m">0.0</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// this reports a compile-time error - external names are required</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_315"></a>
+  <h3 class="section-name" tabindex="0">Initializer Parameters Without External Names</h3>
+  <p class="para">
+  If you do not want to use an external name for an initializer parameter, write an underscore (<code class="code-voice">_</code>) instead of an explicit external name for that parameter to override the default behavior.
+</p><p class="para">
+  Here’s an expanded version of the <code class="code-voice">Celsius</code> example from earlier, with an additional initializer to create a new <code class="code-voice">Celsius</code> instance from a <code class="code-voice">Double</code> value that is already in the Celsius scale:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Celsius</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">temperatureInCelsius</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">fromFahrenheit</span> <span class="vc">fahrenheit</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">temperatureInCelsius</span> = (<span class="vc">fahrenheit</span> - <span class="m">32.0</span>) / <span class="m">1.8</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">fromKelvin</span> <span class="vc">kelvin</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">temperatureInCelsius</span> = <span class="vc">kelvin</span> - <span class="m">273.15</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="kt">_</span> <span class="vc">celsius</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">temperatureInCelsius</span> = <span class="vc">celsius</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">bodyTemperature</span> = <span class="vc">Celsius</span>(<span class="m">37.0</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// bodyTemperature.temperatureInCelsius is 37.0</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The initializer call <code class="code-voice">Celsius(37.0)</code> is clear in its intent without the need for an external parameter name. It is therefore appropriate to write this initializer as <code class="code-voice">init(_ celsius: Double)</code> so that it can be called by providing an unnamed <code class="code-voice">Double</code> value.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_316"></a>
+  <h3 class="section-name" tabindex="0">Optional Property Types</h3>
+  <p class="para">
+  If your custom type has a stored property that is logically allowed to have “no value”—perhaps because its value cannot be set during initialization, or because it is allowed to have “no value” at some later point—declare the property with an <em>optional</em> type. Properties of optional type are automatically initialized with a value of <code class="code-voice">nil</code>, indicating that the property is deliberately intended to have “no value yet” during initialization.
+</p><p class="para">
+  The following example defines a class called <code class="code-voice">SurveyQuestion</code>, with an optional <code class="code-voice">String</code> property called <code class="code-voice">response</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">SurveyQuestion</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">text</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">response</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">text</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">text</span> = <span class="vc">text</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">ask</span>() {</code></li>
+          <li><code class="code-voice">        <span class="vc">println</span>(<span class="vc">text</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">cheeseQuestion</span> = <span class="vc">SurveyQuestion</span>(<span class="vc">text</span>: <span class="s">"Do you like cheese?"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">cheeseQuestion</span>.<span class="vc">ask</span>()</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Do you like cheese?"</span></code></li>
+          <li><code class="code-voice"><span class="vc">cheeseQuestion</span>.<span class="vc">response</span> = <span class="s">"Yes, I do like cheese."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The response to a survey question cannot be known until it is asked, and so the <code class="code-voice">response</code> property is declared with a type of <code class="code-voice">String?</code>, or “optional <code class="code-voice">String</code>”. It is automatically assigned a default value of <code class="code-voice">nil</code>, meaning “no string yet”, when a new instance of <code class="code-voice">SurveyQuestion</code> is initialized.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_317"></a>
+  <h3 class="section-name" tabindex="0">Modifying Constant Properties During Initialization</h3>
+  <p class="para">
+  You can modify the value of a constant property at any point during initialization, as long as it is set to a definite value by the time initialization finishes.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_318"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">For class instances, a constant property can only be modified during initialization by the class that introduces it. It cannot be modified by a subclass.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  You can revise the <code class="code-voice">SurveyQuestion</code> example from above to use a constant property rather than a variable property for the <code class="code-voice">text</code> property of the question, to indicate that the question does not change once an instance of <code class="code-voice">SurveyQuestion</code> is created. Even though the <code class="code-voice">text</code> property is now a constant, it can still be set within the class’s initializer:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">SurveyQuestion</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">text</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">response</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">text</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">text</span> = <span class="vc">text</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">ask</span>() {</code></li>
+          <li><code class="code-voice">        <span class="vc">println</span>(<span class="vc">text</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">beetsQuestion</span> = <span class="vc">SurveyQuestion</span>(<span class="vc">text</span>: <span class="s">"How about beets?"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">beetsQuestion</span>.<span class="vc">ask</span>()</code></li>
+          <li><code class="code-voice"><span class="c">// prints "How about beets?"</span></code></li>
+          <li><code class="code-voice"><span class="vc">beetsQuestion</span>.<span class="vc">response</span> = <span class="s">"I also like beets. (But not with cheese.)"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_319"></a>
+  <h3 class="section-name" tabindex="0">Default Initializers</h3>
+  <p class="para">
+  Swift provides a <em>default initializer</em> for any structure or base class that provides default values for all of its properties and does not provide at least one initializer itself. The default initializer simply creates a new instance with all of its properties set to their default values.
+</p><p class="para">
+  This example defines a class called <code class="code-voice">ShoppingListItem</code>, which encapsulates the name, quantity, and purchase state of an item in a shopping list:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">ShoppingListItem</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">quantity</span> = <span class="m">1</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">purchased</span> = <span class="kt">false</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">item</span> = <span class="vc">ShoppingListItem</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Because all properties of the <code class="code-voice">ShoppingListItem</code> class have default values, and because it is a base class with no superclass, <code class="code-voice">ShoppingListItem</code> automatically gains a default initializer implementation that creates a new instance with all of its properties set to their default values. (The <code class="code-voice">name</code> property is an optional <code class="code-voice">String</code> property, and so it automatically receives a default value of <code class="code-voice">nil</code>, even though this value is not written in the code.) The example above uses the default initializer for the <code class="code-voice">ShoppingListItem</code> class to create a new instance of the class with initializer syntax, written as <code class="code-voice">ShoppingListItem()</code>, and assigns this new instance to a variable called <code class="code-voice">item</code>.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_320"></a>
+  <h3 class="section-name" tabindex="0">Memberwise Initializers for Structure Types</h3>
+  <p class="para">
+  Structure types automatically receive a <em>memberwise initializer</em> if they do not define any of their own custom initializers. This is true even if the structure’s stored properties do not have default values.
+</p><p class="para">
+  The memberwise initializer is a shorthand way to initialize the member properties of new structure instances. Initial values for the properties of the new instance can be passed to the memberwise initializer by name.
+</p><p class="para">
+  The example below defines a structure called <code class="code-voice">Size</code> with two properties called <code class="code-voice">width</code> and <code class="code-voice">height</code>. Both properties are inferred to be of type <code class="code-voice">Double</code> by assigning a default value of <code class="code-voice">0.0</code>.
+</p><p class="para">
+  The <code class="code-voice">Size</code> structure automatically receives an <code class="code-voice">init(width:height:)</code> memberwise initializer, which you can use to initialize a new <code class="code-voice">Size</code> instance:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Size</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">width</span> = <span class="m">0.0</span>, <span class="vc">height</span> = <span class="m">0.0</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">twoByTwo</span> = <span class="vc">Size</span>(<span class="vc">width</span>: <span class="m">2.0</span>, <span class="vc">height</span>: <span class="m">2.0</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_321"></a>
+  <h3 class="section-name" tabindex="0">Initializer Delegation for Value Types</h3>
+  <p class="para">
+  Initializers can call other initializers to perform part of an instance’s initialization. This process, known as <em>initializer delegation</em>, avoids duplicating code across multiple initializers.
+</p><p class="para">
+  The rules for how initializer delegation works, and for what forms of delegation are allowed, are different for value types and class types. Value types (structures and enumerations) do not support inheritance, and so their initializer delegation process is relatively simple, because they can only delegate to another initializer that they provide themselves. Classes, however, can inherit from other classes, as described in <span class="x-name"><a href="Inheritance.html#//apple_ref/doc/uid/TP40014097-CH17-XID_293" data-id="//apple_ref/doc/uid/TP40014097-CH17-XID_293">Inheritance</a></span>. This means that classes have additional responsibilities for ensuring that all stored properties they inherit are assigned a suitable value during initialization. These responsibilities are described in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_324" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_324">Class Inheritance and Initialization</a></span> below.
+</p><p class="para">
+  For value types, you use <code class="code-voice">self.init</code> to refer to other initializers from the same value type when writing your own custom initializers. You can only call <code class="code-voice">self.init</code> from within an initializer.
+</p><p class="para">
+  Note that if you define a custom initializer for a value type, you will no longer have access to the default initializer (or the memberwise initializer, if it is a structure) for that type. This constraint prevents a situation in which additional essential setup provided in a more complex initializer is circumvented by someone accidentally using one of the automatic initializers instead.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_322"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">If you want your custom value type to be initializable with the default initializer and memberwise initializer, and also with your own custom initializers, write your custom initializers in an extension rather than as part of the value type’s original implementation. For more information, see <span class="x-name"><a href="Extensions.html#//apple_ref/doc/uid/TP40014097-CH24-XID_229" data-id="//apple_ref/doc/uid/TP40014097-CH24-XID_229">Extensions</a></span>.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  The following example defines a custom <code class="code-voice">Rect</code> structure to represent a geometric rectangle. The example requires two supporting structures called <code class="code-voice">Size</code> and <code class="code-voice">Point</code>, both of which provide default values of <code class="code-voice">0.0</code> for all of their properties:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Size</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">width</span> = <span class="m">0.0</span>, <span class="vc">height</span> = <span class="m">0.0</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Point</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">x</span> = <span class="m">0.0</span>, <span class="vc">y</span> = <span class="m">0.0</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can initialize the <code class="code-voice">Rect</code> structure below in one of three ways—by using its default zero-initialized <code class="code-voice">origin</code> and <code class="code-voice">size</code> property values, by providing a specific origin point and size, or by providing a specific center point and size. These initialization options are represented by three custom initializers that are part of the <code class="code-voice">Rect</code> structure’s definition:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Rect</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">origin</span> = <span class="vc">Point</span>()</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">size</span> = <span class="vc">Size</span>()</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>() {}</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">origin</span>: <span class="n"><!-- a href="" -->Point<!-- /a --></span>, <span class="vc">size</span>: <span class="n"><!-- a href="" -->Size<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">origin</span> = <span class="vc">origin</span></code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">size</span> = <span class="vc">size</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">center</span>: <span class="n"><!-- a href="" -->Point<!-- /a --></span>, <span class="vc">size</span>: <span class="n"><!-- a href="" -->Size<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">let</span> <span class="vc">originX</span> = <span class="vc">center</span>.<span class="vc">x</span> - (<span class="vc">size</span>.<span class="vc">width</span> / <span class="m">2</span>)</code></li>
+          <li><code class="code-voice">        <span class="kt">let</span> <span class="vc">originY</span> = <span class="vc">center</span>.<span class="vc">y</span> - (<span class="vc">size</span>.<span class="vc">height</span> / <span class="m">2</span>)</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="kt">init</span>(<span class="vc">origin</span>: <span class="vc">Point</span>(<span class="vc">x</span>: <span class="vc">originX</span>, <span class="vc">y</span>: <span class="vc">originY</span>), <span class="vc">size</span>: <span class="vc">size</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The first <code class="code-voice">Rect</code> initializer, <code class="code-voice">init()</code>, is functionally the same as the default initializer that the structure would have received if it did not have its own custom initializers. This initializer has an empty body, represented by an empty pair of curly braces <code class="code-voice">{}</code>, and does not perfom any initialization. Calling this initializer returns a <code class="code-voice">Rect</code> instance whose <code class="code-voice">origin</code> and <code class="code-voice">size</code> properties are both initialized with the default values of <code class="code-voice">Point(x: 0.0, y: 0.0)</code> and <code class="code-voice">Size(width: 0.0, height: 0.0)</code> from their property definitions:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">basicRect</span> = <span class="vc">Rect</span>()</code></li>
+          <li><code class="code-voice"><span class="c">// basicRect's origin is (0.0, 0.0) and its size is (0.0, 0.0)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The second <code class="code-voice">Rect</code> initializer, <code class="code-voice">init(origin:size:)</code>, is functionally the same as the memberwise initializer that the structure would have received if it did not have its own custom initializers. This initializer simply assigns the <code class="code-voice">origin</code> and <code class="code-voice">size</code> argument values to the appropriate stored properties:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">originRect</span> = <span class="vc">Rect</span>(<span class="vc">origin</span>: <span class="vc">Point</span>(<span class="vc">x</span>: <span class="m">2.0</span>, <span class="vc">y</span>: <span class="m">2.0</span>),</code></li>
+          <li><code class="code-voice">    <span class="vc">size</span>: <span class="vc">Size</span>(<span class="vc">width</span>: <span class="m">5.0</span>, <span class="vc">height</span>: <span class="m">5.0</span>))</code></li>
+          <li><code class="code-voice"><span class="c">// originRect's origin is (2.0, 2.0) and its size is (5.0, 5.0)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The third <code class="code-voice">Rect</code> initializer, <code class="code-voice">init(center:size:)</code>, is slightly more complex. It starts by calculating an appropriate origin point based on a <code class="code-voice">center</code> point and a <code class="code-voice">size</code> value. It then calls (or <em>delegates</em>) to the <code class="code-voice">init(origin:size:)</code> initializer, which stores the new origin and size values in the appropriate properties:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">centerRect</span> = <span class="vc">Rect</span>(<span class="vc">center</span>: <span class="vc">Point</span>(<span class="vc">x</span>: <span class="m">4.0</span>, <span class="vc">y</span>: <span class="m">4.0</span>),</code></li>
+          <li><code class="code-voice">    <span class="vc">size</span>: <span class="vc">Size</span>(<span class="vc">width</span>: <span class="m">3.0</span>, <span class="vc">height</span>: <span class="m">3.0</span>))</code></li>
+          <li><code class="code-voice"><span class="c">// centerRect's origin is (2.5, 2.5) and its size is (3.0, 3.0)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">init(center:size:)</code> initializer could have assigned the new values of <code class="code-voice">origin</code> and <code class="code-voice">size</code> to the appropriate properties itself. However, it is more convenient (and clearer in intent) for the <code class="code-voice">init(center:size:)</code> initializer to take advantage of an existing initializer that already provides exactly that functionality.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_323"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">For an alternative way to write this example without defining the <code class="code-voice">init()</code> and <code class="code-voice">init(origin:size:)</code> initializers yourself, see <span class="x-name"><a href="Extensions.html#//apple_ref/doc/uid/TP40014097-CH24-XID_229" data-id="//apple_ref/doc/uid/TP40014097-CH24-XID_229">Extensions</a></span>.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_324"></a>
+  <h3 class="section-name" tabindex="0">Class Inheritance and Initialization</h3>
+  <p class="para">
+  All of a class’s stored properties—including any properties the class inherits from its superclass—<em>must</em> be assigned an initial value during initialization.
+</p><p class="para">
+  Swift defines two kinds of initializers for class types to help ensure all stored properties receive an initial value. These are known as designated initializers and convenience initializers.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_325"></a>
+  <h3 class="section-name" tabindex="0">Designated Initializers and Convenience Initializers</h3>
+  <p class="para">
+  <em>Designated initializers</em> are the primary initializers for a class. A designated initializer fully initializes all properties introduced by that class and calls an appropriate superclass initializer to continue the initialization process up the superclass chain.
+</p><p class="para">
+  Classes tend to have very few designated initializers, and it is quite common for a class to have only one. Designated initializers are “funnel” points through which initialization takes place, and through which the initialization process continues up the superclass chain.
+</p><p class="para">
+  Every class must have at least one designated initializer. In some cases, this requirement is satisfied by inheriting one or more designated initializers from a superclass, as described in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_335" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_335">Automatic Initializer Inheritance</a></span> below.
+</p><p class="para">
+  <em>Convenience initializers</em> are secondary, supporting initializers for a class. You can define a convenience initializer to call a designated initializer from the same class as the convenience initializer with some of the designated initializer’s parameters set to default values. You can also define a convenience initializer to create an instance of that class for a specific use case or input value type.
+</p><p class="para">
+  You do not have to provide convenience initializers if your class does not require them. Create convenience initializers whenever a shortcut to a common initialization pattern will save time or make initialization of the class clearer in intent.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_326"></a>
+  <h3 class="section-name" tabindex="0">Syntax for Designated and Convenience Initializers</h3>
+  <p class="para">
+  Designated initializers for classes are written in the same way as simple initializers for value types:
+</p><span class="caption"></span>
+<div class="code-outline">
+  <ul class="code-outline-lines">
+    <li><pre class="code-voice"><span class="kt">init</span>(<em class="variable-text">parameters</em>) {</pre></li><li><pre class="code-voice">    <em class="variable-text">statements</em></pre></li><li><pre class="code-voice">}</pre></li>
+  </ul>
+</div><p class="para">
+  Convenience initializers are written in the same style, but with the <code class="code-voice">convenience</code> modifier placed before the <code class="code-voice">init</code> keyword, separated by a space:
+</p><span class="caption"></span>
+<div class="code-outline">
+  <ul class="code-outline-lines">
+    <li><pre class="code-voice"><span class="kt">convenience</span> <span class="kt">init</span>(<em class="variable-text">parameters</em>) {</pre></li><li><pre class="code-voice">    <em class="variable-text">statements</em></pre></li><li><pre class="code-voice">}</pre></li>
+  </ul>
+</div>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_327"></a>
+  <h3 class="section-name" tabindex="0">Initializer Chaining</h3>
+  <p class="para">
+  To simplify the relationships between designated and convenience initializers, Swift applies the following three rules for delegation calls between initializers:
+</p><dl class="term-definition termdef">
+	<dt class="term"><strong>Rule 1</strong></dt><dd class="definition"><p class="para">
+  Designated initializers must call a designated initializer from their immediate superclass.
+</p></dd><dt class="term"><strong>Rule 2</strong></dt><dd class="definition"><p class="para">
+  Convenience initializers must call another initializer available in the <em>same</em> class.
+</p></dd><dt class="term"><strong>Rule 3</strong></dt><dd class="definition"><p class="para">
+  Convenience initializers must ultimately end up calling a designated initializer.
+</p></dd>
+</dl><p class="para">
+  A simple way to remember this is:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  Designated initializers must always delegate <em>up</em>.
+</p>
+</li><li class="item"><p class="para">
+  Convenience initializers must always delegate <em>across</em>.
+</p>
+</li>
+</ul><p class="para">
+  These rules are illustrated in the figure below:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/initializerDelegation01_2x.png" alt="image: ../Art/initializerDelegation01_2x.png" width="448" height="214"/>
+</figure><p class="para">
+  Here, the superclass has a single designated initializer and two convenience initializers. One convenience initializer calls another convenience initializer, which in turn calls the single designated initializer. This satisfies rules 2 and 3 from above. The superclass does not itself have a further superclass, and so rule 1 does not apply.
+</p><p class="para">
+  The subclass in this figure has two designated initializers and one convenience initializer. The convenience initializer must call one of the two designated initializers, because it can only call another initializer from the same class. This satisfies rules 2 and 3 from above. Both designated initializers must call the single designated initializer from the superclass, to satisfy rule 1 from above.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_328"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">These rules don’t affect how users of your classes <em>create</em> instances of each class. Any initializer in the diagram above can be used to create a fully-initialized instance of the class they belong to. The rules only affect how you write the class’s implementation.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  The figure below shows a more complex class hierarchy for four classes. It illustrates how the designated initializers in this hierarchy act as “funnel” points for class initialization, simplifying the interrelationships among classes in the chain:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/initializerDelegation02_2x.png" alt="image: ../Art/initializerDelegation02_2x.png" width="448" height="444"/>
+</figure>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_329"></a>
+  <h3 class="section-name" tabindex="0">Two-Phase Initialization</h3>
+  <p class="para">
+  Class initialization in Swift is a two-phase process. In the first phase, each stored property is assigned an initial value by the class that introduced it. Once the initial state for every stored property has been determined, the second phase begins, and each class is given the opportunity to customize its stored properties further before the new instance is considered ready for use.
+</p><p class="para">
+  The use of a two-phase initialization process makes initialization safe, while still giving complete flexibility to each class in a class hierarchy. Two-phase initialization prevents property values from being accessed before they are initialized, and prevents property values from being set to a different value by another initializer unexpectedly.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_330"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Swift’s two-phase initialization process is similar to initialization in Objective-C. The main difference is that during phase 1, Objective-C assigns zero or null values (such as <code class="code-voice">0</code> or <code class="code-voice">nil</code>) to every property. Swift’s initialization flow is more flexible in that it lets you set custom initial values, and can cope with types for which <code class="code-voice">0</code> or <code class="code-voice">nil</code> is not a valid default value.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  Swift’s compiler performs four helpful safety-checks to make sure that two-phase initialization is completed without error:
+</p><dl class="term-definition termdef">
+	<dt class="term"><strong>Safety check 1</strong></dt><dd class="definition"><p class="para">
+  A designated initializer must ensure that all of the properties introduced by its class are initialized before it delegates up to a superclass initializer.
+</p></dd>
+</dl><p class="para">
+  As mentioned above, the memory for an object is only considered fully initialized once the initial state of all of its stored properties is known. In order for this rule to be satisfied, a designated initializer must make sure that all its own properties are initialized before it hands off up the chain.
+</p><dl class="term-definition termdef">
+	<dt class="term"><strong>Safety check 2</strong></dt><dd class="definition"><p class="para">
+  A designated initializer must delegate up to a superclass initializer before assigning a value to an inherited property. If it doesn’t, the new value the designated initializer assigns will be overwritten by the superclass as part of its own initialization.
+</p></dd><dt class="term"><strong>Safety check 3</strong></dt><dd class="definition"><p class="para">
+  A convenience initializer must delegate to another initializer before assigning a value to <em>any</em> property (including properties defined by the same class). If it doesn’t, the new value the convenience initializer assigns will be overwritten by its own class’s designated initializer.
+</p></dd><dt class="term"><strong>Safety check 4</strong></dt><dd class="definition"><p class="para">
+  An initializer cannot call any instance methods, read the values of any instance properties, or refer to <code class="code-voice">self</code> as a value until after the first phase of initialization is complete.
+</p></dd>
+</dl><p class="para">
+  The class instance is not fully valid until the first phase ends. Properties can only be accessed, and methods can only be called, once the class instance is known to be valid at the end of the first phase.
+</p><p class="para">
+  Here’s how two-phase initialization plays out, based on the four safety checks above:
+</p><p class="para">
+  <strong>Phase 1</strong>
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  A designated or convenience initializer is called on a class.
+</p>
+</li><li class="item"><p class="para">
+  Memory for a new instance of that class is allocated. The memory is not yet initialized.
+</p>
+</li><li class="item"><p class="para">
+  A designated initializer for that class confirms that all stored properties introduced by that class have a value. The memory for these stored properties is now initialized.
+</p>
+</li><li class="item"><p class="para">
+  The designated initializer hands off to a superclass initializer to perform the same task for its own stored properties.
+</p>
+</li><li class="item"><p class="para">
+  This continues up the class inheritance chain until the top of the chain is reached.
+</p>
+</li><li class="item"><p class="para">
+  Once the top of the chain is reached, and the final class in the chain has ensured that all of its stored properties have a value, the instance’s memory is considered to be fully initialized, and phase 1 is complete.
+</p>
+</li>
+</ul><p class="para">
+  <strong>Phase 2</strong>
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  Working back down from the top of the chain, each designated initializer in the chain has the option to customize the instance further. Initializers are now able to access <code class="code-voice">self</code> and can modify its properties, call its instance methods, and so on.
+</p>
+</li><li class="item"><p class="para">
+  Finally, any convenience initializers in the chain have the option to customize the instance and to work with <code class="code-voice">self</code>.
+</p>
+</li>
+</ul><p class="para">
+  Here’s how phase 1 looks for an initialization call for a hypothetical subclass and superclass:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/twoPhaseInitialization01_2x.png" alt="image: ../Art/twoPhaseInitialization01_2x.png" width="448" height="214"/>
+</figure><p class="para">
+  In this example, initialization begins with a call to a convenience initializer on the subclass. This convenience initializer cannot yet modify any properties. It delegates across to a designated initializer from the same class.
+</p><p class="para">
+  The designated initializer makes sure that all of the subclass’s properties have a value, as per safety check 1. It then calls a designated initializer on its superclass to continue the initialization up the chain.
+</p><p class="para">
+  The superclass’s designated initializer makes sure that all of the superclass properties have a value. There are no further superclasses to initialize, and so no further delegation is needed.
+</p><p class="para">
+  As soon as all properties of the superclass have an initial value, its memory is considered fully initialized, and Phase 1 is complete.
+</p><p class="para">
+  Here’s how phase 2 looks for the same initialization call:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/twoPhaseInitialization02_2x.png" alt="image: ../Art/twoPhaseInitialization02_2x.png" width="448" height="214"/>
+</figure><p class="para">
+  The superclass’s designated initializer now has an opportunity to customize the instance further (although it does not have to).
+</p><p class="para">
+  Once the superclass’s designated initializer is finished, the subclass’s designated initializer can perform additional customization (although again, it does not have to).
+</p><p class="para">
+  Finally, once the subclass’s designated initializer is finished, the convenience initializer that was originally called can perform additional customization.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_331"></a>
+  <h3 class="section-name" tabindex="0">Initializer Inheritance and Overriding</h3>
+  <p class="para">
+  Unlike subclasses in Objective-C, Swift subclasses do not inherit their superclass initializers by default. Swift’s approach prevents a situation in which a simple initializer from a superclass is inherited by a more specialized subclass and is used to create a new instance of the subclass that is not fully or correctly initialized.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_332"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Superclass initializers <em>are</em> inherited in certain circumstances, but only when it is safe and appropriate to do so. For more information, see <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_335" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_335">Automatic Initializer Inheritance</a></span> below.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  If you want a custom subclass to present one or more of the same initializers as its superclass, you can provide a custom implementation of those initializers within the subclass.
+</p><p class="para">
+  When you write a subclass initializer that matches a superclass <em>designated</em> initializer, you are effectively providing an override of that designated initializer. Therefore, you must write the <code class="code-voice">override</code> modifier before the subclass’s initializer definition. This is true even if you are overriding an automatically provided default initializer, as described in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_319" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_319">Default Initializers</a></span>.
+</p><p class="para">
+  As with an overridden property, method or subscript, the presence of the <code class="code-voice">override</code> modifier prompts Swift to check that the superclass has a matching designated initializer to be overridden, and validates that the parameters for your overriding initializer have been specified as intended.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_333"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">You always write the <code class="code-voice">override</code> modifier when overriding a superclass designated initializer, even if your subclass’s implementation of the initializer is a convenience initializer.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  Conversely, if you write a subclass initializer that matches a superclass <em>convenience</em> initializer, that superclass convenience initializer can never be called directly by your subclass, as per the rules described above in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_327" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_327">Initializer Chaining</a></span>. Therefore, your subclass is not (strictly speaking) providing an override of the superclass initializer. As a result, you do not write the <code class="code-voice">override</code> modifier when providing a matching implementation of a superclass convenience initializer.
+</p><p class="para">
+  The example below defines a base class called <code class="code-voice">Vehicle</code>. This base class declares a stored property called <code class="code-voice">numberOfWheels</code>, with a default <code class="code-voice">Int</code> value of <code class="code-voice">0</code>. The <code class="code-voice">numberOfWheels</code> property is used by a computed property called <code class="code-voice">description</code> to create a <code class="code-voice">String</code> description of the vehicle’s characteristics:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Vehicle</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">numberOfWheels</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">description</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="s">"</span>\(<span class="vc">numberOfWheels</span>)<span class="s"> wheel(s)"</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">Vehicle</code> class provides a default value for its only stored property, and does not provide any custom initializers itself. As a result, it automatically receives a default initializer, as described in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_319" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_319">Default Initializers</a></span>. The default initializer (when available) is always a designated initializer for a class, and can be used to create a new <code class="code-voice">Vehicle</code> instance with a <code class="code-voice">numberOfWheels</code> of <code class="code-voice">0</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">vehicle</span> = <span class="vc">Vehicle</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"Vehicle: </span>\(<span class="vc">vehicle</span>.<span class="vc">description</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// Vehicle: 0 wheel(s)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The next example defines a subclass of <code class="code-voice">Vehicle</code> called <code class="code-voice">Bicycle</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Bicycle</span>: <span class="n"><!-- a href="" -->Vehicle<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">override</span> <span class="kt">init</span>() {</code></li>
+          <li><code class="code-voice">        <span class="kt">super</span>.<span class="kt">init</span>()</code></li>
+          <li><code class="code-voice">        <span class="vc">numberOfWheels</span> = <span class="m">2</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">Bicycle</code> subclass defines a custom designated initializer, <code class="code-voice">init()</code>. This designated initializer matches a designated initializer from the superclass of <code class="code-voice">Bicycle</code>, and so the <code class="code-voice">Bicycle</code> version of this initializer is marked with the <code class="code-voice">override</code> modifier.
+</p><p class="para">
+  The <code class="code-voice">init()</code> initializer for <code class="code-voice">Bicycle</code> starts by calling <code class="code-voice">super.init()</code>, which calls the default initializer for the <code class="code-voice">Bicycle</code> class’s superclass, <code class="code-voice">Vehicle</code>. This ensures that the <code class="code-voice">numberOfWheels</code> inherited property is initialized by <code class="code-voice">Vehicle</code> before <code class="code-voice">Bicycle</code> has the opportunity to modify the property. After calling <code class="code-voice">super.init()</code>, the original value of <code class="code-voice">numberOfWheels</code> is replaced with a new value of <code class="code-voice">2</code>.
+</p><p class="para">
+  If you create an instance of <code class="code-voice">Bicycle</code>, you can call its inherited <code class="code-voice">description</code> computed property to see how its <code class="code-voice">numberOfWheels</code> property has been updated:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">bicycle</span> = <span class="vc">Bicycle</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"Bicycle: </span>\(<span class="vc">bicycle</span>.<span class="vc">description</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// Bicycle: 2 wheel(s)</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_334"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Subclasses are only allowed to modify <em>variable</em> superclass properties during initialization. Subclasses cannot modify inherited constant properties.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_335"></a>
+  <h3 class="section-name" tabindex="0">Automatic Initializer Inheritance</h3>
+  <p class="para">
+  As mentioned above, subclasses do not inherit their superclass initializers by default. However, superclass initializers <em>are</em> automatically inherited if certain conditions are met. In practice, this means that you do not need to write initializer overrides in many common scenarios, and can inherit your superclass initializers with minimal effort whenever it is safe to do so.
+</p><p class="para">
+  Assuming that you provide default values for any new properties you introduce in a subclass, the following two rules apply:
+</p><dl class="term-definition termdef">
+	<dt class="term"><strong>Rule 1</strong></dt><dd class="definition"><p class="para">
+  If your subclass doesn’t define any designated initializers, it automatically inherits all of its superclass designated initializers.
+</p></dd><dt class="term"><strong>Rule 2</strong></dt><dd class="definition"><p class="para">
+  If your subclass provides an implementation of <em>all</em> of its superclass designated initializers—either by inheriting them as per rule 1, or by providing a custom implementation as part of its definition—then it automatically inherits all of the superclass convenience initializers.
+</p></dd>
+</dl><p class="para">
+  These rules apply even if your subclass adds further convenience initializers.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_336"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">A subclass can implement a superclass designated initializer as a subclass convenience initializer as part of satisfying rule 2.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_337"></a>
+  <h3 class="section-name" tabindex="0">Designated and Convenience Initializers in Action</h3>
+  <p class="para">
+  The following example shows designated initializers, convenience initializers, and automatic initializer inheritance in action. This example defines a hierarchy of three classes called <code class="code-voice">Food</code>, <code class="code-voice">RecipeIngredient</code>, and <code class="code-voice">ShoppingListItem</code>, and demonstrates how their initializers interact.
+</p><p class="para">
+  The base class in the hierarchy is called <code class="code-voice">Food</code>, which is a simple class to encapsulate the name of a foodstuff. The <code class="code-voice">Food</code> class introduces a single <code class="code-voice">String</code> property called <code class="code-voice">name</code> and provides two initializers for creating <code class="code-voice">Food</code> instances:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Food</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">convenience</span> <span class="kt">init</span>() {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="kt">init</span>(<span class="vc">name</span>: <span class="s">"[Unnamed]"</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The figure below shows the initializer chain for the <code class="code-voice">Food</code> class:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/initializersExample01_2x.png" alt="image: ../Art/initializersExample01_2x.png" width="482" height="136"/>
+</figure><p class="para">
+  Classes do not have a default memberwise initializer, and so the <code class="code-voice">Food</code> class provides a designated initializer that takes a single argument called <code class="code-voice">name</code>. This initializer can be used to create a new <code class="code-voice">Food</code> instance with a specific name:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">namedMeat</span> = <span class="vc">Food</span>(<span class="vc">name</span>: <span class="s">"Bacon"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// namedMeat's name is "Bacon"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">init(name: String)</code> initializer from the <code class="code-voice">Food</code> class is provided as a <em>designated</em> initializer, because it ensures that all stored properties of a new <code class="code-voice">Food</code> instance are fully initialized. The <code class="code-voice">Food</code> class does not have a superclass, and so the <code class="code-voice">init(name: String)</code> initializer does not need to call <code class="code-voice">super.init()</code> to complete its initialization.
+</p><p class="para">
+  The <code class="code-voice">Food</code> class also provides a <em>convenience</em> initializer, <code class="code-voice">init()</code>, with no arguments. The <code class="code-voice">init()</code> initializer provides a default placeholder name for a new food by delegating across to the <code class="code-voice">Food</code> class’s <code class="code-voice">init(name: String)</code> with a <code class="code-voice">name</code> value of <code class="code-voice">[Unnamed]</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">mysteryMeat</span> = <span class="vc">Food</span>()</code></li>
+          <li><code class="code-voice"><span class="c">// mysteryMeat's name is "[Unnamed]"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The second class in the hierarchy is a subclass of <code class="code-voice">Food</code> called <code class="code-voice">RecipeIngredient</code>. The <code class="code-voice">RecipeIngredient</code> class models an ingredient in a cooking recipe. It introduces an <code class="code-voice">Int</code> property called <code class="code-voice">quantity</code> (in addition to the <code class="code-voice">name</code> property it inherits from <code class="code-voice">Food</code>) and defines two initializers for creating <code class="code-voice">RecipeIngredient</code> instances:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">RecipeIngredient</span>: <span class="n"><!-- a href="" -->Food<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">quantity</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>, <span class="vc">quantity</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">quantity</span> = <span class="vc">quantity</span></code></li>
+          <li><code class="code-voice">        <span class="kt">super</span>.<span class="kt">init</span>(<span class="vc">name</span>: <span class="vc">name</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">override</span> <span class="kt">convenience</span> <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="kt">init</span>(<span class="vc">name</span>: <span class="vc">name</span>, <span class="vc">quantity</span>: <span class="m">1</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The figure below shows the initializer chain for the <code class="code-voice">RecipeIngredient</code> class:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/initializersExample02_2x.png" alt="image: ../Art/initializersExample02_2x.png" width="482" height="286"/>
+</figure><p class="para">
+  The <code class="code-voice">RecipeIngredient</code> class has a single designated initializer, <code class="code-voice">init(name: String, quantity: Int)</code>, which can be used to populate all of the properties of a new <code class="code-voice">RecipeIngredient</code> instance. This initializer starts by assigning the passed <code class="code-voice">quantity</code> argument to the <code class="code-voice">quantity</code> property, which is the only new property introduced by <code class="code-voice">RecipeIngredient</code>. After doing so, the initializer delegates up to the <code class="code-voice">init(name: String)</code> initializer of the <code class="code-voice">Food</code> class. This process satisfies safety check 1 from <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_329" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_329">Two-Phase Initialization</a></span> above.
+</p><p class="para">
+  <code class="code-voice">RecipeIngredient</code> also defines a convenience initializer, <code class="code-voice">init(name: String)</code>, which is used to create a <code class="code-voice">RecipeIngredient</code> instance by name alone. This convenience initializer assumes a quantity of <code class="code-voice">1</code> for any <code class="code-voice">RecipeIngredient</code> instance that is created without an explicit quantity. The definition of this convenience initializer makes <code class="code-voice">RecipeIngredient</code> instances quicker and more convenient to create, and avoids code duplication when creating several single-quantity <code class="code-voice">RecipeIngredient</code> instances. This convenience initializer simply delegates across to the class’s designated initializer, passing in a <code class="code-voice">quantity</code> value of <code class="code-voice">1</code>.
+</p><p class="para">
+  The <code class="code-voice">init(name: String)</code> convenience initializer provided by <code class="code-voice">RecipeIngredient</code> takes the same parameters as the <code class="code-voice">init(name: String)</code> <em>designated</em> initializer from <code class="code-voice">Food</code>. Because this convenience initializer overrides a designated initializer from its superclass, it must be marked with the <code class="code-voice">override</code> modifier (as described in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH18-XID_331" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_331">Initializer Inheritance and Overriding</a></span>).
+</p><p class="para">
+  Even though <code class="code-voice">RecipeIngredient</code> provides the <code class="code-voice">init(name: String)</code> initializer as a convenience initializer, <code class="code-voice">RecipeIngredient</code> has nonetheless provided an implementation of all of its superclass’s designated initializers. Therefore, <code class="code-voice">RecipeIngredient</code> automatically inherits all of its superclass’s convenience initializers too.
+</p><p class="para">
+  In this example, the superclass for <code class="code-voice">RecipeIngredient</code> is <code class="code-voice">Food</code>, which has a single convenience initializer called <code class="code-voice">init()</code>. This initializer is therefore inherited by <code class="code-voice">RecipeIngredient</code>. The inherited version of <code class="code-voice">init()</code> functions in exactly the same way as the <code class="code-voice">Food</code> version, except that it delegates to the <code class="code-voice">RecipeIngredient</code> version of <code class="code-voice">init(name: String)</code> rather than the <code class="code-voice">Food</code> version.
+</p><p class="para">
+  All three of these initializers can be used to create new <code class="code-voice">RecipeIngredient</code> instances:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">oneMysteryItem</span> = <span class="vc">RecipeIngredient</span>()</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">oneBacon</span> = <span class="vc">RecipeIngredient</span>(<span class="vc">name</span>: <span class="s">"Bacon"</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">sixEggs</span> = <span class="vc">RecipeIngredient</span>(<span class="vc">name</span>: <span class="s">"Eggs"</span>, <span class="vc">quantity</span>: <span class="m">6</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The third and final class in the hierarchy is a subclass of <code class="code-voice">RecipeIngredient</code> called <code class="code-voice">ShoppingListItem</code>. The <code class="code-voice">ShoppingListItem</code> class models a recipe ingredient as it appears in a shopping list.
+</p><p class="para">
+  Every item in the shopping list starts out as “unpurchased”. To represent this fact, <code class="code-voice">ShoppingListItem</code> introduces a Boolean property called <code class="code-voice">purchased</code>, with a default value of <code class="code-voice">false</code>. <code class="code-voice">ShoppingListItem</code> also adds a computed <code class="code-voice">description</code> property, which provides a textual description of a <code class="code-voice">ShoppingListItem</code> instance:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">ShoppingListItem</span>: <span class="n"><!-- a href="" -->RecipeIngredient<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">purchased</span> = <span class="kt">false</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">description</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">var</span> <span class="vc">output</span> = <span class="s">"</span>\(<span class="vc">quantity</span>)<span class="s"> x </span>\(<span class="vc">name</span>)<span class="s">"</span></code></li>
+          <li><code class="code-voice">            <span class="vc">output</span> += <span class="vc">purchased</span> ? <span class="s">" ✔"</span> : <span class="s">" ✘"</span></code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="vc">output</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_338"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para"><code class="code-voice">ShoppingListItem</code> does not define an initializer to provide an initial value for <code class="code-voice">purchased</code>, because items in a shopping list (as modeled here) always start out unpurchased.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  Because it provides a default value for all of the properties it introduces and does not define any initializers itself, <code class="code-voice">ShoppingListItem</code> automatically inherits <em>all</em> of the designated and convenience initializers from its superclass.
+</p><p class="para">
+  The figure below shows the overall initializer chain for all three classes:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/initializersExample03_2x.png" alt="image: ../Art/initializersExample03_2x.png" width="482" height="436"/>
+</figure><p class="para">
+  You can use all three of the inherited initializers to create a new <code class="code-voice">ShoppingListItem</code> instance:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">breakfastList</span> = [</code></li>
+          <li><code class="code-voice">    <span class="vc">ShoppingListItem</span>(),</code></li>
+          <li><code class="code-voice">    <span class="vc">ShoppingListItem</span>(<span class="vc">name</span>: <span class="s">"Bacon"</span>),</code></li>
+          <li><code class="code-voice">    <span class="vc">ShoppingListItem</span>(<span class="vc">name</span>: <span class="s">"Eggs"</span>, <span class="vc">quantity</span>: <span class="m">6</span>),</code></li>
+          <li><code class="code-voice">]</code></li>
+          <li><code class="code-voice"><span class="vc">breakfastList</span>[<span class="m">0</span>].<span class="vc">name</span> = <span class="s">"Orange juice"</span></code></li>
+          <li><code class="code-voice"><span class="vc">breakfastList</span>[<span class="m">0</span>].<span class="vc">purchased</span> = <span class="kt">true</span></code></li>
+          <li><code class="code-voice"><span class="kt">for</span> <span class="vc">item</span> <span class="kt">in</span> <span class="vc">breakfastList</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="vc">item</span>.<span class="vc">description</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// 1 x Orange juice ✔</span></code></li>
+          <li><code class="code-voice"><span class="c">// 1 x Bacon ✘</span></code></li>
+          <li><code class="code-voice"><span class="c">// 6 x Eggs ✘</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Here, a new array called <code class="code-voice">breakfastList</code> is created from an array literal containing three new <code class="code-voice">ShoppingListItem</code> instances. The type of the array is inferred to be <code class="code-voice">[ShoppingListItem]</code>. After the array is created, the name of the <code class="code-voice">ShoppingListItem</code> at the start of the array is changed from <code class="code-voice">"[Unnamed]"</code> to <code class="code-voice">"Orange juice"</code> and it is marked as having been purchased. Printing the description of each item in the array shows that their default states have been set as expected.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_339"></a>
+  <h3 class="section-name" tabindex="0">Required Initializers</h3>
+  <p class="para">
+  Write the <code class="code-voice">required</code> modifier before the definition of a class initializer to indicate that every subclass of the class must implement that initializer:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">SomeClass</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">required</span> <span class="kt">init</span>() {</code></li>
+          <li><code class="code-voice">        <span class="c">// initializer implementation goes here</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You must also write the <code class="code-voice">required</code> modifier before every subclass implementation of a required initializer, to indicate that the initializer requirement applies to further subclasses in the chain. You do not write the <code class="code-voice">override</code> modifier when overriding a required designated initializer:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">SomeSubclass</span>: <span class="n"><!-- a href="" -->SomeClass<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">required</span> <span class="kt">init</span>() {</code></li>
+          <li><code class="code-voice">        <span class="c">// subclass implementation of the required initializer goes here</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_340"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">You do not have to provide an explicit implementation of a required initializer if you can satisfy the requirement with an inherited initializer.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_341"></a>
+  <h3 class="section-name" tabindex="0">Setting a Default Property Value with a Closure or Function</h3>
+  <p class="para">
+  If a stored property’s default value requires some customization or setup, you can use a closure or global function to provide a customized default value for that property. Whenever a new instance of the type that the property belongs to is initialized, the closure or function is called, and its return value is assigned as the property’s default value.
+</p><p class="para">
+  These kinds of closures or functions typically create a temporary value of the same type as the property, tailor that value to represent the desired initial state, and then return that temporary value to be used as the property’s default value.
+</p><p class="para">
+  Here’s a skeleton outline of how a closure can be used to provide a default property value:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">SomeClass</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">someProperty</span>: <span class="n"><!-- a href="" -->SomeType<!-- /a --></span> = {</code></li>
+          <li><code class="code-voice">        <span class="c">// create a default value for someProperty inside this closure</span></code></li>
+          <li><code class="code-voice">        <span class="c">// someValue must be of the same type as SomeType</span></code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="vc">someValue</span></code></li>
+          <li><code class="code-voice">        }()</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Note that the closure’s end curly brace is followed by an empty pair of parentheses. This tells Swift to execute the closure immediately. If you omit these parentheses, you are trying to assign the closure itself to the property, and not the return value of the closure.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH18-XID_342"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">If you use a closure to initialize a property, remember that the rest of the instance has not yet been initialized at the point that the closure is executed. This means that you cannot access any other property values from within your closure, even if those properties have default values. You also cannot use the implicit <code class="code-voice">self</code> property, or call any of the instance’s methods.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  The example below defines a structure called <code class="code-voice">Checkerboard</code>, which models a board for the game of <em>Checkers</em> (also known as <em>Draughts</em>):
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/checkersBoard_2x.png" alt="image: ../Art/checkersBoard_2x.png" width="283" height="283"/>
+</figure><p class="para">
+  The game of <em>Checkers</em> is played on a ten-by-ten board, with alternating black and white squares. To represent this game board, the <code class="code-voice">Checkerboard</code> structure has a single property called <code class="code-voice">boardColors</code>, which is an array of 100 <code class="code-voice">Bool</code> values. A value of <code class="code-voice">true</code> in the array represents a black square and a value of <code class="code-voice">false</code> represents a white square. The first item in the array represents the top left square on the board and the last item in the array represents the bottom right square on the board.
+</p><p class="para">
+  The <code class="code-voice">boardColors</code> array is initialized with a closure to set up its color values:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Checkerboard</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">boardColors</span>: [<span class="n"><!-- a href="" -->Bool<!-- /a --></span>] = {</code></li>
+          <li><code class="code-voice">        <span class="kt">var</span> <span class="vc">temporaryBoard</span> = [<span class="vc">Bool</span>]()</code></li>
+          <li><code class="code-voice">        <span class="kt">var</span> <span class="vc">isBlack</span> = <span class="kt">false</span></code></li>
+          <li><code class="code-voice">        <span class="kt">for</span> <span class="vc">i</span> <span class="kt">in</span> <span class="m">1</span>...<span class="m">10</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">for</span> <span class="vc">j</span> <span class="kt">in</span> <span class="m">1</span>...<span class="m">10</span> {</code></li>
+          <li><code class="code-voice">                <span class="vc">temporaryBoard</span>.<span class="vc">append</span>(<span class="vc">isBlack</span>)</code></li>
+          <li><code class="code-voice">                <span class="vc">isBlack</span> = !<span class="vc">isBlack</span></code></li>
+          <li><code class="code-voice">            }</code></li>
+          <li><code class="code-voice">            <span class="vc">isBlack</span> = !<span class="vc">isBlack</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="vc">temporaryBoard</span></code></li>
+          <li><code class="code-voice">        }()</code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">squareIsBlackAtRow</span>(<span class="vc">row</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>, <span class="vc">column</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Bool<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="vc">boardColors</span>[(<span class="vc">row</span> * <span class="m">10</span>) + <span class="vc">column</span>]</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Whenever a new <code class="code-voice">Checkerboard</code> instance is created, the closure is executed, and the default value of <code class="code-voice">boardColors</code> is calculated and returned. The closure in the example above calculates and sets the appropriate color for each square on the board in a temporary array called <code class="code-voice">temporaryBoard</code>, and returns this temporary array as the closure’s return value once its setup is complete. The returned array value is stored in <code class="code-voice">boardColors</code> and can be queried with the <code class="code-voice">squareIsBlackAtRow</code> utility function:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">board</span> = <span class="vc">Checkerboard</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">board</span>.<span class="vc">squareIsBlackAtRow</span>(<span class="m">0</span>, <span class="vc">column</span>: <span class="m">1</span>))</code></li>
+          <li><code class="code-voice"><span class="c">// prints "true"</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">board</span>.<span class="vc">squareIsBlackAtRow</span>(<span class="m">9</span>, <span class="vc">column</span>: <span class="m">9</span>))</code></li>
+          <li><code class="code-voice"><span class="c">// prints "false"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+
+  	
+ 	<section id="next_previous" class="">
+    		<p class="previous-link"><a href="Inheritance.html#//apple_ref/doc/uid/TP40014097-CH17-XID_293" data-id="//apple_ref/doc/uid/TP40014097-CH17-XID_293">Inheritance</a></p>
+  			<p class="next-link"><a href="Deinitialization.html#//apple_ref/doc/uid/TP40014097-CH19-XID_220" data-id="//apple_ref/doc/uid/TP40014097-CH19-XID_220">Deinitialization</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>

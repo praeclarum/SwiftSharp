@@ -874,5 +874,6 @@ let parseDocument document =
     | _ -> None
 let parseFile path = parseDocument { Name = path; Body = System.IO.File.ReadAllText (path) }
 let parseText text = parseDocument { Name = "<text>"; Body = text }
+let parseCode code = parseDocument { Name = "<code>"; Body = code }
 let toPosition text = Position.Beginning { Name = "<text>"; Body = text }
 

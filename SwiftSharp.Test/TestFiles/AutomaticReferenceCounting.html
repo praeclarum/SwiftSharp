@@ -1,0 +1,956 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20"></a><a name="//apple_ref/doc/uid/TP40014097-CH20-XID_88"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">Automatic Reference Counting</h2>
+
+
+      <section id="mini_toc" class="hideInXcode" role="navigation">
+	<div id="mini_toc_button">
+  	<p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH20-XID_90">
+	  				How ARC Works
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH20-XID_91">
+	  				ARC in Action
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH20-XID_92">
+	  				Strong Reference Cycles Between Class Instances
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH20-XID_93">
+	  				Resolving Strong Reference Cycles Between Class Instances
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH20-XID_100">
+	  				Strong Reference Cycles for Closures
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH20-XID_104">
+	  				Resolving Strong Reference Cycles for Closures
+	  			</a>
+  			</p>
+  		</li>
+	</ul>
+</section>
+
+  
+  	<section class="section">
+  		<p class="para">
+  Swift uses <em>Automatic Reference Counting</em> (ARC) to track and manage your app’s memory usage. In most cases, this means that memory management “just works” in Swift, and you do not need to think about memory management yourself. ARC automatically frees up the memory used by class instances when those instances are no longer needed.
+</p>
+<p class="para">
+  However, in a few cases ARC requires more information about the relationships between parts of your code in order to manage memory for you. This chapter describes those situations and shows how you enable ARC to manage all of your app’s memory.
+</p>
+<div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_89"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Reference counting only applies to instances of classes. Structures and enumerations are value types, not reference types, and are not stored and passed by reference.
+    	</p>
+    
+  </aside>
+</div>
+
+		</section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_90"></a>
+  <h3 class="section-name" tabindex="0">How ARC Works</h3>
+  <p class="para">
+  Every time you create a new instance of a class, ARC allocates a chunk of memory to store information about that instance. This memory holds information about the type of the instance, together with the values of any stored properties associated with that instance.
+</p><p class="para">
+  Additionally, when an instance is no longer needed, ARC frees up the memory used by that instance so that the memory can be used for other purposes instead. This ensures that class instances do not take up space in memory when they are no longer needed.
+</p><p class="para">
+  However, if ARC were to deallocate an instance that was still in use, it would no longer be possible to access that instance’s properties, or call that instance’s methods. Indeed, if you tried to access the instance, your app would most likely crash.
+</p><p class="para">
+  To make sure that instances don’t disappear while they are still needed, ARC tracks how many properties, constants, and variables are currently referring to each class instance. ARC will not deallocate an instance as long as at least one active reference to that instance still exists.
+</p><p class="para">
+  To make this possible, whenever you assign a class instance to a property, constant, or variable, that property, constant, or variable makes a <em>strong reference</em> to the instance. The reference is called a “strong“ reference because it keeps a firm hold on that instance, and does not allow it to be deallocated for as long as that strong reference remains.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_91"></a>
+  <h3 class="section-name" tabindex="0">ARC in Action</h3>
+  <p class="para">
+  Here’s an example of how Automatic Reference Counting works. This example starts with a simple class called <code class="code-voice">Person</code>, which defines a stored constant property called <code class="code-voice">name</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Person</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span></code></li>
+          <li><code class="code-voice">        <span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">name</span>)<span class="s"> is being initialized"</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">deinit</span> {</code></li>
+          <li><code class="code-voice">        <span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">name</span>)<span class="s"> is being deinitialized"</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">Person</code> class has an initializer that sets the instance’s <code class="code-voice">name</code> property and prints a message to indicate that initialization is underway. The <code class="code-voice">Person</code> class also has a deinitializer that prints a message when an instance of the class is deallocated.
+</p><p class="para">
+  The next code snippet defines three variables of type <code class="code-voice">Person?</code>, which are used to set up multiple references to a new <code class="code-voice">Person</code> instance in subsequent code snippets. Because these variables are of an optional type (<code class="code-voice">Person?</code>, not <code class="code-voice">Person</code>), they are automatically initialized with a value of <code class="code-voice">nil</code>, and do not currently reference a <code class="code-voice">Person</code> instance.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">reference1</span>: <span class="n"><!-- a href="" -->Person<!-- /a --></span>?</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">reference2</span>: <span class="n"><!-- a href="" -->Person<!-- /a --></span>?</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">reference3</span>: <span class="n"><!-- a href="" -->Person<!-- /a --></span>?</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can now create a new <code class="code-voice">Person</code> instance and assign it to one of these three variables:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">reference1</span> = <span class="vc">Person</span>(<span class="vc">name</span>: <span class="s">"John Appleseed"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "John Appleseed is being initialized"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Note that the message <code class="code-voice">"John Appleseed is being initialized"</code> is printed at the point that you call the <code class="code-voice">Person</code> class’s initializer. This confirms that initialization has taken place.
+</p><p class="para">
+  Because the new <code class="code-voice">Person</code> instance has been assigned to the <code class="code-voice">reference1</code> variable, there is now a strong reference from <code class="code-voice">reference1</code> to the new <code class="code-voice">Person</code> instance. Because there is at least one strong reference, ARC makes sure that this <code class="code-voice">Person</code> is kept in memory and is not deallocated.
+</p><p class="para">
+  If you assign the same <code class="code-voice">Person</code> instance to two more variables, two more strong references to that instance are established:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">reference2</span> = <span class="vc">reference1</span></code></li>
+          <li><code class="code-voice"><span class="vc">reference3</span> = <span class="vc">reference1</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  There are now <em>three</em> strong references to this single <code class="code-voice">Person</code> instance.
+</p><p class="para">
+  If you break two of these strong references (including the original reference) by assigning <code class="code-voice">nil</code> to two of the variables, a single strong reference remains, and the <code class="code-voice">Person</code> instance is not deallocated:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">reference1</span> = <span class="kt">nil</span></code></li>
+          <li><code class="code-voice"><span class="vc">reference2</span> = <span class="kt">nil</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  ARC does not deallocate the <code class="code-voice">Person</code> instance until the third and final strong reference is broken, at which point it is clear that you are no longer using the <code class="code-voice">Person</code> instance:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">reference3</span> = <span class="kt">nil</span></code></li>
+          <li><code class="code-voice"><span class="c">// prints "John Appleseed is being deinitialized"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_92"></a>
+  <h3 class="section-name" tabindex="0">Strong Reference Cycles Between Class Instances</h3>
+  <p class="para">
+  In the examples above, ARC is able to track the number of references to the new <code class="code-voice">Person</code> instance you create and to deallocate that <code class="code-voice">Person</code> instance when it is no longer needed.
+</p><p class="para">
+  However, it is possible to write code in which an instance of a class <em>never</em> gets to a point where it has zero strong references. This can happen if two class instances hold a strong reference to each other, such that each instance keeps the other alive. This is known as a <em>strong reference cycle</em>.
+</p><p class="para">
+  You resolve strong reference cycles by defining some of the relationships between classes as weak or unowned references instead of as strong references. This process is described in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH20-XID_93" data-id="//apple_ref/doc/uid/TP40014097-CH20-XID_93">Resolving Strong Reference Cycles Between Class Instances</a></span>. However, before you learn how to resolve a strong reference cycle, it is useful to understand how such a cycle is caused.
+</p><p class="para">
+  Here’s an example of how a strong reference cycle can be created by accident. This example defines two classes called <code class="code-voice">Person</code> and <code class="code-voice">Apartment</code>, which model a block of apartments and its residents:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Person</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) { <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span> }</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">apartment</span>: <span class="n"><!-- a href="" -->Apartment<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">deinit</span> { <span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">name</span>)<span class="s"> is being deinitialized"</span>) }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Apartment</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">number</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">number</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) { <span class="kt">self</span>.<span class="vc">number</span> = <span class="vc">number</span> }</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">tenant</span>: <span class="n"><!-- a href="" -->Person<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">deinit</span> { <span class="vc">println</span>(<span class="s">"Apartment #</span>\(<span class="vc">number</span>)<span class="s"> is being deinitialized"</span>) }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Every <code class="code-voice">Person</code> instance has a <code class="code-voice">name</code> property of type <code class="code-voice">String</code> and an optional <code class="code-voice">apartment</code> property that is initially <code class="code-voice">nil</code>. The <code class="code-voice">apartment</code> property is optional, because a person may not always have an apartment.
+</p><p class="para">
+  Similarly, every <code class="code-voice">Apartment</code> instance has a <code class="code-voice">number</code> property of type <code class="code-voice">Int</code> and has an optional <code class="code-voice">tenant</code> property that is initially <code class="code-voice">nil</code>. The tenant property is optional because an apartment may not always have a tenant.
+</p><p class="para">
+  Both of these classes also define a deinitializer, which prints the fact that an instance of that class is being deinitialized. This enables you to see whether instances of <code class="code-voice">Person</code> and <code class="code-voice">Apartment</code> are being deallocated as expected.
+</p><p class="para">
+  This next code snippet defines two variables of optional type called <code class="code-voice">john</code> and <code class="code-voice">number73</code>, which will be set to a specific <code class="code-voice">Apartment</code> and <code class="code-voice">Person</code> instance below. Both of these variables have an initial value of <code class="code-voice">nil</code>, by virtue of being optional:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">john</span>: <span class="n"><!-- a href="" -->Person<!-- /a --></span>?</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">number73</span>: <span class="n"><!-- a href="" -->Apartment<!-- /a --></span>?</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can now create a specific <code class="code-voice">Person</code> instance and <code class="code-voice">Apartment</code> instance and assign these new instances to the <code class="code-voice">john</code> and <code class="code-voice">number73</code> variables:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">john</span> = <span class="vc">Person</span>(<span class="vc">name</span>: <span class="s">"John Appleseed"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">number73</span> = <span class="vc">Apartment</span>(<span class="vc">number</span>: <span class="m">73</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Here’s how the strong references look after creating and assigning these two instances. The <code class="code-voice">john</code> variable now has a strong reference to the new <code class="code-voice">Person</code> instance, and the <code class="code-voice">number73</code> variable has a strong reference to the new <code class="code-voice">Apartment</code> instance:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/referenceCycle01_2x.png" alt="image: ../Art/referenceCycle01_2x.png" width="626" height="188"/>
+</figure><p class="para">
+  You can now link the two instances together so that the person has an apartment, and the apartment has a tenant. Note that an exclamation mark (<code class="code-voice">!</code>) is used to unwrap and access the instances stored inside the <code class="code-voice">john</code> and <code class="code-voice">number73</code> optional variables, so that the properties of those instances can be set:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">john</span>!.<span class="vc">apartment</span> = <span class="vc">number73</span></code></li>
+          <li><code class="code-voice"><span class="vc">number73</span>!.<span class="vc">tenant</span> = <span class="vc">john</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Here’s how the strong references look after you link the two instances together:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/referenceCycle02_2x.png" alt="image: ../Art/referenceCycle02_2x.png" width="626" height="200"/>
+</figure><p class="para">
+  Unfortunately, linking these two instances creates a strong reference cycle between them. The <code class="code-voice">Person</code> instance now has a strong reference to the <code class="code-voice">Apartment</code> instance, and the <code class="code-voice">Apartment</code> instance has a strong reference to the <code class="code-voice">Person</code> instance. Therefore, when you break the strong references held by the <code class="code-voice">john</code> and <code class="code-voice">number73</code> variables, the reference counts do not drop to zero, and the instances are not deallocated by ARC:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">john</span> = <span class="kt">nil</span></code></li>
+          <li><code class="code-voice"><span class="vc">number73</span> = <span class="kt">nil</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Note that neither deinitializer was called when you set these two variables to <code class="code-voice">nil</code>. The strong reference cycle prevents the <code class="code-voice">Person</code> and <code class="code-voice">Apartment</code> instances from ever being deallocated, causing a memory leak in your app.
+</p><p class="para">
+  Here’s how the strong references look after you set the <code class="code-voice">john</code> and <code class="code-voice">number73</code> variables to <code class="code-voice">nil</code>:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/referenceCycle03_2x.png" alt="image: ../Art/referenceCycle03_2x.png" width="626" height="200"/>
+</figure><p class="para">
+  The strong references between the <code class="code-voice">Person</code> instance and the <code class="code-voice">Apartment</code> instance remain and cannot be broken.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_93"></a>
+  <h3 class="section-name" tabindex="0">Resolving Strong Reference Cycles Between Class Instances</h3>
+  <p class="para">
+  Swift provides two ways to resolve strong reference cycles when you work with properties of class type: weak references and unowned references.
+</p><p class="para">
+  Weak and unowned references enable one instance in a reference cycle to refer to the other instance <em>without</em> keeping a strong hold on it. The instances can then refer to each other without creating a strong reference cycle.
+</p><p class="para">
+  Use a weak reference whenever it is valid for that reference to become <code class="code-voice">nil</code> at some point during its lifetime. Conversely, use an unowned reference when you know that the reference will never be <code class="code-voice">nil</code> once it has been set during initialization.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_94"></a>
+  <h3 class="section-name" tabindex="0">Weak References</h3>
+  <p class="para">
+  A <em>weak reference</em> is a reference that does not keep a strong hold on the instance it refers to, and so does not stop ARC from disposing of the referenced instance. This behavior prevents the reference from becoming part of a strong reference cycle. You indicate a weak reference by placing the <code class="code-voice">weak</code> keyword before a property or variable declaration.
+</p><p class="para">
+  Use a weak reference to avoid reference cycles whenever it is possible for that reference to have “no value” at some point in its life. If the reference will <em>always</em> have a value, use an unowned reference instead, as described in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH20-XID_96" data-id="//apple_ref/doc/uid/TP40014097-CH20-XID_96">Unowned References</a></span>. In the <code class="code-voice">Apartment</code> example above, it is appropriate for an apartment to be able to have “no tenant” at some point in its lifetime, and so a weak reference is an appropriate way to break the reference cycle in this case.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_95"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Weak references must be declared as variables, to indicate that their value can change at runtime. A weak reference cannot be declared as a constant.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  Because weak references are allowed to have “no value”, you must declare every weak reference as having an optional type. Optional types are the preferred way to represent the possibility for “no value” in Swift.
+</p><p class="para">
+  Because a weak reference does not keep a strong hold on the instance it refers to, it is possible for that instance to be deallocated while the weak reference is still referring to it. Therefore, ARC automatically sets a weak reference to <code class="code-voice">nil</code> when the instance that it refers to is deallocated. You can check for the existence of a value in the weak reference, just like any other optional value, and you will never end up with a reference to an invalid instance that no longer exists.
+</p><p class="para">
+  The example below is identical to the <code class="code-voice">Person</code> and <code class="code-voice">Apartment</code> example from above, with one important difference. This time around, the <code class="code-voice">Apartment</code> type’s <code class="code-voice">tenant</code> property is declared as a weak reference:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Person</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) { <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span> }</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">apartment</span>: <span class="n"><!-- a href="" -->Apartment<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">deinit</span> { <span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">name</span>)<span class="s"> is being deinitialized"</span>) }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Apartment</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">number</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">number</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) { <span class="kt">self</span>.<span class="vc">number</span> = <span class="vc">number</span> }</code></li>
+          <li><code class="code-voice">    <span class="kt">weak</span> <span class="kt">var</span> <span class="vc">tenant</span>: <span class="n"><!-- a href="" -->Person<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">deinit</span> { <span class="vc">println</span>(<span class="s">"Apartment #</span>\(<span class="vc">number</span>)<span class="s"> is being deinitialized"</span>) }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The strong references from the two variables (<code class="code-voice">john</code> and <code class="code-voice">number73</code>) and the links between the two instances are created as before:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">john</span>: <span class="n"><!-- a href="" -->Person<!-- /a --></span>?</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">number73</span>: <span class="n"><!-- a href="" -->Apartment<!-- /a --></span>?</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="vc">john</span> = <span class="vc">Person</span>(<span class="vc">name</span>: <span class="s">"John Appleseed"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">number73</span> = <span class="vc">Apartment</span>(<span class="vc">number</span>: <span class="m">73</span>)</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="vc">john</span>!.<span class="vc">apartment</span> = <span class="vc">number73</span></code></li>
+          <li><code class="code-voice"><span class="vc">number73</span>!.<span class="vc">tenant</span> = <span class="vc">john</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Here’s how the references look now that you’ve linked the two instances together:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/weakReference01_2x.png" alt="image: ../Art/weakReference01_2x.png" width="626" height="197"/>
+</figure><p class="para">
+  The <code class="code-voice">Person</code> instance still has a strong reference to the <code class="code-voice">Apartment</code> instance, but the <code class="code-voice">Apartment</code> instance now has a <em>weak</em> reference to the <code class="code-voice">Person</code> instance. This means that when you break the strong reference held by the <code class="code-voice">john</code> variables, there are no more strong references to the <code class="code-voice">Person</code> instance:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/weakReference02_2x.png" alt="image: ../Art/weakReference02_2x.png" width="626" height="197"/>
+</figure><p class="para">
+  Because there are no more strong references to the <code class="code-voice">Person</code> instance, it is deallocated:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">john</span> = <span class="kt">nil</span></code></li>
+          <li><code class="code-voice"><span class="c">// prints "John Appleseed is being deinitialized"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The only remaining strong reference to the <code class="code-voice">Apartment</code> instance is from the <code class="code-voice">number73</code> variable. If you break <em>that</em> strong reference, there are no more strong references to the <code class="code-voice">Apartment</code> instance:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/weakReference03_2x.png" alt="image: ../Art/weakReference03_2x.png" width="626" height="197"/>
+</figure><p class="para">
+  Because there are no more strong references to the <code class="code-voice">Apartment</code> instance, it too is deallocated:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">number73</span> = <span class="kt">nil</span></code></li>
+          <li><code class="code-voice"><span class="c">// prints "Apartment #73 is being deinitialized"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The final two code snippets above show that the deinitializers for the <code class="code-voice">Person</code> instance and <code class="code-voice">Apartment</code> instance print their “deinitialized” messages after the <code class="code-voice">john</code> and <code class="code-voice">number73</code> variables are set to <code class="code-voice">nil</code>. This proves that the reference cycle has been broken.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_96"></a>
+  <h3 class="section-name" tabindex="0">Unowned References</h3>
+  <p class="para">
+  Like weak references, an <em>unowned reference</em> does not keep a strong hold on the instance it refers to. Unlike a weak reference, however, an unowned reference is assumed to <em>always</em> have a value. Because of this, an unowned reference is always defined as a non-optional type. You indicate an unowned reference by placing the <code class="code-voice">unowned</code> keyword before a property or variable declaration.
+</p><p class="para">
+  Because an unowned reference is non-optional, you don’t need to unwrap the unowned reference each time it is used. An unowned reference can always be accessed directly. However, ARC cannot set the reference to <code class="code-voice">nil</code> when the instance it refers to is deallocated, because variables of a non-optional type cannot be set to <code class="code-voice">nil</code>.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_97"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">If you try to access an unowned reference after the instance that it references is deallocated, you will trigger a runtime error. Use unowned references only when you are sure that the reference will <em>always</em> refer to an instance.
+    	</p>
+    <p class="para">
+  Note also that Swift guarantees your app will crash if you try to access an unowned reference after the instance it references is deallocated. You will never encounter unexpected behavior in this situation. Your app will always crash reliably, although you should, of course, prevent it from doing so.
+</p>
+
+  </aside>
+</div><p class="para">
+  The following example defines two classes, <code class="code-voice">Customer</code> and <code class="code-voice">CreditCard</code>, which model a bank customer and a possible credit card for that customer. These two classes each store an instance of the other class as a property. This relationship has the potential to create a strong reference cycle.
+</p><p class="para">
+  The relationship between <code class="code-voice">Customer</code> and <code class="code-voice">CreditCard</code> is slightly different from the relationship between <code class="code-voice">Apartment</code> and <code class="code-voice">Person</code> seen in the weak reference example above. In this data model, a customer may or may not have a credit card, but a credit card will <em>always</em> be associated with a customer. To represent this, the <code class="code-voice">Customer</code> class has an optional <code class="code-voice">card</code> property, but the <code class="code-voice">CreditCard</code> class has a non-optional <code class="code-voice">customer</code> property.
+</p><p class="para">
+  Furthermore, a new <code class="code-voice">CreditCard</code> instance can <em>only</em> be created by passing a <code class="code-voice">number</code> value and a <code class="code-voice">customer</code> instance to a custom <code class="code-voice">CreditCard</code> initializer. This ensures that a <code class="code-voice">CreditCard</code> instance always has a <code class="code-voice">customer</code> instance associated with it when the <code class="code-voice">CreditCard</code> instance is created.
+</p><p class="para">
+  Because a credit card will always have a customer, you define its <code class="code-voice">customer</code> property as an unowned reference, to avoid a strong reference cycle:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Customer</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">card</span>: <span class="n"><!-- a href="" -->CreditCard<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">deinit</span> { <span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">name</span>)<span class="s"> is being deinitialized"</span>) }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">CreditCard</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">number</span>: <span class="n"><!-- a href="" -->UInt64<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">unowned</span> <span class="kt">let</span> <span class="vc">customer</span>: <span class="n"><!-- a href="" -->Customer<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">number</span>: <span class="n"><!-- a href="" -->UInt64<!-- /a --></span>, <span class="vc">customer</span>: <span class="n"><!-- a href="" -->Customer<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">number</span> = <span class="vc">number</span></code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">customer</span> = <span class="vc">customer</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">deinit</span> { <span class="vc">println</span>(<span class="s">"Card #</span>\(<span class="vc">number</span>)<span class="s"> is being deinitialized"</span>) }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_98"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">The <code class="code-voice">number</code> property of the <code class="code-voice">CreditCard</code> class is defined with a type of <code class="code-voice">UInt64</code> rather than <code class="code-voice">Int</code>, to ensure that the <code class="code-voice">number</code> property’s capacity is large enough to store a 16-digit card number on both 32-bit and 64-bit systems.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  This next code snippet defines an optional <code class="code-voice">Customer</code> variable called <code class="code-voice">john</code>, which will be used to store a reference to a specific customer. This variable has an initial value of nil, by virtue of being optional:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">john</span>: <span class="n"><!-- a href="" -->Customer<!-- /a --></span>?</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can now create a <code class="code-voice">Customer</code> instance, and use it to initialize and assign a new <code class="code-voice">CreditCard</code> instance as that customer’s <code class="code-voice">card</code> property:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">john</span> = <span class="vc">Customer</span>(<span class="vc">name</span>: <span class="s">"John Appleseed"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">john</span>!.<span class="vc">card</span> = <span class="vc">CreditCard</span>(<span class="vc">number</span>: <span class="m">1234_5678_9012_3456</span>, <span class="vc">customer</span>: <span class="vc">john</span>!)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Here’s how the references look, now that you’ve linked the two instances:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/unownedReference01_2x.png" alt="image: ../Art/unownedReference01_2x.png" width="626" height="197"/>
+</figure><p class="para">
+  The <code class="code-voice">Customer</code> instance now has a strong reference to the <code class="code-voice">CreditCard</code> instance, and the <code class="code-voice">CreditCard</code> instance has an unowned reference to the <code class="code-voice">Customer</code> instance.
+</p><p class="para">
+  Because of the unowned <code class="code-voice">customer</code> reference, when you break the strong reference held by the <code class="code-voice">john</code> variable, there are no more strong references to the <code class="code-voice">Customer</code> instance:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/unownedReference02_2x.png" alt="image: ../Art/unownedReference02_2x.png" width="626" height="197"/>
+</figure><p class="para">
+  Because there are no more strong references to the <code class="code-voice">Customer</code> instance, it is deallocated. After this happens, there are no more strong references to the <code class="code-voice">CreditCard</code> instance, and it too is deallocated:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">john</span> = <span class="kt">nil</span></code></li>
+          <li><code class="code-voice"><span class="c">// prints "John Appleseed is being deinitialized"</span></code></li>
+          <li><code class="code-voice"><span class="c">// prints "Card #1234567890123456 is being deinitialized"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The final code snippet above shows that the deinitializers for the <code class="code-voice">Customer</code> instance and <code class="code-voice">CreditCard</code> instance both print their “deinitialized” messages after the <code class="code-voice">john</code> variable is set to <code class="code-voice">nil</code>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_99"></a>
+  <h3 class="section-name" tabindex="0">Unowned References and Implicitly Unwrapped Optional Properties</h3>
+  <p class="para">
+  The examples for weak and unowned references above cover two of the more common scenarios in which it is necessary to break a strong reference cycle.
+</p><p class="para">
+  The <code class="code-voice">Person</code> and <code class="code-voice">Apartment</code> example shows a situation where two properties, both of which are allowed to be <code class="code-voice">nil</code>, have the potential to cause a strong reference cycle. This scenario is best resolved with a weak reference.
+</p><p class="para">
+  The <code class="code-voice">Customer</code> and <code class="code-voice">CreditCard</code> example shows a situation where one property that is allowed to be <code class="code-voice">nil</code> and another property that cannot be <code class="code-voice">nil</code> have the potential to cause a strong reference cycle. This scenario is best resolved with an unowned reference.
+</p><p class="para">
+  However, there is a third scenario, in which <em>both</em> properties should always have a value, and neither property should ever be <code class="code-voice">nil</code> once initialization is complete. In this scenario, it is useful to combine an unowned property on one class with an implicitly unwrapped optional property on the other class.
+</p><p class="para">
+  This enables both properties to be accessed directly (without optional unwrapping) once initialization is complete, while still avoiding a reference cycle. This section shows you how to set up such a relationship.
+</p><p class="para">
+  The example below defines two classes, <code class="code-voice">Country</code> and <code class="code-voice">City</code>, each of which stores an instance of the other class as a property. In this data model, every country must always have a capital city, and every city must always belong to a country. To represent this, the <code class="code-voice">Country</code> class has a <code class="code-voice">capitalCity</code> property, and the <code class="code-voice">City</code> class has a <code class="code-voice">country</code> property:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Country</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">capitalCity</span>: <span class="n"><!-- a href="" -->City<!-- /a --></span>!</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>, <span class="vc">capitalName</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span></code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">capitalCity</span> = <span class="vc">City</span>(<span class="vc">name</span>: <span class="vc">capitalName</span>, <span class="vc">country</span>: <span class="kt">self</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">City</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">unowned</span> <span class="kt">let</span> <span class="vc">country</span>: <span class="n"><!-- a href="" -->Country<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>, <span class="vc">country</span>: <span class="n"><!-- a href="" -->Country<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span></code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">country</span> = <span class="vc">country</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  To set up the interdependency between the two classes, the initializer for <code class="code-voice">City</code> takes a <code class="code-voice">Country</code> instance, and stores this instance in its <code class="code-voice">country</code> property.
+</p><p class="para">
+  The initializer for <code class="code-voice">City</code> is called from within the initializer for <code class="code-voice">Country</code>. However, the initializer for <code class="code-voice">Country</code> cannot pass <code class="code-voice">self</code> to the <code class="code-voice">City</code> initializer until a new <code class="code-voice">Country</code> instance is fully initialized, as described in <span class="x-name"><a href="Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_329" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_329">Two-Phase Initialization</a></span>.
+</p><p class="para">
+  To cope with this requirement, you declare the <code class="code-voice">capitalCity</code> property of <code class="code-voice">Country</code> as an implicitly unwrapped optional property, indicated by the exclamation mark at the end of its type annotation (<code class="code-voice">City!</code>). This means that the <code class="code-voice">capitalCity</code> property has a default value of <code class="code-voice">nil</code>, like any other optional, but can be accessed without the need to unwrap its value as described in <span class="x-name"><a href="TheBasics.html#//apple_ref/doc/uid/TP40014097-CH5-XID_491" data-id="//apple_ref/doc/uid/TP40014097-CH5-XID_491">Implicitly Unwrapped Optionals</a></span>.
+</p><p class="para">
+  Because <code class="code-voice">capitalCity</code> has a default <code class="code-voice">nil</code> value, a new <code class="code-voice">Country</code> instance is considered fully initialized as soon as the <code class="code-voice">Country</code> instance sets its <code class="code-voice">name</code> property within its initializer. This means that the <code class="code-voice">Country</code> initializer can start to reference and pass around the implicit <code class="code-voice">self</code> property as soon as the <code class="code-voice">name</code> property is set. The <code class="code-voice">Country</code> initializer can therefore pass <code class="code-voice">self</code> as one of the parameters for the <code class="code-voice">City</code> initializer when the <code class="code-voice">Country</code> initializer is setting its own <code class="code-voice">capitalCity</code> property.
+</p><p class="para">
+  All of this means that you can create the <code class="code-voice">Country</code> and <code class="code-voice">City</code> instances in a single statement, without creating a strong reference cycle, and the <code class="code-voice">capitalCity</code> property can be accessed directly, without needing to use an exclamation mark to unwrap its optional value:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">country</span> = <span class="vc">Country</span>(<span class="vc">name</span>: <span class="s">"Canada"</span>, <span class="vc">capitalName</span>: <span class="s">"Ottawa"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">country</span>.<span class="vc">name</span>)<span class="s">'s capital city is called </span>\(<span class="vc">country</span>.<span class="vc">capitalCity</span>.<span class="vc">name</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Canada's capital city is called Ottawa"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  In the example above, the use of an implicitly unwrapped optional means that all of the two-phase class initializer requirements are satisfied. The <code class="code-voice">capitalCity</code> property can be used and accessed like a non-optional value once initialization is complete, while still avoiding a strong reference cycle.
+</p>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_100"></a>
+  <h3 class="section-name" tabindex="0">Strong Reference Cycles for Closures</h3>
+  <p class="para">
+  You saw above how a strong reference cycle can be created when two class instance properties hold a strong reference to each other. You also saw how to use weak and unowned references to break these strong reference cycles.
+</p><p class="para">
+  A strong reference cycle can also occur if you assign a closure to a property of a class instance, and the body of that closure captures the instance. This capture might occur because the closure’s body accesses a property of the instance, such as <code class="code-voice">self.someProperty</code>, or because the closure calls a method on the instance, such as <code class="code-voice">self.someMethod()</code>. In either case, these accesses cause the closure to “capture” <code class="code-voice">self</code>, creating a strong reference cycle.
+</p><p class="para">
+  This strong reference cycle occurs because closures, like classes, are <em>reference types</em>. When you assign a closure to a property, you are assigning a <em>reference</em> to that closure. In essence, it’s the same problem as above—two strong references are keeping each other alive. However, rather than two class instances, this time it’s a class instance and a closure that are keeping each other alive.
+</p><p class="para">
+  Swift provides an elegant solution to this problem, known as a <em>closure capture list</em>. However, before you learn how to break a strong reference cycle with a closure capture list, it is useful to understand how such a cycle can be caused.
+</p><p class="para">
+  The example below shows how you can create a strong reference cycle when using a closure that references <code class="code-voice">self</code>. This example defines a class called <code class="code-voice">HTMLElement</code>, which provides a simple model for an individual element within an HTML document:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">HTMLElement</span> {</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">text</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">lazy</span> <span class="kt">var</span> <span class="vc">asHTML</span>: () -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> = {</code></li>
+          <li><code class="code-voice">        <span class="kt">if</span> <span class="kt">let</span> <span class="vc">text</span> = <span class="kt">self</span>.<span class="vc">text</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"&lt;</span>\(<span class="kt">self</span>.<span class="vc">name</span>)<span class="s">&gt;</span>\(<span class="vc">text</span>)<span class="s">&lt;/</span>\(<span class="kt">self</span>.<span class="vc">name</span>)<span class="s">&gt;"</span></code></li>
+          <li><code class="code-voice">        } <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"&lt;</span>\(<span class="kt">self</span>.<span class="vc">name</span>)<span class="s"> /&gt;"</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>, <span class="vc">text</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>? = <span class="kt">nil</span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span></code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">text</span> = <span class="vc">text</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">deinit</span> {</code></li>
+          <li><code class="code-voice">        <span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">name</span>)<span class="s"> is being deinitialized"</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">HTMLElement</code> class defines a <code class="code-voice">name</code> property, which indicates the name of the element, such as <code class="code-voice">"p"</code> for a paragraph element, or <code class="code-voice">"br"</code> for a line break element. <code class="code-voice">HTMLElement</code> also defines an optional <code class="code-voice">text</code> property, which you can set to a string that represents the text to be rendered within that HTML element.
+</p><p class="para">
+  In addition to these two simple properties, the <code class="code-voice">HTMLElement</code> class defines a lazy property called <code class="code-voice">asHTML</code>. This property references a closure that combines <code class="code-voice">name</code> and <code class="code-voice">text</code> into an HTML string fragment. The <code class="code-voice">asHTML</code> property is of type <code class="code-voice">() -&gt; String</code>, or “a function that takes no parameters, and returns a <code class="code-voice">String</code> value”.
+</p><p class="para">
+  By default, the <code class="code-voice">asHTML</code> property is assigned a closure that returns a string representation of an HTML tag. This tag contains the optional <code class="code-voice">text</code> value if it exists, or no text content if <code class="code-voice">text</code> does not exist. For a paragraph element, the closure would return <code class="code-voice">"&lt;p&gt;some text&lt;/p&gt;"</code> or <code class="code-voice">"&lt;p /&gt;"</code>, depending on whether the <code class="code-voice">text</code> property equals <code class="code-voice">"some text"</code> or <code class="code-voice">nil</code>.
+</p><p class="para">
+  The <code class="code-voice">asHTML</code> property is named and used somewhat like an instance method. However, because <code class="code-voice">asHTML</code> is a closure property rather than an instance method, you can replace the default value of the <code class="code-voice">asHTML</code> property with a custom closure, if you want to change the HTML rendering for a particular HTML element.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_101"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">The <code class="code-voice">asHTML</code> property is declared as a lazy property, because it is only needed if and when the element actually needs to be rendered as a string value for some HTML output target. The fact that <code class="code-voice">asHTML</code> is a lazy property means that you can refer to <code class="code-voice">self</code> within the default closure, because the lazy property will not be accessed until after initialization has been completed and <code class="code-voice">self</code> is known to exist.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  The <code class="code-voice">HTMLElement</code> class provides a single initializer, which takes a <code class="code-voice">name</code> argument and (if desired) a <code class="code-voice">text</code> argument to initialize a new element. The class also defines a deinitializer, which prints a message to show when an <code class="code-voice">HTMLElement</code> instance is deallocated.
+</p><p class="para">
+  Here’s how you use the <code class="code-voice">HTMLElement</code> class to create and print a new instance:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">paragraph</span>: <span class="n"><!-- a href="" -->HTMLElement<!-- /a --></span>? = <span class="vc">HTMLElement</span>(<span class="vc">name</span>: <span class="s">"p"</span>, <span class="vc">text</span>: <span class="s">"hello, world"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">paragraph</span>!.<span class="vc">asHTML</span>())</code></li>
+          <li><code class="code-voice"><span class="c">// prints "&lt;p&gt;hello, world&lt;/p&gt;"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_102"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">The <code class="code-voice">paragraph</code> variable above is defined as an <em>optional</em> <code class="code-voice">HTMLElement</code>, so that it can be set to <code class="code-voice">nil</code> below to demonstrate the presence of a strong reference cycle.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  Unfortunately, the <code class="code-voice">HTMLElement</code> class, as written above, creates a strong reference cycle between an <code class="code-voice">HTMLElement</code> instance and the closure used for its default <code class="code-voice">asHTML</code> value. Here’s how the cycle looks:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/closureReferenceCycle01_2x.png" alt="image: ../Art/closureReferenceCycle01_2x.png" width="626" height="218"/>
+</figure><p class="para">
+  The instance’s <code class="code-voice">asHTML</code> property holds a strong reference to its closure. However, because the closure refers to <code class="code-voice">self</code> within its body (as a way to reference <code class="code-voice">self.name</code> and <code class="code-voice">self.text</code>), the closure <em>captures</em> self, which means that it holds a strong reference back to the <code class="code-voice">HTMLElement</code> instance. A strong reference cycle is created between the two. (For more information about capturing values in a closure, see <span class="x-name"><a href="Closures.html#//apple_ref/doc/uid/TP40014097-CH11-XID_164" data-id="//apple_ref/doc/uid/TP40014097-CH11-XID_164">Capturing Values</a></span>.)
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_103"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Even though the closure refers to <code class="code-voice">self</code> multiple times, it only captures one strong reference to the <code class="code-voice">HTMLElement</code> instance.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  If you set the <code class="code-voice">paragraph</code> variable to <code class="code-voice">nil</code> and break its strong reference to the <code class="code-voice">HTMLElement</code> instance, neither the <code class="code-voice">HTMLElement</code> instance nor its closure are deallocated, because of the strong reference cycle:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">paragraph</span> = <span class="kt">nil</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Note that the message in the <code class="code-voice">HTMLElement</code> deinitializer is not printed, which shows that the <code class="code-voice">HTMLElement</code> instance is not deallocated.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_104"></a>
+  <h3 class="section-name" tabindex="0">Resolving Strong Reference Cycles for Closures</h3>
+  <p class="para">
+  You resolve a strong reference cycle between a closure and a class instance by defining a <em>capture list</em> as part of the closure’s definition. A capture list defines the rules to use when capturing one or more reference types within the closure’s body. As with strong reference cycles between two class instances, you declare each captured reference to be a weak or unowned reference rather than a strong reference. The appropriate choice of weak or unowned depends on the relationships between the different parts of your code.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_105"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Swift requires you to write <code class="code-voice">self.someProperty</code> or <code class="code-voice">self.someMethod</code> (rather than just <code class="code-voice">someProperty</code> or <code class="code-voice">someMethod</code>) whenever you refer to a member of <code class="code-voice">self</code> within a closure. This helps you remember that it’s possible to capture <code class="code-voice">self</code> by accident.
+    	</p>
+    
+  </aside>
+</div>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_106"></a>
+  <h3 class="section-name" tabindex="0">Defining a Capture List</h3>
+  <p class="para">
+  Each item in a capture list is a pairing of the <code class="code-voice">weak</code> or <code class="code-voice">unowned</code> keyword with a reference to a class instance (such as <code class="code-voice">self</code> or <code class="code-voice">someInstance</code>). These pairings are written within a pair of square braces, separated by commas.
+</p><p class="para">
+  Place the capture list before a closure’s parameter list and return type if they are provided:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">lazy</span> <span class="kt">var</span> <span class="vc">someClosure</span>: (<span class="n"><!-- a href="" -->Int<!-- /a --></span>, <span class="n"><!-- a href="" -->String<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> = {</code></li>
+          <li><code class="code-voice">    [<span class="vc">unowned</span> <span class="kt">self</span>] (<span class="vc">index</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>, <span class="vc">stringToProcess</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) -&gt; <span class="vc">String</span> <span class="kt">in</span></code></li>
+          <li><code class="code-voice">    <span class="c">// closure body goes here</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  If a closure does not specify a parameter list or return type because they can be inferred from context, place the capture list at the very start of the closure, followed by the <code class="code-voice">in</code> keyword:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">lazy</span> <span class="kt">var</span> <span class="vc">someClosure</span>: () -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> = {</code></li>
+          <li><code class="code-voice">    [<span class="vc">unowned</span> <span class="kt">self</span>] <span class="kt">in</span></code></li>
+          <li><code class="code-voice">    <span class="c">// closure body goes here</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_107"></a>
+  <h3 class="section-name" tabindex="0">Weak and Unowned References</h3>
+  <p class="para">
+  Define a capture in a closure as an unowned reference when the closure and the instance it captures will always refer to each other, and will always be deallocated at the same time.
+</p><p class="para">
+  Conversely, define a capture as a weak reference when the captured reference may become <code class="code-voice">nil</code> at some point in the future. Weak references are always of an optional type, and automatically become <code class="code-voice">nil</code> when the instance they reference is deallocated. This enables you to check for their existence within the closure’s body.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH20-XID_108"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">If the captured reference will never become <code class="code-voice">nil</code>, it should always be captured as an unowned reference, rather than a weak reference.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  An unowned reference is the appropriate capture method to use to resolve the strong reference cycle in the <code class="code-voice">HTMLElement</code> example from earlier. Here’s how you write the <code class="code-voice">HTMLElement</code> class to avoid the cycle:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">HTMLElement</span> {</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">text</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">lazy</span> <span class="kt">var</span> <span class="vc">asHTML</span>: () -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> = {</code></li>
+          <li><code class="code-voice">        [<span class="vc">unowned</span> <span class="kt">self</span>] <span class="kt">in</span></code></li>
+          <li><code class="code-voice">        <span class="kt">if</span> <span class="kt">let</span> <span class="vc">text</span> = <span class="kt">self</span>.<span class="vc">text</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"&lt;</span>\(<span class="kt">self</span>.<span class="vc">name</span>)<span class="s">&gt;</span>\(<span class="vc">text</span>)<span class="s">&lt;/</span>\(<span class="kt">self</span>.<span class="vc">name</span>)<span class="s">&gt;"</span></code></li>
+          <li><code class="code-voice">        } <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"&lt;</span>\(<span class="kt">self</span>.<span class="vc">name</span>)<span class="s"> /&gt;"</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>, <span class="vc">text</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>? = <span class="kt">nil</span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span></code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">text</span> = <span class="vc">text</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">deinit</span> {</code></li>
+          <li><code class="code-voice">        <span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">name</span>)<span class="s"> is being deinitialized"</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This implementation of <code class="code-voice">HTMLElement</code> is identical to the previous implementation, apart from the addition of a capture list within the <code class="code-voice">asHTML</code> closure. In this case, the capture list is <code class="code-voice">[unowned self]</code>, which means “capture self as an unowned reference rather than a strong reference”.
+</p><p class="para">
+  You can create and print an <code class="code-voice">HTMLElement</code> instance as before:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">paragraph</span>: <span class="n"><!-- a href="" -->HTMLElement<!-- /a --></span>? = <span class="vc">HTMLElement</span>(<span class="vc">name</span>: <span class="s">"p"</span>, <span class="vc">text</span>: <span class="s">"hello, world"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">paragraph</span>!.<span class="vc">asHTML</span>())</code></li>
+          <li><code class="code-voice"><span class="c">// prints "&lt;p&gt;hello, world&lt;/p&gt;"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Here’s how the references look with the capture list in place:
+</p><figure class="figure">
+  
+  <span class="caption"></span>
+  <img src="Art/closureReferenceCycle02_2x.png" alt="image: ../Art/closureReferenceCycle02_2x.png" width="626" height="218"/>
+</figure><p class="para">
+  This time, the capture of <code class="code-voice">self</code> by the closure is an unowned reference, and does not keep a strong hold on the <code class="code-voice">HTMLElement</code> instance it has captured. If you set the strong reference from the <code class="code-voice">paragraph</code> variable to <code class="code-voice">nil</code>, the <code class="code-voice">HTMLElement</code> instance is deallocated, as can be seen from the printing of its deinitializer message in the example below:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">paragraph</span> = <span class="kt">nil</span></code></li>
+          <li><code class="code-voice"><span class="c">// prints "p is being deinitialized"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+
+</section>
+
+  	
+ 	<section id="next_previous" class="">
+    		<p class="previous-link"><a href="Deinitialization.html#//apple_ref/doc/uid/TP40014097-CH19-XID_220" data-id="//apple_ref/doc/uid/TP40014097-CH19-XID_220">Deinitialization</a></p>
+  			<p class="next-link"><a href="OptionalChaining.html#//apple_ref/doc/uid/TP40014097-CH21-XID_356" data-id="//apple_ref/doc/uid/TP40014097-CH21-XID_356">Optional Chaining</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>

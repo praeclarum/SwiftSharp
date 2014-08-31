@@ -1,0 +1,677 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21"></a><a name="//apple_ref/doc/uid/TP40014097-CH21-XID_356"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">Optional Chaining</h2>
+
+
+      <section id="mini_toc" class="hideInXcode" role="navigation">
+	<div id="mini_toc_button">
+  	<p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH21-XID_358">
+	  				Optional Chaining as an Alternative to Forced Unwrapping
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH21-XID_359">
+	  				Defining Model Classes for Optional Chaining
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH21-XID_360">
+	  				Accessing Properties Through Optional Chaining
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH21-XID_361">
+	  				Calling Methods Through Optional Chaining
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH21-XID_362">
+	  				Accessing Subscripts Through Optional Chaining
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH21-XID_365">
+	  				Linking Multiple Levels of Chaining
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH21-XID_366">
+	  				Chaining on Methods With Optional Return Values
+	  			</a>
+  			</p>
+  		</li>
+	</ul>
+</section>
+
+  
+  	<section class="section">
+  		<p class="para">
+  <em>Optional chaining</em> is a process for querying and calling properties, methods, and subscripts on an optional that might currently be <code class="code-voice">nil</code>. If the optional contains a value, the property, method, or subscript call succeeds; if the optional is <code class="code-voice">nil</code>, the property, method, or subscript call returns <code class="code-voice">nil</code>. Multiple queries can be chained together, and the entire chain fails gracefully if any link in the chain is <code class="code-voice">nil</code>.
+</p>
+<div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_357"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Optional chaining in Swift is similar to messaging <code class="code-voice">nil</code> in Objective-C, but in a way that works for any type, and that can be checked for success or failure.
+    	</p>
+    
+  </aside>
+</div>
+
+		</section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_358"></a>
+  <h3 class="section-name" tabindex="0">Optional Chaining as an Alternative to Forced Unwrapping</h3>
+  <p class="para">
+  You specify optional chaining by placing a question mark (<code class="code-voice">?</code>) after the optional value on which you wish to call a property, method or subscript if the optional is non-<code class="code-voice">nil</code>. This is very similar to placing an exclamation mark (<code class="code-voice">!</code>) after an optional value to force the unwrapping of its value. The main difference is that optional chaining fails gracefully when the optional is <code class="code-voice">nil</code>, whereas forced unwrapping triggers a runtime error when the optional is <code class="code-voice">nil</code>.
+</p><p class="para">
+  To reflect the fact that optional chaining can be called on a <code class="code-voice">nil</code> value, the result of an optional chaining call is always an optional value, even if the property, method, or subscript you are querying returns a non-optional value. You can use this optional return value to check whether the optional chaining call was successful (the returned optional contains a value), or did not succeed due to a <code class="code-voice">nil</code> value in the chain (the returned optional value is <code class="code-voice">nil</code>).
+</p><p class="para">
+  Specifically, the result of an optional chaining call is of the same type as the expected return value, but wrapped in an optional. A property that normally returns an <code class="code-voice">Int</code> will return an <code class="code-voice">Int?</code> when accessed through optional chaining.
+</p><p class="para">
+  The next several code snippets demonstrate how optional chaining differs from forced unwrapping and enables you to check for success.
+</p><p class="para">
+  First, two classes called <code class="code-voice">Person</code> and <code class="code-voice">Residence</code> are defined:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Person</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">residence</span>: <span class="n"><!-- a href="" -->Residence<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Residence</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">numberOfRooms</span> = <span class="m">1</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  <code class="code-voice">Residence</code> instances have a single <code class="code-voice">Int</code> property called <code class="code-voice">numberOfRooms</code>, with a default value of <code class="code-voice">1</code>. <code class="code-voice">Person</code> instances have an optional <code class="code-voice">residence</code> property of type <code class="code-voice">Residence?</code>.
+</p><p class="para">
+  If you create a new <code class="code-voice">Person</code> instance, its <code class="code-voice">residence</code> property is default initialized to <code class="code-voice">nil</code>, by virtue of being optional. In the code below, <code class="code-voice">john</code> has a <code class="code-voice">residence</code> property value of <code class="code-voice">nil</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">john</span> = <span class="vc">Person</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  If you try to access the <code class="code-voice">numberOfRooms</code> property of this person’s <code class="code-voice">residence</code>, by placing an exclamation mark after <code class="code-voice">residence</code> to force the unwrapping of its value, you trigger a runtime error, because there is no <code class="code-voice">residence</code> value to unwrap:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">roomCount</span> = <span class="vc">john</span>.<span class="vc">residence</span>!.<span class="vc">numberOfRooms</span></code></li>
+          <li><code class="code-voice"><span class="c">// this triggers a runtime error</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The code above succeeds when <code class="code-voice">john.residence</code> has a non-<code class="code-voice">nil</code> value and will set <code class="code-voice">roomCount</code> to an <code class="code-voice">Int</code> value containing the appropriate number of rooms. However, this code always triggers a runtime error when <code class="code-voice">residence</code> is <code class="code-voice">nil</code>, as illustrated above.
+</p><p class="para">
+  Optional chaining provides an alternative way to access the value of <code class="code-voice">numberOfRooms</code>. To use optional chaining, use a question mark in place of the exclamation mark:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">roomCount</span> = <span class="vc">john</span>.<span class="vc">residence</span>?.<span class="vc">numberOfRooms</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"John's residence has </span>\(<span class="vc">roomCount</span>)<span class="s"> room(s)."</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Unable to retrieve the number of rooms."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Unable to retrieve the number of rooms."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This tells Swift to “chain” on the optional <code class="code-voice">residence</code> property and to retrieve the value of <code class="code-voice">numberOfRooms</code> if <code class="code-voice">residence</code> exists.
+</p><p class="para">
+  Because the attempt to access <code class="code-voice">numberOfRooms</code> has the potential to fail, the optional chaining attempt returns a value of type <code class="code-voice">Int?</code>, or “optional <code class="code-voice">Int</code>”. When <code class="code-voice">residence</code> is <code class="code-voice">nil</code>, as in the example above, this optional <code class="code-voice">Int</code> will also be <code class="code-voice">nil</code>, to reflect the fact that it was not possible to access <code class="code-voice">numberOfRooms</code>.
+</p><p class="para">
+  Note that this is true even though <code class="code-voice">numberOfRooms</code> is a non-optional <code class="code-voice">Int</code>. The fact that it is queried through an optional chain means that the call to <code class="code-voice">numberOfRooms</code> will always return an <code class="code-voice">Int?</code> instead of an <code class="code-voice">Int</code>.
+</p><p class="para">
+  You can assign a <code class="code-voice">Residence</code> instance to <code class="code-voice">john.residence</code>, so that it no longer has a <code class="code-voice">nil</code> value:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">john</span>.<span class="vc">residence</span> = <span class="vc">Residence</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  <code class="code-voice">john.residence</code> now contains an actual <code class="code-voice">Residence</code> instance, rather than <code class="code-voice">nil</code>. If you try to access <code class="code-voice">numberOfRooms</code> with the same optional chaining as before, it will now return an <code class="code-voice">Int?</code> that contains the default <code class="code-voice">numberOfRooms</code> value of <code class="code-voice">1</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">roomCount</span> = <span class="vc">john</span>.<span class="vc">residence</span>?.<span class="vc">numberOfRooms</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"John's residence has </span>\(<span class="vc">roomCount</span>)<span class="s"> room(s)."</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Unable to retrieve the number of rooms."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "John's residence has 1 room(s)."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_359"></a>
+  <h3 class="section-name" tabindex="0">Defining Model Classes for Optional Chaining</h3>
+  <p class="para">
+  You can use optional chaining with calls to properties, methods, and subscripts that are more than one level deep. This enables you to drill down into subproperties within complex models of interrelated types, and to check whether it is possible to access properties, methods, and subscripts on those subproperties.
+</p><p class="para">
+  The code snippets below define four model classes for use in several subsequent examples, including examples of multilevel optional chaining. These classes expand upon the <code class="code-voice">Person</code> and <code class="code-voice">Residence</code> model from above by adding a <code class="code-voice">Room</code> and <code class="code-voice">Address</code> class, with associated properties, methods, and subscripts.
+</p><p class="para">
+  The <code class="code-voice">Person</code> class is defined in the same way as before:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Person</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">residence</span>: <span class="n"><!-- a href="" -->Residence<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">Residence</code> class is more complex than before. This time, the <code class="code-voice">Residence</code> class defines a variable property called <code class="code-voice">rooms</code>, which is initialized with an empty array of type <code class="code-voice">[Room]</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Residence</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">rooms</span> = [<span class="vc">Room</span>]()</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">numberOfRooms</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="vc">rooms</span>.<span class="vc">count</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">subscript</span>(<span class="vc">i</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Room<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">get</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="vc">rooms</span>[<span class="vc">i</span>]</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">        <span class="kt">set</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">rooms</span>[<span class="vc">i</span>] = <span class="vc">newValue</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">printNumberOfRooms</span>() {</code></li>
+          <li><code class="code-voice">        <span class="vc">println</span>(<span class="s">"The number of rooms is </span>\(<span class="vc">numberOfRooms</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">address</span>: <span class="n"><!-- a href="" -->Address<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Because this version of <code class="code-voice">Residence</code> stores an array of <code class="code-voice">Room</code> instances, its <code class="code-voice">numberOfRooms</code> property is implemented as a computed property, not a stored property. The computed <code class="code-voice">numberOfRooms</code> property simply returns the value of the <code class="code-voice">count</code> property from the <code class="code-voice">rooms</code> array.
+</p><p class="para">
+  As a shortcut to accessing its <code class="code-voice">rooms</code> array, this version of <code class="code-voice">Residence</code> provides a read-write subscript that provides access to the room at the requested index in the <code class="code-voice">rooms</code> array.
+</p><p class="para">
+  This version of <code class="code-voice">Residence</code> also provides a method called <code class="code-voice">printNumberOfRooms</code>, which simply prints the number of rooms in the residence.
+</p><p class="para">
+  Finally, <code class="code-voice">Residence</code> defines an optional property called <code class="code-voice">address</code>, with a type of <code class="code-voice">Address?</code>. The <code class="code-voice">Address</code> class type for this property is defined below.
+</p><p class="para">
+  The <code class="code-voice">Room</code> class used for the <code class="code-voice">rooms</code> array is a simple class with one property called <code class="code-voice">name</code>, and an initializer to set that property to a suitable room name:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Room</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) { <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span> }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The final class in this model is called <code class="code-voice">Address</code>. This class has three optional properties of type <code class="code-voice">String?</code>. The first two properties, <code class="code-voice">buildingName</code> and <code class="code-voice">buildingNumber</code>, are alternative ways to identify a particular building as part of an address. The third property, <code class="code-voice">street</code>, is used to name the street for that address:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Address</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">buildingName</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">buildingNumber</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">street</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">buildingIdentifier</span>() -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span>? {</code></li>
+          <li><code class="code-voice">        <span class="kt">if</span> <span class="vc">buildingName</span> != <span class="kt">nil</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="vc">buildingName</span></code></li>
+          <li><code class="code-voice">        } <span class="kt">else</span> <span class="kt">if</span> <span class="vc">buildingNumber</span> != <span class="kt">nil</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="vc">buildingNumber</span></code></li>
+          <li><code class="code-voice">        } <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="kt">nil</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">Address</code> class also provides a method called <code class="code-voice">buildingIdentifier</code>, which has a return type of <code class="code-voice">String?</code>. This method checks the <code class="code-voice">buildingName</code> and <code class="code-voice">buildingNumber</code> properties and returns <code class="code-voice">buildingName</code> if it has a value, or <code class="code-voice">buildingNumber</code> if it has a value, or <code class="code-voice">nil</code> if neither property has a value.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_360"></a>
+  <h3 class="section-name" tabindex="0">Accessing Properties Through Optional Chaining</h3>
+  <p class="para">
+  As demonstrated in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH21-XID_358" data-id="//apple_ref/doc/uid/TP40014097-CH21-XID_358">Optional Chaining as an Alternative to Forced Unwrapping</a></span>, you can use optional chaining to access a property on an optional value, and to check if that property access is successful.
+</p><p class="para">
+  Use the classes defined above to create a new <code class="code-voice">Person</code> instance, and try to access its <code class="code-voice">numberOfRooms</code> property as before:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">john</span> = <span class="vc">Person</span>()</code></li>
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">roomCount</span> = <span class="vc">john</span>.<span class="vc">residence</span>?.<span class="vc">numberOfRooms</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"John's residence has </span>\(<span class="vc">roomCount</span>)<span class="s"> room(s)."</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Unable to retrieve the number of rooms."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Unable to retrieve the number of rooms."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Because <code class="code-voice">john.residence</code> is <code class="code-voice">nil</code>, this optional chaining call fails in the same way as before.
+</p><p class="para">
+  You can also attempt to set a property’s value through optional chaining:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">someAddress</span> = <span class="vc">Address</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">someAddress</span>.<span class="vc">buildingNumber</span> = <span class="s">"29"</span></code></li>
+          <li><code class="code-voice"><span class="vc">someAddress</span>.<span class="vc">street</span> = <span class="s">"Acacia Road"</span></code></li>
+          <li><code class="code-voice"><span class="vc">john</span>.<span class="vc">residence</span>?.<span class="vc">address</span> = <span class="vc">someAddress</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  In this example, the attempt to set the <code class="code-voice">address</code> property of <code class="code-voice">john.residence</code> will fail, because <code class="code-voice">john.residence</code> is currently <code class="code-voice">nil</code>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_361"></a>
+  <h3 class="section-name" tabindex="0">Calling Methods Through Optional Chaining</h3>
+  <p class="para">
+  You can use optional chaining to call a method on an optional value, and to check whether that method call is successful. You can do this even if that method does not define a return value.
+</p><p class="para">
+  The <code class="code-voice">printNumberOfRooms</code> method on the <code class="code-voice">Residence</code> class prints the current value of <code class="code-voice">numberOfRooms</code>. Here’s how the method looks:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> <span class="vc">printNumberOfRooms</span>() {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"The number of rooms is </span>\(<span class="vc">numberOfRooms</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This method does not specify a return type. However, functions and methods with no return type have an implicit return type of <code class="code-voice">Void</code>, as described in <span class="x-name"><a href="Functions.html#//apple_ref/doc/uid/TP40014097-CH10-XID_248" data-id="//apple_ref/doc/uid/TP40014097-CH10-XID_248">Functions Without Return Values</a></span>. This means that they return a value of <code class="code-voice">()</code>, or an empty tuple.
+</p><p class="para">
+  If you call this method on an optional value with optional chaining, the method’s return type will be <code class="code-voice">Void?</code>, not <code class="code-voice">Void</code>, because return values are always of an optional type when called through optional chaining. This enables you to use an <code class="code-voice">if</code> statement to check whether it was possible to call the <code class="code-voice">printNumberOfRooms</code> method, even though the method does not itself define a return value. Compare the return value from the <code class="code-voice">printNumberOfRooms</code> call against <code class="code-voice">nil</code> to see if the method call was successful:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="vc">john</span>.<span class="vc">residence</span>?.<span class="vc">printNumberOfRooms</span>() != <span class="kt">nil</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"It was possible to print the number of rooms."</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"It was not possible to print the number of rooms."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "It was not possible to print the number of rooms."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The same is true if you attempt to set a property through optional chaining. The example above in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH21-XID_360" data-id="//apple_ref/doc/uid/TP40014097-CH21-XID_360">Accessing Properties Through Optional Chaining</a></span> attempts to set an <code class="code-voice">address</code> value for <code class="code-voice">john.residence</code>, even though the <code class="code-voice">residence</code> property is <code class="code-voice">nil</code>. Any attempt to set a property through optional chaining returns a value of type <code class="code-voice">Void?</code>, which enables you to compare against <code class="code-voice">nil</code> to see if the property was set successfully:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> (<span class="vc">john</span>.<span class="vc">residence</span>?.<span class="vc">address</span> = <span class="vc">someAddress</span>) != <span class="kt">nil</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"It was possible to set the address."</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"It was not possible to set the address."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "It was not possible to set the address."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_362"></a>
+  <h3 class="section-name" tabindex="0">Accessing Subscripts Through Optional Chaining</h3>
+  <p class="para">
+  You can use optional chaining to try to retrieve and set a value from a subscript on an optional value, and to check whether that subscript call is successful.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_363"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">When you access a subscript on an optional value through optional chaining, you place the question mark <em>before</em> the subscript’s braces, not after. The optional chaining question mark always follows immediately after the part of the expression that is optional.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  The example below tries to retrieve the name of the first room in the <code class="code-voice">rooms</code> array of the <code class="code-voice">john.residence</code> property using the subscript defined on the <code class="code-voice">Residence</code> class. Because <code class="code-voice">john.residence</code> is currently <code class="code-voice">nil</code>, the subscript call fails:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">firstRoomName</span> = <span class="vc">john</span>.<span class="vc">residence</span>?[<span class="m">0</span>].<span class="vc">name</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"The first room name is </span>\(<span class="vc">firstRoomName</span>)<span class="s">."</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Unable to retrieve the first room name."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Unable to retrieve the first room name."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The optional chaining question mark in this subscript call is placed immediately after <code class="code-voice">john.residence</code>, before the subscript brackets, because <code class="code-voice">john.residence</code> is the optional value on which optional chaining is being attempted.
+</p><p class="para">
+  Similarly, you can try to set a new value through a subscript with optional chaining:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">john</span>.<span class="vc">residence</span>?[<span class="m">0</span>] = <span class="vc">Room</span>(<span class="vc">name</span>: <span class="s">"Bathroom"</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This subscript setting attempt also fails, because <code class="code-voice">residence</code> is currently <code class="code-voice">nil</code>.
+</p><p class="para">
+  If you create and assign an actual <code class="code-voice">Residence</code> instance to <code class="code-voice">john.residence</code>, with one or more <code class="code-voice">Room</code> instances in its <code class="code-voice">rooms</code> array, you can use the <code class="code-voice">Residence</code> subscript to access the actual items in the <code class="code-voice">rooms</code> array through optional chaining:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">johnsHouse</span> = <span class="vc">Residence</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">johnsHouse</span>.<span class="vc">rooms</span>.<span class="vc">append</span>(<span class="vc">Room</span>(<span class="vc">name</span>: <span class="s">"Living Room"</span>))</code></li>
+          <li><code class="code-voice"><span class="vc">johnsHouse</span>.<span class="vc">rooms</span>.<span class="vc">append</span>(<span class="vc">Room</span>(<span class="vc">name</span>: <span class="s">"Kitchen"</span>))</code></li>
+          <li><code class="code-voice"><span class="vc">john</span>.<span class="vc">residence</span> = <span class="vc">johnsHouse</span></code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">firstRoomName</span> = <span class="vc">john</span>.<span class="vc">residence</span>?[<span class="m">0</span>].<span class="vc">name</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"The first room name is </span>\(<span class="vc">firstRoomName</span>)<span class="s">."</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Unable to retrieve the first room name."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "The first room name is Living Room."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_364"></a>
+  <h3 class="section-name" tabindex="0">Accessing Subscripts of Optional Type</h3>
+  <p class="para">
+  If a subscript returns a value of optional type—such as the key subscript of Swift’s <code class="code-voice">Dictionary</code> type—place a question mark <em>after</em> the subscript’s closing bracket to chain on its optional return value:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">testScores</span> = [<span class="s">"Dave"</span>: [<span class="m">86</span>, <span class="m">82</span>, <span class="m">84</span>], <span class="s">"Tim"</span>: [<span class="m">79</span>, <span class="m">94</span>, <span class="m">81</span>]]</code></li>
+          <li><code class="code-voice"><span class="vc">testScores</span>[<span class="s">"Dave"</span>]?[<span class="m">0</span>] = <span class="m">91</span></code></li>
+          <li><code class="code-voice"><span class="vc">testScores</span>[<span class="s">"Tim"</span>]?[<span class="m">0</span>]++</code></li>
+          <li><code class="code-voice"><span class="vc">testScores</span>[<span class="s">"Brian"</span>]?[<span class="m">0</span>] = <span class="m">72</span></code></li>
+          <li><code class="code-voice"><span class="c">// the "Dave" array is now [91, 82, 84] and the "Tim" array is now [80, 94, 81]</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The example above defines a dictionary called <code class="code-voice">testScores</code>, which contains two key-value pairs that map a <code class="code-voice">String</code> key to an array of <code class="code-voice">Int</code> values. The example uses optional chaining to set the first item in the <code class="code-voice">"Dave"</code> array to <code class="code-voice">91</code>; to increment the first item in the <code class="code-voice">"Tim"</code> array by <code class="code-voice">1</code>; and to try to set the first item in an array for a key of <code class="code-voice">"Brian"</code>. The first two calls succeed, because the <code class="code-voice">testScores</code> dictionary contains keys for <code class="code-voice">"Dave"</code> and <code class="code-voice">"Tim"</code>. The third call fails, because the <code class="code-voice">testScores</code> dictionary does not contain a key for <code class="code-voice">"Brian"</code>.
+</p>
+  
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_365"></a>
+  <h3 class="section-name" tabindex="0">Linking Multiple Levels of Chaining</h3>
+  <p class="para">
+  You can link together multiple levels of optional chaining to drill down to properties, methods, and subscripts deeper within a model. However, multiple levels of optional chaining do not add more levels of optionality to the returned value.
+</p><p class="para">
+  To put it another way:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  If the type you are trying to retrieve is not optional, it will become optional because of the optional chaining.
+</p>
+</li><li class="item"><p class="para">
+  If the type you are trying to retrieve is <em>already</em> optional, it will not become <em>more</em> optional because of the chaining.
+</p>
+</li>
+</ul><p class="para">
+  Therefore:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  If you try to retrieve an <code class="code-voice">Int</code> value through optional chaining, an <code class="code-voice">Int?</code> is always returned, no matter how many levels of chaining are used.
+</p>
+</li><li class="item"><p class="para">
+  Similarly, if you try to retrieve an <code class="code-voice">Int?</code> value through optional chaining, an <code class="code-voice">Int?</code> is always returned, no matter how many levels of chaining are used.
+</p>
+</li>
+</ul><p class="para">
+  The example below tries to access the <code class="code-voice">street</code> property of the <code class="code-voice">address</code> property of the <code class="code-voice">residence</code> property of <code class="code-voice">john</code>. There are <em>two</em> levels of optional chaining in use here, to chain through the <code class="code-voice">residence</code> and <code class="code-voice">address</code> properties, both of which are of optional type:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">johnsStreet</span> = <span class="vc">john</span>.<span class="vc">residence</span>?.<span class="vc">address</span>?.<span class="vc">street</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"John's street name is </span>\(<span class="vc">johnsStreet</span>)<span class="s">."</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Unable to retrieve the address."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Unable to retrieve the address."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The value of <code class="code-voice">john.residence</code> currently contains a valid <code class="code-voice">Residence</code> instance. However, the value of <code class="code-voice">john.residence.address</code> is currently <code class="code-voice">nil</code>. Because of this, the call to <code class="code-voice">john.residence?.address?.street</code> fails.
+</p><p class="para">
+  Note that in the example above, you are trying to retrieve the value of the <code class="code-voice">street</code> property. The type of this property is <code class="code-voice">String?</code>. The return value of <code class="code-voice">john.residence?.address?.street</code> is therefore also <code class="code-voice">String?</code>, even though two levels of optional chaining are applied in addition to the underlying optional type of the property.
+</p><p class="para">
+  If you set an actual <code class="code-voice">Address</code> instance as the value for <code class="code-voice">john.residence.address</code>, and set an actual value for the address’s <code class="code-voice">street</code> property, you can access the value of property through the multi-level optional chaining:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">johnsAddress</span> = <span class="vc">Address</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">johnsAddress</span>.<span class="vc">buildingName</span> = <span class="s">"The Larches"</span></code></li>
+          <li><code class="code-voice"><span class="vc">johnsAddress</span>.<span class="vc">street</span> = <span class="s">"Laurel Street"</span></code></li>
+          <li><code class="code-voice"><span class="vc">john</span>.<span class="vc">residence</span>!.<span class="vc">address</span> = <span class="vc">johnsAddress</span></code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">johnsStreet</span> = <span class="vc">john</span>.<span class="vc">residence</span>?.<span class="vc">address</span>?.<span class="vc">street</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"John's street name is </span>\(<span class="vc">johnsStreet</span>)<span class="s">."</span>)</code></li>
+          <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Unable to retrieve the address."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "John's street name is Laurel Street."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Note the use of an exclamation mark during the assignment of an address instance to <code class="code-voice">john.residence.address</code>. The <code class="code-voice">john.residence</code> property has an optional type, and so you need to unwrap its actual value with an exclamation mark before accessing the residence’s <code class="code-voice">address</code> property.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_366"></a>
+  <h3 class="section-name" tabindex="0">Chaining on Methods With Optional Return Values</h3>
+  <p class="para">
+  The previous example shows how to retrieve the value of a property of optional type through optional chaining. You can also use optional chaining to call a method that returns a value of optional type, and to chain on that method’s return value if needed.
+</p><p class="para">
+  The example below calls the <code class="code-voice">Address</code> class’s <code class="code-voice">buildingIdentifier</code> method through optional chaining. This method returns a value of type <code class="code-voice">String?</code>. As described above, the ultimate return type of this method call after optional chaining is also <code class="code-voice">String?</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">buildingIdentifier</span> = <span class="vc">john</span>.<span class="vc">residence</span>?.<span class="vc">address</span>?.<span class="vc">buildingIdentifier</span>() {</code></li>
+          <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"John's building identifier is </span>\(<span class="vc">buildingIdentifier</span>)<span class="s">."</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "John's building identifier is The Larches."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  If you want to perform further optional chaining on this method’s return value, place the optional chaining question mark <em>after</em> the method’s parentheses:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">beginsWithThe</span> =</code></li>
+          <li><code class="code-voice">    <span class="vc">john</span>.<span class="vc">residence</span>?.<span class="vc">address</span>?.<span class="vc">buildingIdentifier</span>()?.<span class="vc">hasPrefix</span>(<span class="s">"The"</span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">if</span> <span class="vc">beginsWithThe</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">println</span>(<span class="s">"John's building identifier begins with \"The\"."</span>)</code></li>
+          <li><code class="code-voice">        } <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">println</span>(<span class="s">"John's building identifier does not begin with \"The\"."</span>)</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="c">// prints "John's building identifier begins with "The"."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH21-XID_367"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">In the example above, you place the optional chaining question mark <em>after</em> the parentheses, because the optional value you are chaining on is the <code class="code-voice">buildingIdentifier</code> method’s return value, and not the <code class="code-voice">buildingIdentifier</code> method itself.
+    	</p>
+    
+  </aside>
+</div>
+  
+</section>
+
+  	
+ 	<section id="next_previous" class="">
+    		<p class="previous-link"><a href="AutomaticReferenceCounting.html#//apple_ref/doc/uid/TP40014097-CH20-XID_88" data-id="//apple_ref/doc/uid/TP40014097-CH20-XID_88">Automatic Reference Counting</a></p>
+  			<p class="next-link"><a href="TypeCasting.html#//apple_ref/doc/uid/TP40014097-CH22-XID_498" data-id="//apple_ref/doc/uid/TP40014097-CH22-XID_498">Type Casting</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>

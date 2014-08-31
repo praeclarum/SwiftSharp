@@ -1,0 +1,1291 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2"></a><a name="//apple_ref/doc/uid/TP40014097-CH2-XID_1"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">A Swift Tour</h2>
+
+
+      <section id="mini_toc" class="hideInXcode slide-out" role="navigation">
+  <div id="mini_toc_button">
+    <p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+      <li class="item">
+        <p class="para">
+          <a href="#//apple_ref/doc/uid/TP40014097-CH2-XID_2">
+            Simple Values
+          </a>
+        </p>
+      </li>
+      <li class="item">
+        <p class="para">
+          <a href="#//apple_ref/doc/uid/TP40014097-CH2-XID_6">
+            Control Flow
+          </a>
+        </p>
+      </li>
+      <li class="item">
+        <p class="para">
+          <a href="#//apple_ref/doc/uid/TP40014097-CH2-XID_11">
+            Functions and Closures
+          </a>
+        </p>
+      </li>
+      <li class="item">
+        <p class="para">
+          <a href="#//apple_ref/doc/uid/TP40014097-CH2-XID_15">
+            Objects and Classes
+          </a>
+        </p>
+      </li>
+      <li class="item">
+        <p class="para">
+          <a href="#//apple_ref/doc/uid/TP40014097-CH2-XID_18">
+            Enumerations and Structures
+          </a>
+        </p>
+      </li>
+      <li class="item">
+        <p class="para">
+          <a href="#//apple_ref/doc/uid/TP40014097-CH2-XID_23">
+            Protocols and Extensions
+          </a>
+        </p>
+      </li>
+      <li class="item">
+        <p class="para">
+          <a href="#//apple_ref/doc/uid/TP40014097-CH2-XID_26">
+            Generics
+          </a>
+        </p>
+      </li>
+  </ul>
+</section>
+
+  
+    <section class="section">
+      <p class="para">
+  Tradition suggests that the first program in a new language should print the words “Hello, world!” on the screen. In Swift, this can be done in a single line:
+</p>
+<section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"Hello, world!"</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+<p class="para">
+  If you have written code in C or Objective-C, this syntax looks familiar to you—in Swift, this line of code is a complete program. You don’t need to import a separate library for functionality like input/output or string handling. Code written at global scope is used as the entry point for the program, so you don’t need a <code class="code-voice">main</code> function. You also don’t need to write semicolons at the end of every statement.
+</p>
+<p class="para">
+  This tour gives you enough information to start writing code in Swift by showing you how to accomplish a variety of programming tasks. Don’t worry if you don’t understand something—everything introduced in this tour is explained in detail in the rest of this book.
+</p>
+
+    </section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_2"></a>
+  <h3 class="section-name" tabindex="0">Simple Values</h3>
+  <p class="para">
+  Use <code class="code-voice">let</code> to make a constant and <code class="code-voice">var</code> to make a variable. The value of a constant doesn’t need to be known at compile time, but you must assign it a value exactly once. This means you can use constants to name a value that you determine once but use in many places.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">myVariable</span> = <span class="m">42</span></code></li>
+          <li><code class="code-voice"><span class="vc">myVariable</span> = <span class="m">50</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">myConstant</span> = <span class="m">42</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  A constant or variable must have the same type as the value you want to assign to it. However, you don’t always have to write the type explicitly. Providing a value when you create a constant or variable lets the compiler infer its type. In the example above, the compiler infers that <code class="code-voice">myVariable</code> is an integer because its initial value is an integer.
+</p><p class="para">
+  If the initial value doesn’t provide enough information (or if there is no initial value), specify the type by writing it after the variable, separated by a colon.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">implicitInteger</span> = <span class="m">70</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">implicitDouble</span> = <span class="m">70.0</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">explicitDouble</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span> = <span class="m">70</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_3"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Create a constant with an explicit type of <code class="code-voice">Float</code> and a value of <code class="code-voice">4</code>.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  Values are never implicitly converted to another type. If you need to convert a value to a different type, explicitly make an instance of the desired type.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">label</span> = <span class="s">"The width is "</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">width</span> = <span class="m">94</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">widthLabel</span> = <span class="vc">label</span> + <span class="vc">String</span>(<span class="vc">width</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_4"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Try removing the conversion to <code class="code-voice">String</code> from the last line. What error do you get?
+      </p>
+    
+  </aside>
+</div><p class="para">
+  There’s an even simpler way to include values in strings: Write the value in parentheses, and write a backslash (<code class="code-voice">\</code>) before the parentheses. For example:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">apples</span> = <span class="m">3</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">oranges</span> = <span class="m">5</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">appleSummary</span> = <span class="s">"I have </span>\(<span class="vc">apples</span>)<span class="s"> apples."</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">fruitSummary</span> = <span class="s">"I have </span>\(<span class="vc">apples</span> + <span class="vc">oranges</span>)<span class="s"> pieces of fruit."</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_5"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Use <code class="code-voice">\()</code> to include a floating-point calculation in a string and to include someone’s name in a greeting.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  Create arrays and dictionaries using brackets (<code class="code-voice">[]</code>), and access their elements by writing the index or key in brackets.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">shoppingList</span> = [<span class="s">"catfish"</span>, <span class="s">"water"</span>, <span class="s">"tulips"</span>, <span class="s">"blue paint"</span>]</code></li>
+          <li><code class="code-voice"><span class="vc">shoppingList</span>[<span class="m">1</span>] = <span class="s">"bottle of water"</span></code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">occupations</span> = [</code></li>
+          <li><code class="code-voice">    <span class="s">"Malcolm"</span>: <span class="s">"Captain"</span>,</code></li>
+          <li><code class="code-voice">    <span class="s">"Kaylee"</span>: <span class="s">"Mechanic"</span>,</code></li>
+          <li><code class="code-voice">]</code></li>
+          <li><code class="code-voice"><span class="vc">occupations</span>[<span class="s">"Jayne"</span>] = <span class="s">"Public Relations"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  To create an empty array or dictionary, use the initializer syntax.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">emptyArray</span> = [<span class="vc">String</span>]()</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">emptyDictionary</span> = [<span class="vc">String</span>: <span class="vc">Float</span>]()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  If type information can be inferred, you can write an empty array as <code class="code-voice">[]</code> and an empty dictionary as <code class="code-voice">[:]</code>—for example, when you set a new value for a variable or pass an argument to a function.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">shoppingList</span> = []</code></li>
+          <li><code class="code-voice"><span class="vc">occupations</span> = [:]</code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_6"></a>
+  <h3 class="section-name" tabindex="0">Control Flow</h3>
+  <p class="para">
+  Use <code class="code-voice">if</code> and <code class="code-voice">switch</code> to make conditionals, and use <code class="code-voice">for</code>-<code class="code-voice">in</code>, <code class="code-voice">for</code>, <code class="code-voice">while</code>, and <code class="code-voice">do</code>-<code class="code-voice">while</code> to make loops. Parentheses around the condition or loop variable are optional. Braces around the body are required.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">individualScores</span> = [<span class="m">75</span>, <span class="m">43</span>, <span class="m">103</span>, <span class="m">87</span>, <span class="m">12</span>]</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">teamScore</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice"><span class="kt">for</span> <span class="vc">score</span> <span class="kt">in</span> <span class="vc">individualScores</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">if</span> <span class="vc">score</span> &gt; <span class="m">50</span> {</code></li>
+          <li><code class="code-voice">        <span class="vc">teamScore</span> += <span class="m">3</span></code></li>
+          <li><code class="code-voice">    } <span class="kt">else</span> {</code></li>
+          <li><code class="code-voice">        <span class="vc">teamScore</span> += <span class="m">1</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="vc">teamScore</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_7"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+      <p class="para">In the code above, <code class="code-voice">teamScore</code> is written on a line by itself. This is a simple way to see the value of a variable inside a playground.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  In an <code class="code-voice">if</code> statement, the conditional must be a Boolean expression—this means that code such as <code class="code-voice">if score { ... }</code> is an error, not an implicit comparison to zero.
+</p><p class="para">
+  You can use <code class="code-voice">if</code> and <code class="code-voice">let</code> together to work with values that might be missing. These values are represented as optionals. An optional value either contains a value or contains <code class="code-voice">nil</code> to indicate that the value is missing. Write a question mark (<code class="code-voice">?</code>) after the type of a value to mark the value as optional.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">optionalString</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>? = <span class="s">"Hello"</span></code></li>
+          <li><code class="code-voice"><span class="vc">optionalString</span> == <span class="kt">nil</span></code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">optionalName</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>? = <span class="s">"John Appleseed"</span></code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">greeting</span> = <span class="s">"Hello!"</span></code></li>
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">name</span> = <span class="vc">optionalName</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">greeting</span> = <span class="s">"Hello, </span>\(<span class="vc">name</span>)<span class="s">"</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_8"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Change <code class="code-voice">optionalName</code> to <code class="code-voice">nil</code>. What greeting do you get? Add an <code class="code-voice">else</code> clause that sets a different greeting if <code class="code-voice">optionalName</code> is <code class="code-voice">nil</code>.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  If the optional value is <code class="code-voice">nil</code>, the conditional is <code class="code-voice">false</code> and the code in braces is skipped. Otherwise, the optional value is unwrapped and assigned to the constant after <code class="code-voice">let</code>, which makes the unwrapped value available inside the block of code.
+</p><p class="para">
+  Switches support any kind of data and a wide variety of comparison operations—they aren’t limited to integers and tests for equality.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">vegetable</span> = <span class="s">"red pepper"</span></code></li>
+          <li><code class="code-voice"><span class="kt">switch</span> <span class="vc">vegetable</span> {</code></li>
+          <li><code class="code-voice"><span class="kt">case</span> <span class="s">"celery"</span>:</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">vegetableComment</span> = <span class="s">"Add some raisins and make ants on a log."</span></code></li>
+          <li><code class="code-voice"><span class="kt">case</span> <span class="s">"cucumber"</span>, <span class="s">"watercress"</span>:</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">vegetableComment</span> = <span class="s">"That would make a good tea sandwich."</span></code></li>
+          <li><code class="code-voice"><span class="kt">case</span> <span class="kt">let</span> <span class="vc">x</span> <span class="kt">where</span> <span class="vc">x</span>.<span class="vc">hasSuffix</span>(<span class="s">"pepper"</span>):</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">vegetableComment</span> = <span class="s">"Is it a spicy </span>\(<span class="vc">x</span>)<span class="s">?"</span></code></li>
+          <li><code class="code-voice"><span class="kt">default</span>:</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">vegetableComment</span> = <span class="s">"Everything tastes good in soup."</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_9"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Try removing the default case. What error do you get?
+      </p>
+    
+  </aside>
+</div><p class="para">
+  Notice how <code class="code-voice">let</code> can be used in a pattern to assign the value that matched that part of a pattern to a constant.
+</p><p class="para">
+  After executing the code inside the switch case that matched, the program exits from the switch statement. Execution doesn’t continue to the next case, so there is no need to explicitly break out of the switch at the end of each case’s code.
+</p><p class="para">
+  You use <code class="code-voice">for</code>-<code class="code-voice">in</code> to iterate over items in a dictionary by providing a pair of names to use for each key-value pair. Dictionaries are an unordered collection, so their keys and values are iterated over in an arbitrary order.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">interestingNumbers</span> = [</code></li>
+          <li><code class="code-voice">    <span class="s">"Prime"</span>: [<span class="m">2</span>, <span class="m">3</span>, <span class="m">5</span>, <span class="m">7</span>, <span class="m">11</span>, <span class="m">13</span>],</code></li>
+          <li><code class="code-voice">    <span class="s">"Fibonacci"</span>: [<span class="m">1</span>, <span class="m">1</span>, <span class="m">2</span>, <span class="m">3</span>, <span class="m">5</span>, <span class="m">8</span>],</code></li>
+          <li><code class="code-voice">    <span class="s">"Square"</span>: [<span class="m">1</span>, <span class="m">4</span>, <span class="m">9</span>, <span class="m">16</span>, <span class="m">25</span>],</code></li>
+          <li><code class="code-voice">]</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">largest</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice"><span class="kt">for</span> (<span class="vc">kind</span>, <span class="vc">numbers</span>) <span class="kt">in</span> <span class="vc">interestingNumbers</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">for</span> <span class="vc">number</span> <span class="kt">in</span> <span class="vc">numbers</span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">if</span> <span class="vc">number</span> &gt; <span class="vc">largest</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">largest</span> = <span class="vc">number</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="vc">largest</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_10"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Add another variable to keep track of which kind of number was the largest, as well as what that largest number was.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  Use <code class="code-voice">while</code> to repeat a block of code until a condition changes. The condition of a loop can be at the end instead, ensuring that the loop is run at least once.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">n</span> = <span class="m">2</span></code></li>
+          <li><code class="code-voice"><span class="kt">while</span> <span class="vc">n</span> &lt; <span class="m">100</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">n</span> = <span class="vc">n</span> * <span class="m">2</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="vc">n</span></code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">m</span> = <span class="m">2</span></code></li>
+          <li><code class="code-voice"><span class="kt">do</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">m</span> = <span class="vc">m</span> * <span class="m">2</span></code></li>
+          <li><code class="code-voice">} <span class="kt">while</span> <span class="vc">m</span> &lt; <span class="m">100</span></code></li>
+          <li><code class="code-voice"><span class="vc">m</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can keep an index in a loop—either by using <code class="code-voice">..&lt;</code> to make a range of indexes or by writing an explicit initialization, condition, and increment. These two loops do the same thing:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">firstForLoop</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice"><span class="kt">for</span> <span class="vc">i</span> <span class="kt">in</span> <span class="m">0</span>..&lt;<span class="m">4</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">firstForLoop</span> += <span class="vc">i</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="vc">firstForLoop</span></code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">secondForLoop</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice"><span class="kt">for</span> <span class="kt">var</span> <span class="vc">i</span> = <span class="m">0</span>; <span class="vc">i</span> &lt; <span class="m">4</span>; ++<span class="vc">i</span> {</code></li>
+          <li><code class="code-voice">    <span class="vc">secondForLoop</span> += <span class="vc">i</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="vc">secondForLoop</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Use <code class="code-voice">..&lt;</code> to make a range that omits its upper value, and use <code class="code-voice">...</code> to make a range that includes both values.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_11"></a>
+  <h3 class="section-name" tabindex="0">Functions and Closures</h3>
+  <p class="para">
+  Use <code class="code-voice">func</code> to declare a function. Call a function by following its name with a list of arguments in parentheses. Use <code class="code-voice">-&gt;</code> to separate the parameter names and types from the function’s return type.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> <span class="vc">greet</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>, <span class="vc">day</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="s">"Hello </span>\(<span class="vc">name</span>)<span class="s">, today is </span>\(<span class="vc">day</span>)<span class="s">."</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="vc">greet</span>(<span class="s">"Bob"</span>, <span class="s">"Tuesday"</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_12"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Remove the <code class="code-voice">day</code> parameter. Add a parameter to include today’s lunch special in the greeting.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  Use a tuple to make a compound value—for example, to return multiple values from a function. The elements of a tuple can be referred to either by name or by number.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> <span class="vc">calculateStatistics</span>(<span class="vc">scores</span>: [<span class="n"><!-- a href="" -->Int<!-- /a --></span>]) -&gt; (<span class="vc">min</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>, <span class="vc">max</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>, <span class="vc">sum</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">min</span> = <span class="vc">scores</span>[<span class="m">0</span>]</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">max</span> = <span class="vc">scores</span>[<span class="m">0</span>]</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">sum</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">for</span> <span class="vc">score</span> <span class="kt">in</span> <span class="vc">scores</span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">if</span> <span class="vc">score</span> &gt; <span class="vc">max</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">max</span> = <span class="vc">score</span></code></li>
+          <li><code class="code-voice">        } <span class="kt">else</span> <span class="kt">if</span> <span class="vc">score</span> &lt; <span class="vc">min</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">min</span> = <span class="vc">score</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">        <span class="vc">sum</span> += <span class="vc">score</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> (<span class="vc">min</span>, <span class="vc">max</span>, <span class="vc">sum</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">statistics</span> = <span class="vc">calculateStatistics</span>([<span class="m">5</span>, <span class="m">3</span>, <span class="m">100</span>, <span class="m">3</span>, <span class="m">9</span>])</code></li>
+          <li><code class="code-voice"><span class="vc">statistics</span>.<span class="vc">sum</span></code></li>
+          <li><code class="code-voice"><span class="vc">statistics</span>.<span class="m">2</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Functions can also take a variable number of arguments, collecting them into an array.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> <span class="vc">sumOf</span>(<span class="vc">numbers</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>...) -&gt; <span class="n"><!-- a href="" -->Int<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">sum</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">    <span class="kt">for</span> <span class="vc">number</span> <span class="kt">in</span> <span class="vc">numbers</span> {</code></li>
+          <li><code class="code-voice">        <span class="vc">sum</span> += <span class="vc">number</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">sum</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="vc">sumOf</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">sumOf</span>(<span class="m">42</span>, <span class="m">597</span>, <span class="m">12</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_13"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Write a function that calculates the average of its arguments.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  Functions can be nested. Nested functions have access to variables that were declared in the outer function. You can use nested functions to organize the code in a function that is long or complex.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> <span class="vc">returnFifteen</span>() -&gt; <span class="n"><!-- a href="" -->Int<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">y</span> = <span class="m">10</span></code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">add</span>() {</code></li>
+          <li><code class="code-voice">        <span class="vc">y</span> += <span class="m">5</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="vc">add</span>()</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">y</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="vc">returnFifteen</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Functions are a first-class type. This means that a function can return another function as its value.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> <span class="vc">makeIncrementer</span>() -&gt; (<span class="n"><!-- a href="" -->Int<!-- /a --></span> -&gt; <span class="n"><!-- a href="" -->Int<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">addOne</span>(<span class="vc">number</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Int<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="m">1</span> + <span class="vc">number</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">addOne</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">increment</span> = <span class="vc">makeIncrementer</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">increment</span>(<span class="m">7</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  A function can take another function as one of its arguments.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> <span class="vc">hasAnyMatches</span>(<span class="vc">list</span>: [<span class="n"><!-- a href="" -->Int<!-- /a --></span>], <span class="vc">condition</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> -&gt; <span class="n"><!-- a href="" -->Bool<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Bool<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">for</span> <span class="vc">item</span> <span class="kt">in</span> <span class="vc">list</span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">if</span> <span class="vc">condition</span>(<span class="vc">item</span>) {</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="kt">true</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="kt">false</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">func</span> <span class="vc">lessThanTen</span>(<span class="vc">number</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Bool<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">number</span> &lt; <span class="m">10</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">numbers</span> = [<span class="m">20</span>, <span class="m">19</span>, <span class="m">7</span>, <span class="m">12</span>]</code></li>
+          <li><code class="code-voice"><span class="vc">hasAnyMatches</span>(<span class="vc">numbers</span>, <span class="vc">lessThanTen</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Functions are actually a special case of closures: blocks of code that can be called later. The code in a closure has access to things like variables and functions that were available in the scope where the closure was created, even if the closure is in a different scope when it is executed—you saw an example of this already with nested functions. You can write a closure without a name by surrounding code with braces (<code class="code-voice">{}</code>). Use <code class="code-voice">in</code> to separate the arguments and return type from the body.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">numbers</span>.<span class="vc">map</span>({</code></li>
+          <li><code class="code-voice">    (<span class="vc">number</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) -&gt; <span class="vc">Int</span> <span class="kt">in</span></code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">result</span> = <span class="m">3</span> * <span class="vc">number</span></code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">result</span></code></li>
+          <li><code class="code-voice">})</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_14"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Rewrite the closure to return zero for all odd numbers.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  You have several options for writing closures more concisely. When a closure’s type is already known, such as the callback for a delegate, you can omit the type of its parameters, its return type, or both. Single statement closures implicitly return the value of their only statement.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">mappedNumbers</span> = <span class="vc">numbers</span>.<span class="vc">map</span>({ <span class="vc">number</span> <span class="kt">in</span> <span class="m">3</span> * <span class="vc">number</span> })</code></li>
+          <li><code class="code-voice"><span class="vc">mappedNumbers</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can refer to parameters by number instead of by name—this approach is especially useful in very short closures. A closure passed as the last argument to a function can appear immediately after the parentheses.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">sortedNumbers</span> = <span class="vc">sorted</span>(<span class="vc">numbers</span>) { <span class="vc">$0</span> &gt; <span class="vc">$1</span> }</code></li>
+          <li><code class="code-voice"><span class="vc">sortedNumbers</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_15"></a>
+  <h3 class="section-name" tabindex="0">Objects and Classes</h3>
+  <p class="para">
+  Use <code class="code-voice">class</code> followed by the class’s name to create a class. A property declaration in a class is written the same way as a constant or variable declaration, except that it is in the context of a class. Likewise, method and function declarations are written the same way.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Shape</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">numberOfSides</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">simpleDescription</span>() -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="s">"A shape with </span>\(<span class="vc">numberOfSides</span>)<span class="s"> sides."</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_16"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Add a constant property with <code class="code-voice">let</code>, and add another method that takes an argument.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  Create an instance of a class by putting parentheses after the class name. Use dot syntax to access the properties and methods of the instance.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">shape</span> = <span class="vc">Shape</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">shape</span>.<span class="vc">numberOfSides</span> = <span class="m">7</span></code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">shapeDescription</span> = <span class="vc">shape</span>.<span class="vc">simpleDescription</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  This version of the <code class="code-voice">Shape</code> class is missing something important: an initializer to set up the class when an instance is created. Use <code class="code-voice">init</code> to create one.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">NamedShape</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">numberOfSides</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">name</span> = <span class="vc">name</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">simpleDescription</span>() -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="s">"A shape with </span>\(<span class="vc">numberOfSides</span>)<span class="s"> sides."</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Notice how <code class="code-voice">self</code> is used to distinguish the <code class="code-voice">name</code> property from the <code class="code-voice">name</code> argument to the initializer. The arguments to the initializer are passed like a function call when you create an instance of the class. Every property needs a value assigned—either in its declaration (as with <code class="code-voice">numberOfSides</code>) or in the initializer (as with <code class="code-voice">name</code>).
+</p><p class="para">
+  Use <code class="code-voice">deinit</code> to create a deinitializer if you need to perform some cleanup before the object is deallocated.
+</p><p class="para">
+  Subclasses include their superclass name after their class name, separated by a colon. There is no requirement for classes to subclass any standard root class, so you can include or omit a superclass as needed.
+</p><p class="para">
+  Methods on a subclass that override the superclass’s implementation are marked with <code class="code-voice">override</code>—overriding a method by accident, without <code class="code-voice">override</code>, is detected by the compiler as an error. The compiler also detects methods with <code class="code-voice">override</code> that don’t actually override any method in the superclass.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Square</span>: <span class="n"><!-- a href="" -->NamedShape<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">sideLength</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span></code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">sideLength</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>, <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">sideLength</span> = <span class="vc">sideLength</span></code></li>
+          <li><code class="code-voice">        <span class="kt">super</span>.<span class="kt">init</span>(<span class="vc">name</span>: <span class="vc">name</span>)</code></li>
+          <li><code class="code-voice">        <span class="vc">numberOfSides</span> = <span class="m">4</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">area</span>() -&gt;  <span class="n"><!-- a href="" -->Double<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="vc">sideLength</span> * <span class="vc">sideLength</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">override</span> <span class="kt">func</span> <span class="vc">simpleDescription</span>() -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="s">"A square with sides of length </span>\(<span class="vc">sideLength</span>)<span class="s">."</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">test</span> = <span class="vc">Square</span>(<span class="vc">sideLength</span>: <span class="m">5.2</span>, <span class="vc">name</span>: <span class="s">"my test square"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">test</span>.<span class="vc">area</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">test</span>.<span class="vc">simpleDescription</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_17"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Make another subclass of <code class="code-voice">NamedShape</code> called <code class="code-voice">Circle</code> that takes a radius and a name as arguments to its initializer. Implement an <code class="code-voice">area</code> and a <code class="code-voice">simpleDescription</code> method on the <code class="code-voice">Circle</code> class.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  In addition to simple properties that are stored, properties can have a getter and a setter.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">EquilateralTriangle</span>: <span class="n"><!-- a href="" -->NamedShape<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">sideLength</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span> = <span class="m">0.0</span></code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">sideLength</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>, <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="kt">self</span>.<span class="vc">sideLength</span> = <span class="vc">sideLength</span></code></li>
+          <li><code class="code-voice">        <span class="kt">super</span>.<span class="kt">init</span>(<span class="vc">name</span>: <span class="vc">name</span>)</code></li>
+          <li><code class="code-voice">        <span class="vc">numberOfSides</span> = <span class="m">3</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">perimeter</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">get</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="m">3.0</span> * <span class="vc">sideLength</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">        <span class="kt">set</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">sideLength</span> = <span class="vc">newValue</span> / <span class="m">3.0</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="kt">override</span> <span class="kt">func</span> <span class="vc">simpleDescription</span>() -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="s">"An equilateral triangle with sides of length </span>\(<span class="vc">sideLength</span>)<span class="s">."</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">triangle</span> = <span class="vc">EquilateralTriangle</span>(<span class="vc">sideLength</span>: <span class="m">3.1</span>, <span class="vc">name</span>: <span class="s">"a triangle"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">triangle</span>.<span class="vc">perimeter</span></code></li>
+          <li><code class="code-voice"><span class="vc">triangle</span>.<span class="vc">perimeter</span> = <span class="m">9.9</span></code></li>
+          <li><code class="code-voice"><span class="vc">triangle</span>.<span class="vc">sideLength</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  In the setter for <code class="code-voice">perimeter</code>, the new value has the implicit name <code class="code-voice">newValue</code>. You can provide an explicit name in parentheses after <code class="code-voice">set</code>.
+</p><p class="para">
+  Notice that the initializer for the <code class="code-voice">EquilateralTriangle</code> class has three different steps:
+</p><ol class="list-number">
+  <li class="item"><p class="para">
+  Setting the value of properties that the subclass declares.
+</p>
+</li><li class="item"><p class="para">
+  Calling the superclass’s initializer.
+</p>
+</li><li class="item"><p class="para">
+  Changing the value of properties defined by the superclass. Any additional setup work that uses methods, getters, or setters can also be done at this point.
+</p>
+</li>
+</ol><p class="para">
+  If you don’t need to compute the property but still need to provide code that is run before and after setting a new value, use <code class="code-voice">willSet</code> and <code class="code-voice">didSet</code>. For example, the class below ensures that the side length of its triangle is always the same as the side length of its square.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">TriangleAndSquare</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">triangle</span>: <span class="n"><!-- a href="" -->EquilateralTriangle<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">willSet</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">square</span>.<span class="vc">sideLength</span> = <span class="vc">newValue</span>.<span class="vc">sideLength</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">square</span>: <span class="n"><!-- a href="" -->Square<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">willSet</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">triangle</span>.<span class="vc">sideLength</span> = <span class="vc">newValue</span>.<span class="vc">sideLength</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">init</span>(<span class="vc">size</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span>, <span class="vc">name</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">square</span> = <span class="vc">Square</span>(<span class="vc">sideLength</span>: <span class="vc">size</span>, <span class="vc">name</span>: <span class="vc">name</span>)</code></li>
+          <li><code class="code-voice">        <span class="vc">triangle</span> = <span class="vc">EquilateralTriangle</span>(<span class="vc">sideLength</span>: <span class="vc">size</span>, <span class="vc">name</span>: <span class="vc">name</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">triangleAndSquare</span> = <span class="vc">TriangleAndSquare</span>(<span class="vc">size</span>: <span class="m">10</span>, <span class="vc">name</span>: <span class="s">"another test shape"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">triangleAndSquare</span>.<span class="vc">square</span>.<span class="vc">sideLength</span></code></li>
+          <li><code class="code-voice"><span class="vc">triangleAndSquare</span>.<span class="vc">triangle</span>.<span class="vc">sideLength</span></code></li>
+          <li><code class="code-voice"><span class="vc">triangleAndSquare</span>.<span class="vc">square</span> = <span class="vc">Square</span>(<span class="vc">sideLength</span>: <span class="m">50</span>, <span class="vc">name</span>: <span class="s">"larger square"</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">triangleAndSquare</span>.<span class="vc">triangle</span>.<span class="vc">sideLength</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Methods on classes have one important difference from functions. Parameter names in functions are used only within the function, but parameters names in methods are also used when you call the method (except for the first parameter). By default, a method has the same name for its parameters when you call it and within the method itself. You can specify a second name, which is used inside the method.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Counter</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">count</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">incrementBy</span>(<span class="vc">amount</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>, <span class="vc">numberOfTimes</span> <span class="vc">times</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) {</code></li>
+          <li><code class="code-voice">        <span class="vc">count</span> += <span class="vc">amount</span> * <span class="vc">times</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">counter</span> = <span class="vc">Counter</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">counter</span>.<span class="vc">incrementBy</span>(<span class="m">2</span>, <span class="vc">numberOfTimes</span>: <span class="m">7</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  When working with optional values, you can write <code class="code-voice">?</code> before operations like methods, properties, and subscripting. If the value before the <code class="code-voice">?</code> is <code class="code-voice">nil</code>, everything after the <code class="code-voice">?</code> is ignored and the value of the whole expression is <code class="code-voice">nil</code>. Otherwise, the optional value is unwrapped, and everything after the <code class="code-voice">?</code> acts on the unwrapped value. In both cases, the value of the whole expression is an optional value.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">optionalSquare</span>: <span class="n"><!-- a href="" -->Square<!-- /a --></span>? = <span class="vc">Square</span>(<span class="vc">sideLength</span>: <span class="m">2.5</span>, <span class="vc">name</span>: <span class="s">"optional square"</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">sideLength</span> = <span class="vc">optionalSquare</span>?.<span class="vc">sideLength</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_18"></a>
+  <h3 class="section-name" tabindex="0">Enumerations and Structures</h3>
+  <p class="para">
+  Use <code class="code-voice">enum</code> to create an enumeration. Like classes and all other named types, enumerations can have methods associated with them.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">enum</span> <span class="vc">Rank</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">case</span> <span class="vc">Ace</span> = <span class="m">1</span></code></li>
+          <li><code class="code-voice">    <span class="kt">case</span> <span class="vc">Two</span>, <span class="vc">Three</span>, <span class="vc">Four</span>, <span class="vc">Five</span>, <span class="vc">Six</span>, <span class="vc">Seven</span>, <span class="vc">Eight</span>, <span class="vc">Nine</span>, <span class="vc">Ten</span></code></li>
+          <li><code class="code-voice">    <span class="kt">case</span> <span class="vc">Jack</span>, <span class="vc">Queen</span>, <span class="vc">King</span></code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">simpleDescription</span>() -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">switch</span> <span class="kt">self</span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> .<span class="vc">Ace</span>:</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"ace"</span></code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> .<span class="vc">Jack</span>:</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"jack"</span></code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> .<span class="vc">Queen</span>:</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"queen"</span></code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> .<span class="vc">King</span>:</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"king"</span></code></li>
+          <li><code class="code-voice">        <span class="kt">default</span>:</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="vc">String</span>(<span class="kt">self</span>.<span class="vc">toRaw</span>())</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">ace</span> = <span class="vc">Rank</span>.<span class="vc">Ace</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">aceRawValue</span> = <span class="vc">ace</span>.<span class="vc">toRaw</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_19"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Write a function that compares two <code class="code-voice">Rank</code> values by comparing their raw values.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  In the example above, the raw value type of the enumeration is <code class="code-voice">Int</code>, so you only have to specify the first raw value. The rest of the raw values are assigned in order. You can also use strings or floating-point numbers as the raw type of an enumeration.
+</p><p class="para">
+  Use the <code class="code-voice">toRaw</code> and <code class="code-voice">fromRaw</code> functions to convert between the raw value and the enumeration value.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">convertedRank</span> = <span class="vc">Rank</span>.<span class="vc">fromRaw</span>(<span class="m">3</span>) {</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">threeDescription</span> = <span class="vc">convertedRank</span>.<span class="vc">simpleDescription</span>()</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The member values of an enumeration are actual values, not just another way of writing their raw values. In fact, in cases where there isn’t a meaningful raw value, you don’t have to provide one.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">enum</span> <span class="vc">Suit</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">case</span> <span class="vc">Spades</span>, <span class="vc">Hearts</span>, <span class="vc">Diamonds</span>, <span class="vc">Clubs</span></code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">simpleDescription</span>() -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">switch</span> <span class="kt">self</span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> .<span class="vc">Spades</span>:</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"spades"</span></code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> .<span class="vc">Hearts</span>:</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"hearts"</span></code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> .<span class="vc">Diamonds</span>:</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"diamonds"</span></code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> .<span class="vc">Clubs</span>:</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="s">"clubs"</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">hearts</span> = <span class="vc">Suit</span>.<span class="vc">Hearts</span></code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">heartsDescription</span> = <span class="vc">hearts</span>.<span class="vc">simpleDescription</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_20"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Add a <code class="code-voice">color</code> method to <code class="code-voice">Suit</code> that returns “black” for spades and clubs, and returns “red” for hearts and diamonds.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  Notice the two ways that the <code class="code-voice">Hearts</code> member of the enumeration is referred to above: When assigning a value to the <code class="code-voice">hearts</code> constant, the enumeration member <code class="code-voice">Suit.Hearts</code> is referred to by its full name because the constant doesn’t have an explicit type specified. Inside the switch, the enumeration is referred to by the abbreviated form <code class="code-voice">.Hearts</code> because the value of <code class="code-voice">self</code> is already known to be a suit. You can use the abbreviated form anytime the value’s type is already known.
+</p><p class="para">
+  Use <code class="code-voice">struct</code> to create a structure. Structures support many of the same behaviors as classes, including methods and initializers. One of the most important differences between structures and classes is that structures are always copied when they are passed around in your code, but classes are passed by reference.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">Card</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">rank</span>: <span class="n"><!-- a href="" -->Rank<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">suit</span>: <span class="n"><!-- a href="" -->Suit<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">simpleDescription</span>() -&gt; <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="s">"The </span>\(<span class="vc">rank</span>.<span class="vc">simpleDescription</span>())<span class="s"> of </span>\(<span class="vc">suit</span>.<span class="vc">simpleDescription</span>())<span class="s">"</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">threeOfSpades</span> = <span class="vc">Card</span>(<span class="vc">rank</span>: .<span class="vc">Three</span>, <span class="vc">suit</span>: .<span class="vc">Spades</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">threeOfSpadesDescription</span> = <span class="vc">threeOfSpades</span>.<span class="vc">simpleDescription</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_21"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Add a method to <code class="code-voice">Card</code> that creates a full deck of cards, with one card of each combination of rank and suit.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  An instance of an enumeration member can have values associated with the instance. Instances of the same enumeration member can have different values associated with them. You provide the associated values when you create the instance. Associated values and raw values are different: The raw value of an enumeration member is the same for all of its instances, and you provide the raw value when you define the enumeration.
+</p><p class="para">
+  For example, consider the case of requesting the sunrise and sunset time from a server. The server either responds with the information or it responds with some error information.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">enum</span> <span class="vc">ServerResponse</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">case</span> <span class="vc">Result</span>(<span class="vc">String</span>, <span class="vc">String</span>)</code></li>
+          <li><code class="code-voice">    <span class="kt">case</span> <span class="vc">Error</span>(<span class="vc">String</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">success</span> = <span class="vc">ServerResponse</span>.<span class="vc">Result</span>(<span class="s">"6:00 am"</span>, <span class="s">"8:09 pm"</span>)</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">failure</span> = <span class="vc">ServerResponse</span>.<span class="vc">Error</span>(<span class="s">"Out of cheese."</span>)</code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">switch</span> <span class="vc">success</span> {</code></li>
+          <li><code class="code-voice"><span class="kt">case</span> <span class="kt">let</span> .<span class="vc">Result</span>(<span class="vc">sunrise</span>, <span class="vc">sunset</span>):</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">serverResponse</span> = <span class="s">"Sunrise is at </span>\(<span class="vc">sunrise</span>)<span class="s"> and sunset is at </span>\(<span class="vc">sunset</span>)<span class="s">."</span></code></li>
+          <li><code class="code-voice"><span class="kt">case</span> <span class="kt">let</span> .<span class="vc">Error</span>(<span class="vc">error</span>):</code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">serverResponse</span> = <span class="s">"Failure...  </span>\(<span class="vc">error</span>)<span class="s">"</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_22"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Add a third case to <code class="code-voice">ServerResponse</code> and to the switch.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  Notice how the sunrise and sunset times are extracted from the <code class="code-voice">ServerResponse</code> value as part of matching the value against the switch cases.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_23"></a>
+  <h3 class="section-name" tabindex="0">Protocols and Extensions</h3>
+  <p class="para">
+  Use <code class="code-voice">protocol</code> to declare a protocol.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">protocol</span> <span class="vc">ExampleProtocol</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">simpleDescription</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span> { <span class="kt">get</span> }</code></li>
+          <li><code class="code-voice">    <span class="kt">mutating</span> <span class="kt">func</span> <span class="vc">adjust</span>()</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Classes, enumerations, and structs can all adopt protocols.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">SimpleClass</span>: <span class="n"><!-- a href="" -->ExampleProtocol<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">simpleDescription</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span> = <span class="s">"A very simple class."</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">anotherProperty</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> = <span class="m">69105</span></code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">adjust</span>() {</code></li>
+          <li><code class="code-voice">        <span class="vc">simpleDescription</span> += <span class="s">"  Now 100% adjusted."</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">a</span> = <span class="vc">SimpleClass</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">a</span>.<span class="vc">adjust</span>()</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">aDescription</span> = <span class="vc">a</span>.<span class="vc">simpleDescription</span></code></li>
+          <li><code class="code-voice"> </code></li>
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">SimpleStructure</span>: <span class="n"><!-- a href="" -->ExampleProtocol<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">simpleDescription</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span> = <span class="s">"A simple structure"</span></code></li>
+          <li><code class="code-voice">    <span class="kt">mutating</span> <span class="kt">func</span> <span class="vc">adjust</span>() {</code></li>
+          <li><code class="code-voice">        <span class="vc">simpleDescription</span> += <span class="s">" (adjusted)"</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">b</span> = <span class="vc">SimpleStructure</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">b</span>.<span class="vc">adjust</span>()</code></li>
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">bDescription</span> = <span class="vc">b</span>.<span class="vc">simpleDescription</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_24"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Write an enumeration that conforms to this protocol.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  Notice the use of the <code class="code-voice">mutating</code> keyword in the declaration of <code class="code-voice">SimpleStructure</code> to mark a method that modifies the structure. The declaration of <code class="code-voice">SimpleClass</code> doesn’t need any of its methods marked as mutating because methods on a class can always modify the class.
+</p><p class="para">
+  Use <code class="code-voice">extension</code> to add functionality to an existing type, such as new methods and computed properties. You can use an extension to add protocol conformance to a type that is declared elsewhere, or even to a type that you imported from a library or framework.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice">extension Int: ExampleProtocol {</code></li>
+          <li><code class="code-voice">    var simpleDescription: String {</code></li>
+          <li><code class="code-voice">        return "The number \(self)"</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    mutating func adjust() {</code></li>
+          <li><code class="code-voice">        self += 42</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice"> }</code></li>
+          <li><code class="code-voice">7.simpleDescription</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_25"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Write an extension for the <code class="code-voice">Double</code> type that adds an <code class="code-voice">absoluteValue</code> property.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  You can use a protocol name just like any other named type—for example, to create a collection of objects that have different types but that all conform to a single protocol. When you work with values whose type is a protocol type, methods outside the protocol definition are not available.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">protocolValue</span>: <span class="n"><!-- a href="" -->ExampleProtocol<!-- /a --></span> = <span class="vc">a</span></code></li>
+          <li><code class="code-voice"><span class="vc">protocolValue</span>.<span class="vc">simpleDescription</span></code></li>
+          <li><code class="code-voice"><span class="c">// protocolValue.anotherProperty  // Uncomment to see the error</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Even though the variable <code class="code-voice">protocolValue</code> has a runtime type of <code class="code-voice">SimpleClass</code>, the compiler treats it as the given type of <code class="code-voice">ExampleProtocol</code>. This means that you can’t accidentally access methods or properties that the class implements in addition to its protocol conformance.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_26"></a>
+  <h3 class="section-name" tabindex="0">Generics</h3>
+  <p class="para">
+  Write a name inside angle brackets to make a generic function or type.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> <span class="vc">repeat</span>&lt;<span class="vc">ItemType</span>&gt;(<span class="vc">item</span>: <span class="n"><!-- a href="" -->ItemType<!-- /a --></span>, <span class="vc">times</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>) -&gt; [<span class="n"><!-- a href="" -->ItemType<!-- /a --></span>] {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">result</span> = [<span class="n"><!-- a href="" -->ItemType<!-- /a --></span>]()</code></li>
+          <li><code class="code-voice">    <span class="kt">for</span> <span class="vc">i</span> <span class="kt">in</span> <span class="m">0</span>..&lt;<span class="vc">times</span> {</code></li>
+          <li><code class="code-voice">        <span class="vc">result</span>.<span class="vc">append</span>(<span class="vc">item</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="vc">result</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="vc">repeat</span>(<span class="s">"knock"</span>, <span class="m">4</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can make generic forms of functions and methods, as well as classes, enumerations, and structures.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="c">// Reimplement the Swift standard library's optional type</span></code></li>
+          <li><code class="code-voice"><span class="kt">enum</span> <span class="vc">OptionalValue</span>&lt;<span class="vc">T</span>&gt; {</code></li>
+          <li><code class="code-voice">    <span class="kt">case</span> <span class="vc">None</span></code></li>
+          <li><code class="code-voice">    <span class="kt">case</span> <span class="vc">Some</span>(<span class="vc">T</span>)</code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="kt">var</span> <span class="vc">possibleInteger</span>: <span class="n"><!-- a href="" -->OptionalValue<!-- /a --></span>&lt;<span class="n"><!-- a href="" -->Int<!-- /a --></span>&gt; = .<span class="vc">None</span></code></li>
+          <li><code class="code-voice"><span class="vc">possibleInteger</span> = .<span class="vc">Some</span>(<span class="m">100</span>)</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Use <code class="code-voice">where</code> after the type name to specify a list of requirements—for example, to require the type to implement a protocol, to require two types to be the same, or to require a class to have a particular superclass.
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">func</span> <span class="vc">anyCommonElements</span> &lt;<span class="vc">T</span>, <span class="vc">U</span> <span class="kt">where</span> <span class="vc">T</span>: <span class="vc">SequenceType</span>, <span class="vc">U</span>: <span class="vc">SequenceType</span>, <span class="vc">T</span>.<span class="vc">Generator</span>.<span class="vc">Element</span>: <span class="vc">Equatable</span>, <span class="vc">T</span>.<span class="vc">Generator</span>.<span class="vc">Element</span> == <span class="vc">U</span>.<span class="vc">Generator</span>.<span class="vc">Element</span>&gt; (<span class="vc">lhs</span>: <span class="n"><!-- a href="" -->T<!-- /a --></span>, <span class="vc">rhs</span>: <span class="n"><!-- a href="" -->U<!-- /a --></span>) -&gt; <span class="n"><!-- a href="" -->Bool<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">for</span> <span class="vc">lhsItem</span> <span class="kt">in</span> <span class="vc">lhs</span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">for</span> <span class="vc">rhsItem</span> <span class="kt">in</span> <span class="vc">rhs</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">if</span> <span class="vc">lhsItem</span> == <span class="vc">rhsItem</span> {</code></li>
+          <li><code class="code-voice">                <span class="kt">return</span> <span class="kt">true</span></code></li>
+          <li><code class="code-voice">            }</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">return</span> <span class="kt">false</span></code></li>
+          <li><code class="code-voice">}</code></li>
+          <li><code class="code-voice"><span class="vc">anyCommonElements</span>([<span class="m">1</span>, <span class="m">2</span>, <span class="m">3</span>], [<span class="m">3</span>])</code></li>
+      </ul>
+
+
+
+  </div>
+</section><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH2-XID_27"></a>
+  <aside class="aside">
+    <p class="aside-title">Experiment
+    </p>
+      <p class="para">Modify the <code class="code-voice">anyCommonElements</code> function to make a function that returns an array of the elements that any two sequences have in common.
+      </p>
+    
+  </aside>
+</div><p class="para">
+  In the simple cases, you can omit <code class="code-voice">where</code> and simply write the protocol or class name after a colon. Writing <code class="code-voice">&lt;T: Equatable&gt;</code> is the same as writing <code class="code-voice">&lt;T where T: Equatable&gt;</code>.
+</p>
+  
+</section>
+
+    
+  <section id="next_previous" class="">
+        <p class="previous-link"><a href="index.html#//apple_ref/doc/uid/TP40014097-CH3-XID_0" data-id="//apple_ref/doc/uid/TP40014097-CH3-XID_0">About Swift</a></p>
+        <p class="next-link"><a href="TheBasics.html#//apple_ref/doc/uid/TP40014097-CH5-XID_454" data-id="//apple_ref/doc/uid/TP40014097-CH5-XID_454">The Basics</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>

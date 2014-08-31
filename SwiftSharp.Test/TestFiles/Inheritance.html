@@ -1,0 +1,460 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17"></a><a name="//apple_ref/doc/uid/TP40014097-CH17-XID_293"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">Inheritance</h2>
+
+
+      <section id="mini_toc" class="hideInXcode" role="navigation">
+	<div id="mini_toc_button">
+  	<p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH17-XID_294">
+	  				Defining a Base Class
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH17-XID_296">
+	  				Subclassing
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH17-XID_297">
+	  				Overriding
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH17-XID_305">
+	  				Preventing Overrides
+	  			</a>
+  			</p>
+  		</li>
+	</ul>
+</section>
+
+  
+  	<section class="section">
+  		<p class="para">
+  A class can <em>inherit</em> methods, properties, and other characteristics from another class. When one class inherits from another, the inheriting class is known as a <em>subclass</em>, and the class it inherits from is known as its <em>superclass</em>. Inheritance is a fundamental behavior that differentiates classes from other types in Swift.
+</p>
+<p class="para">
+  Classes in Swift can call and access methods, properties, and subscripts belonging to their superclass and can provide their own overriding versions of those methods, properties, and subscripts to refine or modify their behavior. Swift helps to ensure your overrides are correct by checking that the override definition has a matching superclass definition.
+</p>
+<p class="para">
+  Classes can also add property observers to inherited properties in order to be notified when the value of a property changes. Property observers can be added to any property, regardless of whether it was originally defined as a stored or computed property.
+</p>
+
+		</section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_294"></a>
+  <h3 class="section-name" tabindex="0">Defining a Base Class</h3>
+  <p class="para">
+  Any class that does not inherit from another class is known as a <em>base class</em>.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_295"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">Swift classes do not inherit from a universal base class. Classes you define without specifying a superclass automatically become base classes for you to build upon.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  The example below defines a base class called <code class="code-voice">Vehicle</code>. This base class defines a stored property called <code class="code-voice">currentSpeed</code>, with a default value of <code class="code-voice">0.0</code> (inferring a property type of <code class="code-voice">Double</code>). The <code class="code-voice">currentSpeed</code> property’s value is used by a read-only computed <code class="code-voice">String</code> property called <code class="code-voice">description</code> to create a description of the vehicle.
+</p><p class="para">
+  The <code class="code-voice">Vehicle</code> base class also defines a method called <code class="code-voice">makeNoise</code>. This method does not actually do anything for a base <code class="code-voice">Vehicle</code> instance, but will be customized by subclasses of <code class="code-voice">Vehicle</code> later on:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Vehicle</span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">currentSpeed</span> = <span class="m">0.0</span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">description</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="s">"traveling at </span>\(<span class="vc">currentSpeed</span>)<span class="s"> miles per hour"</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    <span class="kt">func</span> <span class="vc">makeNoise</span>() {</code></li>
+          <li><code class="code-voice">        <span class="c">// do nothing - an arbitrary vehicle doesn't necessarily make a noise</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You create a new instance of <code class="code-voice">Vehicle</code> with <em>initializer syntax</em>, which is written as a <code class="code-voice">TypeName</code> followed by empty parentheses:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">someVehicle</span> = <span class="vc">Vehicle</span>()</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Having created a new <code class="code-voice">Vehicle</code> instance, you can access its <code class="code-voice">description</code> property to print a human-readable description of the vehicle’s current speed:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"Vehicle: </span>\(<span class="vc">someVehicle</span>.<span class="vc">description</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// Vehicle: traveling at 0.0 miles per hour</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">Vehicle</code> class defines common characteristics for an arbitrary vehicle, but is not much use in itself. To make it more useful, you need to refine it to describe more specific kinds of vehicle.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_296"></a>
+  <h3 class="section-name" tabindex="0">Subclassing</h3>
+  <p class="para">
+  <em>Subclassing</em> is the act of basing a new class on an existing class. The subclass inherits characteristics from the existing class, which you can then refine. You can also add new characteristics to the subclass.
+</p><p class="para">
+  To indicate that a subclass has a superclass, write the subclass name before the superclass name, separated by a colon:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">SomeSubclass</span>: <span class="n"><!-- a href="" -->SomeSuperclass<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="c">// subclass definition goes here</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The following example defines a subclass called <code class="code-voice">Bicycle</code>, with a superclass of <code class="code-voice">Vehicle</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Bicycle</span>: <span class="n"><!-- a href="" -->Vehicle<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">hasBasket</span> = <span class="kt">false</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The new <code class="code-voice">Bicycle</code> class automatically gains all of the characteristics of <code class="code-voice">Vehicle</code>, such as its <code class="code-voice">currentSpeed</code> and <code class="code-voice">description</code> properties and its <code class="code-voice">makeNoise</code> method.
+</p><p class="para">
+  In addition to the characteristics it inherits, the <code class="code-voice">Bicycle</code> class defines a new stored property, <code class="code-voice">hasBasket</code>, with a default value of <code class="code-voice">false</code> (inferring a type of <code class="code-voice">Bool</code> for the property).
+</p><p class="para">
+  By default, any new <code class="code-voice">Bicycle</code> instance you create will not have a basket. You can set the <code class="code-voice">hasBasket</code> property to <code class="code-voice">true</code> for a particular <code class="code-voice">Bicycle</code> instance after that instance is created:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">bicycle</span> = <span class="vc">Bicycle</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">bicycle</span>.<span class="vc">hasBasket</span> = <span class="kt">true</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  You can also modify the inherited <code class="code-voice">currentSpeed</code> property of a <code class="code-voice">Bicycle</code> instance, and query the instance’s inherited <code class="code-voice">description</code> property:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="vc">bicycle</span>.<span class="vc">currentSpeed</span> = <span class="m">15.0</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"Bicycle: </span>\(<span class="vc">bicycle</span>.<span class="vc">description</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// Bicycle: traveling at 15.0 miles per hour</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Subclasses can themselves be subclassed. The next example creates a subclass of <code class="code-voice">Bicycle</code> for a two-seater bicycle known as a “tandem”:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Tandem</span>: <span class="n"><!-- a href="" -->Bicycle<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">currentNumberOfPassengers</span> = <span class="m">0</span></code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  <code class="code-voice">Tandem</code> inherits all of the properties and methods from <code class="code-voice">Bicycle</code>, which in turn inherits all of the properties and methods from <code class="code-voice">Vehicle</code>. The <code class="code-voice">Tandem</code> subclass also adds a new stored property called <code class="code-voice">currentNumberOfPassengers</code>, with a default value of <code class="code-voice">0</code>.
+</p><p class="para">
+  If you create an instance of <code class="code-voice">Tandem</code>, you can work with any of its new and inherited properties, and query the read-only <code class="code-voice">description</code> property it inherits from <code class="code-voice">Vehicle</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">tandem</span> = <span class="vc">Tandem</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">tandem</span>.<span class="vc">hasBasket</span> = <span class="kt">true</span></code></li>
+          <li><code class="code-voice"><span class="vc">tandem</span>.<span class="vc">currentNumberOfPassengers</span> = <span class="m">2</span></code></li>
+          <li><code class="code-voice"><span class="vc">tandem</span>.<span class="vc">currentSpeed</span> = <span class="m">22.0</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"Tandem: </span>\(<span class="vc">tandem</span>.<span class="vc">description</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// Tandem: traveling at 22.0 miles per hour</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_297"></a>
+  <h3 class="section-name" tabindex="0">Overriding</h3>
+  <p class="para">
+  A subclass can provide its own custom implementation of an instance method, class method, instance property, class property, or subscript that it would otherwise inherit from a superclass. This is known as <em>overriding</em>.
+</p><p class="para">
+  To override a characteristic that would otherwise be inherited, you prefix your overriding definition with the <code class="code-voice">override</code> keyword. Doing so clarifies that you intend to provide an override and have not provided a matching definition by mistake. Overriding by accident can cause unexpected behavior, and any overrides without the <code class="code-voice">override</code> keyword are diagnosed as an error when your code is compiled.
+</p><p class="para">
+  The <code class="code-voice">override</code> keyword also prompts the Swift compiler to check that your overriding class’s superclass (or one of its parents) has a declaration that matches the one you provided for the override. This check ensures that your overriding definition is correct.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_298"></a>
+  <h3 class="section-name" tabindex="0">Accessing Superclass Methods, Properties, and Subscripts</h3>
+  <p class="para">
+  When you provide a method, property, or subscript override for a subclass, it is sometimes useful to use the existing superclass implementation as part of your override. For example, you can refine the behavior of that existing implementation, or store a modified value in an existing inherited variable.
+</p><p class="para">
+  Where this is appropriate, you access the superclass version of a method, property, or subscript by using the <code class="code-voice">super</code> prefix:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  An overridden method named <code class="code-voice">someMethod</code> can call the superclass version of <code class="code-voice">someMethod</code> by calling <code class="code-voice">super.someMethod()</code> within the overriding method implementation.
+</p>
+</li><li class="item"><p class="para">
+  An overridden property called <code class="code-voice">someProperty</code> can access the superclass version of <code class="code-voice">someProperty</code> as <code class="code-voice">super.someProperty</code> within the overriding getter or setter implementation.
+</p>
+</li><li class="item"><p class="para">
+  An overridden subscript for <code class="code-voice">someIndex</code> can access the superclass version of the same subscript as <code class="code-voice">super[someIndex]</code> from within the overriding subscript implementation.
+</p>
+</li>
+</ul>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_299"></a>
+  <h3 class="section-name" tabindex="0">Overriding Methods</h3>
+  <p class="para">
+  You can override an inherited instance or class method to provide a tailored or alternative implementation of the method within your subclass.
+</p><p class="para">
+  The following example defines a new subclass of <code class="code-voice">Vehicle</code> called <code class="code-voice">Train</code>, which overrides the <code class="code-voice">makeNoise</code> method that <code class="code-voice">Train</code> inherits from <code class="code-voice">Vehicle</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Train</span>: <span class="n"><!-- a href="" -->Vehicle<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">override</span> <span class="kt">func</span> <span class="vc">makeNoise</span>() {</code></li>
+          <li><code class="code-voice">        <span class="vc">println</span>(<span class="s">"Choo Choo"</span>)</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  If you create a new instance of <code class="code-voice">Train</code> and call its <code class="code-voice">makeNoise</code> method, you can see that the <code class="code-voice">Train</code> subclass version of the method is called:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">train</span> = <span class="vc">Train</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">train</span>.<span class="vc">makeNoise</span>()</code></li>
+          <li><code class="code-voice"><span class="c">// prints "Choo Choo"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_300"></a>
+  <h3 class="section-name" tabindex="0">Overriding Properties</h3>
+  <p class="para">
+  You can override an inherited instance or class property to provide your own custom getter and setter for that property, or to add property observers to enable the overriding property to observe when the underlying property value changes.
+</p>
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_301"></a>
+  <h3 class="section-name" tabindex="0">Overriding Property Getters and Setters</h3>
+  <p class="para">
+  You can provide a custom getter (and setter, if appropriate) to override <em>any</em> inherited property, regardless of whether the inherited property is implemented as a stored or computed property at source. The stored or computed nature of an inherited property is not known by a subclass—it only knows that the inherited property has a certain name and type. You must always state both the name and the type of the property you are overriding, to enable the compiler to check that your override matches a superclass property with the same name and type.
+</p><p class="para">
+  You can present an inherited read-only property as a read-write property by providing both a getter and a setter in your subclass property override. You cannot, however, present an inherited read-write property as a read-only property.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_302"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">If you provide a setter as part of a property override, you must also provide a getter for that override. If you don’t want to modify the inherited property’s value within the overriding getter, you can simply pass through the inherited value by returning <code class="code-voice">super.someProperty</code> from the getter, where <code class="code-voice">someProperty</code> is the name of the property you are overriding.
+    	</p>
+    
+  </aside>
+</div><p class="para">
+  The following example defines a new class called <code class="code-voice">Car</code>, which is a subclass of <code class="code-voice">Vehicle</code>. The <code class="code-voice">Car</code> class introduces a new stored property called <code class="code-voice">gear</code>, with a default integer value of <code class="code-voice">1</code>. The <code class="code-voice">Car</code> class also overrides the <code class="code-voice">description</code> property it inherits from <code class="code-voice">Vehicle</code>, to provide a custom description that includes the current gear:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">Car</span>: <span class="n"><!-- a href="" -->Vehicle<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">gear</span> = <span class="m">1</span></code></li>
+          <li><code class="code-voice">    <span class="kt">override</span> <span class="kt">var</span> <span class="vc">description</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">return</span> <span class="kt">super</span>.<span class="vc">description</span> + <span class="s">" in gear </span>\(<span class="vc">gear</span>)<span class="s">"</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The override of the <code class="code-voice">description</code> property starts by calling <code class="code-voice">super.description</code>, which returns the <code class="code-voice">Vehicle</code> class’s <code class="code-voice">description</code> property. The <code class="code-voice">Car</code> class’s version of <code class="code-voice">description</code> then adds some extra text onto the end of this description to provide information about the current gear.
+</p><p class="para">
+  If you create an instance of the <code class="code-voice">Car</code> class and set its <code class="code-voice">gear</code> and <code class="code-voice">currentSpeed</code> properties, you can see that its <code class="code-voice">description</code> property returns the tailored description defined within the <code class="code-voice">Car</code> class:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">car</span> = <span class="vc">Car</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">car</span>.<span class="vc">currentSpeed</span> = <span class="m">25.0</span></code></li>
+          <li><code class="code-voice"><span class="vc">car</span>.<span class="vc">gear</span> = <span class="m">3</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"Car: </span>\(<span class="vc">car</span>.<span class="vc">description</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// Car: traveling at 25.0 miles per hour in gear 3</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_303"></a>
+  <h3 class="section-name" tabindex="0">Overriding Property Observers</h3>
+  <p class="para">
+  You can use property overriding to add property observers to an inherited property. This enables you to be notified when the value of an inherited property changes, regardless of how that property was originally implemented. For more information on property observers, see <span class="x-name"><a href="Properties.html#//apple_ref/doc/uid/TP40014097-CH14-XID_378" data-id="//apple_ref/doc/uid/TP40014097-CH14-XID_378">Property Observers</a></span>.
+</p><div class="note">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_304"></a>
+  <aside class="aside">
+    <p class="aside-title">Note
+    </p>
+    	<p class="para">You cannot add property observers to inherited constant stored properties or inherited read-only computed properties. The value of these properties cannot be set, and so it is not appropriate to provide a <code class="code-voice">willSet</code> or <code class="code-voice">didSet</code> implementation as part of an override.
+    	</p>
+    <p class="para">
+  Note also that you cannot provide both an overriding setter and an overriding property observer for the same property. If you want to observe changes to a property’s value, and you are already providing a custom setter for that property, you can simply observe any value changes from within the custom setter.
+</p>
+
+  </aside>
+</div><p class="para">
+  The following example defines a new class called <code class="code-voice">AutomaticCar</code>, which is a subclass of <code class="code-voice">Car</code>. The <code class="code-voice">AutomaticCar</code> class represents a car with an automatic gearbox, which automatically selects an appropriate gear to use based on the current speed:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">class</span> <span class="vc">AutomaticCar</span>: <span class="n"><!-- a href="" -->Car<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">    <span class="kt">override</span> <span class="kt">var</span> <span class="vc">currentSpeed</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">didSet</span> {</code></li>
+          <li><code class="code-voice">            <span class="vc">gear</span> = <span class="vc">Int</span>(<span class="vc">currentSpeed</span> / <span class="m">10.0</span>) + <span class="m">1</span></code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Whenever you set the <code class="code-voice">currentSpeed</code> property of an <code class="code-voice">AutomaticCar</code> instance, the property’s <code class="code-voice">didSet</code> observer sets the instance’s <code class="code-voice">gear</code> property to an appropriate choice of gear for the new speed. Specifically, the property observer chooses a gear which is the new <code class="code-voice">currentSpeed</code> value divided by <code class="code-voice">10</code>, rounded down to the nearest integer, plus <code class="code-voice">1</code>. A speed of <code class="code-voice">10.0</code> produces a gear of <code class="code-voice">1</code>, and a speed of <code class="code-voice">35.0</code> produces a gear of <code class="code-voice">4</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">automatic</span> = <span class="vc">AutomaticCar</span>()</code></li>
+          <li><code class="code-voice"><span class="vc">automatic</span>.<span class="vc">currentSpeed</span> = <span class="m">35.0</span></code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"AutomaticCar: </span>\(<span class="vc">automatic</span>.<span class="vc">description</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// AutomaticCar: traveling at 35.0 miles per hour in gear 4</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section>
+  
+</section>
+
+</section>
+
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH17-XID_305"></a>
+  <h3 class="section-name" tabindex="0">Preventing Overrides</h3>
+  <p class="para">
+  You can prevent a method, property, or subscript from being overridden by marking it as <em>final</em>. Do this by writing the <code class="code-voice">final</code> modifier before the method, property, or subscript’s introducer keyword (such as <code class="code-voice">final var</code>, <code class="code-voice">final func</code>, <code class="code-voice">final class func</code>, and <code class="code-voice">final subscript</code>).
+</p><p class="para">
+  Any attempts to override a final method, property, or subscript in a subclass are reported as a compile-time error. Methods, properties, or subscripts that you add to a class in an extension can also be marked as final within the extension’s definition.
+</p><p class="para">
+  You can mark an entire class as final by writing the <code class="code-voice">final</code> modifier before the <code class="code-voice">class</code> keyword in its class definition (<code class="code-voice">final class</code>). Any attempts to subclass a final class will be reported as a compile-time error.
+</p>
+  
+</section>
+
+  	
+ 	<section id="next_previous" class="">
+    		<p class="previous-link"><a href="Subscripts.html#//apple_ref/doc/uid/TP40014097-CH16-XID_448" data-id="//apple_ref/doc/uid/TP40014097-CH16-XID_448">Subscripts</a></p>
+  			<p class="next-link"><a href="Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_306" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_306">Initialization</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>

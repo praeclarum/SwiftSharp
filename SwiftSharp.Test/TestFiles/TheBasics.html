@@ -1,0 +1,1443 @@
+<article class="chapter">
+    <a name="//apple_ref/doc/uid/TP40014097-CH5"></a><a name="//apple_ref/doc/uid/TP40014097-CH5-XID_454"></a>
+    <div class="pixel-line"></div>
+    <h2 class="chapter-name chapter-name-short">The Basics</h2>
+    
+    
+    <section id="mini_toc" class="hideInXcode slide-out" role="navigation">
+        <div id="mini_toc_button">
+            <p>On This Page</p>
+        </div>
+        <ul class="list-bullet">
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_455">
+	  				Constants and Variables
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_464">
+	  				Comments
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_465">
+	  				Semicolons
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_466">
+	  				Integers
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_471">
+	  				Floating-Point Numbers
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_473">
+	  				Type Safety and Type Inference
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_474">
+	  				Numeric Literals
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_475">
+	  				Numeric Type Conversion
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_479">
+	  				Type Aliases
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_480">
+	  				Booleans
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_481">
+	  				Tuples
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_483">
+	  				Optionals
+	  			</a>
+                </p>
+            </li>
+            <li class="item">
+                <p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_494">
+	  				Assertions
+	  			</a>
+                </p>
+            </li>
+        </ul>
+    </section>
+    
+    
+  	<section class="section">
+  		<p class="para">
+        Swift is a new programming language for iOS and OS X app development. Nonetheless, many parts of Swift will be familiar from your experience of developing in C and Objective-C.
+        </p>
+        <p class="para">
+        Swift provides its own versions of all fundamental C and Objective-C types, including <code class="code-voice">Int</code> for integers; <code class="code-voice">Double</code> and <code class="code-voice">Float</code> for floating-point values; <code class="code-voice">Bool</code> for Boolean values; and <code class="code-voice">String</code> for textual data. Swift also provides powerful versions of the two primary collection types, <code class="code-voice">Array</code> and <code class="code-voice">Dictionary</code>, as described in <span class="x-name"><a href="CollectionTypes.html#//apple_ref/doc/uid/TP40014097-CH8-XID_168" data-id="//apple_ref/doc/uid/TP40014097-CH8-XID_168">Collection Types</a></span>.
+        </p>
+        <p class="para">
+        Like C, Swift uses variables to store and refer to values by an identifying name. Swift also makes extensive use of variables whose values cannot be changed. These are known as constants, and are much more powerful than constants in C. Constants are used throughout Swift to make code safer and clearer in intent when you work with values that do not need to change.
+        </p>
+        <p class="para">
+        In addition to familiar types, Swift introduces advanced types not found in Objective-C. These include tuples, which enable you to create and pass around groupings of values. Tuples can return multiple values from a function as a single compound value.
+        </p>
+        <p class="para">
+        Swift also introduces optional types, which handle the absence of a value. Optionals say either “there <em>is</em> a value, and it equals <em>x</em>” or “there <em>isn’t</em> a value at all”. Optionals are similar to using <code class="code-voice">nil</code> with pointers in Objective-C, but they work for any type, not just classes. Optionals are safer and more expressive than <code class="code-voice">nil</code> pointers in Objective-C and are at the heart of many of Swift’s most powerful features.
+        </p>
+        <p class="para">
+        Optionals are an example of the fact that Swift is a <em>type safe</em> language. Swift helps you to be clear about the types of values your code can work with. If part of your code expects a <code class="code-voice">String</code>, type safety prevents you from passing it an <code class="code-voice">Int</code> by mistake. This enables you to catch and fix errors as early as possible in the development process.
+        </p>
+        
+    </section>
+    
+    
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_455"></a>
+        <h3 class="section-name" tabindex="0">Constants and Variables</h3>
+        <p class="para">
+        Constants and variables associate a name (such as <code class="code-voice">maximumNumberOfLoginAttempts</code> or <code class="code-voice">welcomeMessage</code>) with a value of a particular type (such as the number <code class="code-voice">10</code> or the string <code class="code-voice">"Hello"</code>). The value of a <em>constant</em> cannot be changed once it is set, whereas a <em>variable</em> can be set to a different value in the future.
+        </p>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_456"></a>
+            <h3 class="section-name" tabindex="0">Declaring Constants and Variables</h3>
+            <p class="para">
+            Constants and variables must be declared before they are used. You declare constants with the <code class="code-voice">let</code> keyword and variables with the <code class="code-voice">var</code> keyword. Here’s an example of how constants and variables can be used to track the number of login attempts a user has made:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">maximumNumberOfLoginAttempts</span> = <span class="m">10</span></code></li>
+                        <li><code class="code-voice"><span class="kt">var</span> <span class="vc">currentLoginAttempt</span> = <span class="m">0</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            This code can be read as:
+            </p><p class="para">
+            “Declare a new constant called <code class="code-voice">maximumNumberOfLoginAttempts</code>, and give it a value of <code class="code-voice">10</code>. Then, declare a new variable called <code class="code-voice">currentLoginAttempt</code>, and give it an initial value of <code class="code-voice">0</code>.”
+            </p><p class="para">
+            In this example, the maximum number of allowed login attempts is declared as a constant, because the maximum value never changes. The current login attempt counter is declared as a variable, because this value must be incremented after each failed login attempt.
+            </p><p class="para">
+            You can declare multiple constants or multiple variables on a single line, separated by commas:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">var</span> <span class="vc">x</span> = <span class="m">0.0</span>, <span class="vc">y</span> = <span class="m">0.0</span>, <span class="vc">z</span> = <span class="m">0.0</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_457"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">If a stored value in your code is not going to change, always declare it as a constant with the <code class="code-voice">let</code> keyword. Use variables only for storing values that need to be able to change.
+                    </p>
+                    
+                </aside>
+            </div>
+            
+        </section>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_458"></a>
+            <h3 class="section-name" tabindex="0">Type Annotations</h3>
+            <p class="para">
+            You can provide a <em>type annotation</em> when you declare a constant or variable, to be clear about the kind of values the constant or variable can store. Write a type annotation by placing a colon after the constant or variable name, followed by a space, followed by the name of the type to use.
+            </p><p class="para">
+            This example provides a type annotation for a variable called <code class="code-voice">welcomeMessage</code>, to indicate that the variable can store <code class="code-voice">String</code> values:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">var</span> <span class="vc">welcomeMessage</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            The colon in the declaration means <em>“…of type…,”</em> so the code above can be read as:
+            </p><p class="para">
+            “Declare a variable called <code class="code-voice">welcomeMessage</code> that is of type <code class="code-voice">String</code>.”
+            </p><p class="para">
+            The phrase “of type <code class="code-voice">String</code>” means “can store any <code class="code-voice">String</code> value.” Think of it as meaning “the type of thing” (or “the kind of thing”) that can be stored.
+            </p><p class="para">
+            The <code class="code-voice">welcomeMessage</code> variable can now be set to any string value without error:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="vc">welcomeMessage</span> = <span class="s">"Hello"</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            You can define multiple related variables of the same type on a single line, separated by commas, with a single type annotation after the final variable name:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">var</span> <span class="vc">red</span>, <span class="vc">green</span>, <span class="vc">blue</span>: <span class="n"><!-- a href="" -->Double<!-- /a --></span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_459"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">It is rare that you need to write type annotations in practice. If you provide an initial value for a constant or variable at the point that it is defined, Swift can almost always infer the type to be used for that constant or variable, as described in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_473" data-id="//apple_ref/doc/uid/TP40014097-CH5-XID_473">Type Safety and Type Inference</a></span>. In the <code class="code-voice">welcomeMessage</code> example above, no initial value is provided, and so the type of the <code class="code-voice">welcomeMessage</code> variable is specified with a type annotation rather than being inferred from an initial value.
+                    </p>
+                    
+                </aside>
+            </div>
+            
+        </section>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_460"></a>
+            <h3 class="section-name" tabindex="0">Naming Constants and Variables</h3>
+            <p class="para">
+            You can use almost any character you like for constant and variable names, including Unicode characters:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">π</span> = <span class="m">3.14159</span></code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">你好</span> = <span class="s">"你好世界"</span></code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">🐶🐮</span> = <span class="s">"dogcow"</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            Constant and variable names cannot contain whitespace characters, mathematical symbols, arrows, private-use (or invalid) Unicode code points, or line- and box-drawing characters. Nor can they begin with a number, although numbers may be included elsewhere within the name.
+            </p><p class="para">
+            Once you’ve declared a constant or variable of a certain type, you can’t redeclare it again with the same name, or change it to store values of a different type. Nor can you change a constant into a variable or a variable into a constant.
+            </p><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_461"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">If you need to give a constant or variable the same name as a reserved Swift keyword, you can do so by surrounding the keyword with back ticks (<code class="code-voice">`</code>) when using it as a name. However, you should avoid using keywords as names unless you have absolutely no choice.
+                    </p>
+                    
+                </aside>
+            </div><p class="para">
+            You can change the value of an existing variable to another value of a compatible type. In this example, the value of <code class="code-voice">friendlyWelcome</code> is changed from <code class="code-voice">"Hello!"</code> to <code class="code-voice">"Bonjour!"</code>:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">var</span> <span class="vc">friendlyWelcome</span> = <span class="s">"Hello!"</span></code></li>
+                        <li><code class="code-voice"><span class="vc">friendlyWelcome</span> = <span class="s">"Bonjour!"</span></code></li>
+                        <li><code class="code-voice"><span class="c">// friendlyWelcome is now "Bonjour!"</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            Unlike a variable, the value of a constant cannot be changed once it is set. Attempting to do so is reported as an error when your code is compiled:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">languageName</span> = <span class="s">"Swift"</span></code></li>
+                        <li><code class="code-voice"><span class="vc">languageName</span> = <span class="s">"Swift++"</span></code></li>
+                        <li><code class="code-voice"><span class="c">// this is a compile-time error - languageName cannot be changed</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section>
+            
+        </section>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_462"></a>
+            <h3 class="section-name" tabindex="0">Printing Constants and Variables</h3>
+            <p class="para">
+            You can print the current value of a constant or variable with the <code class="code-voice">println</code> function:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="vc">println</span>(<span class="vc">friendlyWelcome</span>)</code></li>
+                        <li><code class="code-voice"><span class="c">// prints "Bonjour!"</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            <code class="code-voice">println</code> is a global function that prints a value, followed by a line break, to an appropriate output. If you are working in Xcode, for example, <code class="code-voice">println</code> prints its output in Xcode’s “console” pane. (A second function, <code class="code-voice">print</code>, performs the same task without appending a line break to the end of the value to be printed.)
+            </p><p class="para">
+            The <code class="code-voice">println</code> function prints any <code class="code-voice">String</code> value you pass to it:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"This is a string"</span>)</code></li>
+                        <li><code class="code-voice"><span class="c">// prints "This is a string"</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            The <code class="code-voice">println</code> function can print more complex logging messages, in a similar manner to Cocoa’s <code class="code-voice">NSLog</code> function. These messages can include the current values of constants and variables.
+            </p><p class="para">
+            Swift uses <em>string interpolation</em> to include the name of a constant or variable as a placeholder in a longer string, and to prompt Swift to replace it with the current value of that constant or variable. Wrap the name in parentheses and escape it with a backslash before the opening parenthesis:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The current value of friendlyWelcome is </span>\(<span class="vc">friendlyWelcome</span>)<span class="s">"</span>)</code></li>
+                        <li><code class="code-voice"><span class="c">// prints "The current value of friendlyWelcome is Bonjour!"</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_463"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">All options you can use with string interpolation are described in <span class="x-name"><a href="StringsAndCharacters.html#//apple_ref/doc/uid/TP40014097-CH7-XID_430" data-id="//apple_ref/doc/uid/TP40014097-CH7-XID_430">String Interpolation</a></span>.
+                    </p>
+                    
+                </aside>
+            </div>
+            
+        </section>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_464"></a>
+        <h3 class="section-name" tabindex="0">Comments</h3>
+        <p class="para">
+        Use comments to include non-executable text in your code, as a note or reminder to yourself. Comments are ignored by the Swift compiler when your code is compiled.
+        </p><p class="para">
+        Comments in Swift are very similar to comments in C. Single-line comments begin with two forward-slashes (<code class="code-voice">//</code>):
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="c">// this is a comment</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        You can also write multiline comments, which start with a forward-slash followed by an asterisk (<code class="code-voice">/*</code>) and end with an asterisk followed by a forward-slash (<code class="code-voice">*/</code>):
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="c">/* this is also a comment,</span></code></li>
+                    <li><code class="code-voice"><span class="c">but written over multiple lines */</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Unlike multiline comments in C, multiline comments in Swift can be nested inside other multiline comments. You write nested comments by starting a multiline comment block and then starting a second multiline comment within the first block. The second block is then closed, followed by the first block:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="c">/* this is the start of the first multiline comment</span></code></li>
+                    <li><code class="code-voice"><span class="c">/* this is the second, nested multiline comment */</span></code></li>
+                    <li><code class="code-voice"><span class="c">this is the end of the first multiline comment */</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Nested multiline comments enable you to comment out large blocks of code quickly and easily, even if the code already contains multiline comments.
+        </p>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_465"></a>
+        <h3 class="section-name" tabindex="0">Semicolons</h3>
+        <p class="para">
+        Unlike many other languages, Swift does not require you to write a semicolon (<code class="code-voice">;</code>) after each statement in your code, although you can do so if you wish. Semicolons <em>are</em> required, however, if you want to write multiple separate statements on a single line:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">cat</span> = <span class="s">"🐱"</span>; <span class="vc">println</span>(<span class="vc">cat</span>)</code></li>
+                    <li><code class="code-voice"><span class="c">// prints "🐱"</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_466"></a>
+        <h3 class="section-name" tabindex="0">Integers</h3>
+        <p class="para">
+        <em>Integers</em> are whole numbers with no fractional component, such as <code class="code-voice">42</code> and <code class="code-voice">-23</code>. Integers are either <em>signed</em> (positive, zero, or negative) or <em>unsigned</em> (positive or zero).
+        </p><p class="para">
+        Swift provides signed and unsigned integers in 8, 16, 32, and 64 bit forms. These integers follow a naming convention similar to C, in that an 8-bit unsigned integer is of type <code class="code-voice">UInt8</code>, and a 32-bit signed integer is of type <code class="code-voice">Int32</code>. Like all types in Swift, these integer types have capitalized names.
+        </p>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_467"></a>
+            <h3 class="section-name" tabindex="0">Integer Bounds</h3>
+            <p class="para">
+            You can access the minimum and maximum values of each integer type with its <code class="code-voice">min</code> and <code class="code-voice">max</code> properties:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">minValue</span> = <span class="vc">UInt8</span>.<span class="vc">min</span>  <span class="c">// minValue is equal to 0, and is of type UInt8</span></code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">maxValue</span> = <span class="vc">UInt8</span>.<span class="vc">max</span>  <span class="c">// maxValue is equal to 255, and is of type UInt8</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            The values of these properties are of the appropriate-sized number type (such as <code class="code-voice">UInt8</code> in the example above) and can therefore be used in expressions alongside other values of the same type.
+            </p>
+            
+        </section>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_468"></a>
+            <h3 class="section-name" tabindex="0">Int</h3>
+            <p class="para">
+            In most cases, you don’t need to pick a specific size of integer to use in your code. Swift provides an additional integer type, <code class="code-voice">Int</code>, which has the same size as the current platform’s native word size:
+            </p><ul class="list-bullet">
+                <li class="item"><p class="para">
+                    On a 32-bit platform, <code class="code-voice">Int</code> is the same size as <code class="code-voice">Int32</code>.
+                    </p>
+                </li><li class="item"><p class="para">
+                    On a 64-bit platform, <code class="code-voice">Int</code> is the same size as <code class="code-voice">Int64</code>.
+                    </p>
+                </li>
+            </ul><p class="para">
+            Unless you need to work with a specific size of integer, always use <code class="code-voice">Int</code> for integer values in your code. This aids code consistency and interoperability. Even on 32-bit platforms, <code class="code-voice">Int</code> can store any value between <code class="code-voice">-2,147,483,648</code> and <code class="code-voice">2,147,483,647</code>, and is large enough for many integer ranges.
+            </p>
+            
+        </section>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_469"></a>
+            <h3 class="section-name" tabindex="0">UInt</h3>
+            <p class="para">
+            Swift also provides an unsigned integer type, <code class="code-voice">UInt</code>, which has the same size as the current platform’s native word size:
+            </p><ul class="list-bullet">
+                <li class="item"><p class="para">
+                    On a 32-bit platform, <code class="code-voice">UInt</code> is the same size as <code class="code-voice">UInt32</code>.
+                    </p>
+                </li><li class="item"><p class="para">
+                    On a 64-bit platform, <code class="code-voice">UInt</code> is the same size as <code class="code-voice">UInt64</code>.
+                    </p>
+                </li>
+            </ul><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_470"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">Use <code class="code-voice">UInt</code> only when you specifically need an unsigned integer type with the same size as the platform’s native word size. If this is not the case, <code class="code-voice">Int</code> is preferred, even when the values to be stored are known to be non-negative. A consistent use of <code class="code-voice">Int</code> for integer values aids code interoperability, avoids the need to convert between different number types, and matches integer type inference, as described in <span class="x-name"><a href="#//apple_ref/doc/uid/TP40014097-CH5-XID_473" data-id="//apple_ref/doc/uid/TP40014097-CH5-XID_473">Type Safety and Type Inference</a></span>.
+                    </p>
+                    
+                </aside>
+            </div>
+            
+        </section>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_471"></a>
+        <h3 class="section-name" tabindex="0">Floating-Point Numbers</h3>
+        <p class="para">
+        <em>Floating-point numbers</em> are numbers with a fractional component, such as <code class="code-voice">3.14159</code>, <code class="code-voice">0.1</code>, and <code class="code-voice">-273.15</code>.
+        </p><p class="para">
+        Floating-point types can represent a much wider range of values than integer types, and can store numbers that are much larger or smaller than can be stored in an <code class="code-voice">Int</code>. Swift provides two signed floating-point number types:
+        </p><ul class="list-bullet">
+            <li class="item"><p class="para">
+                <code class="code-voice">Double</code> represents a 64-bit floating-point number. Use it when floating-point values must be very large or particularly precise.
+                </p>
+            </li><li class="item"><p class="para">
+                <code class="code-voice">Float</code> represents a 32-bit floating-point number. Use it when floating-point values do not require 64-bit precision.
+                </p>
+            </li>
+        </ul><div class="note">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_472"></a>
+            <aside class="aside">
+                <p class="aside-title">Note
+                </p>
+                <p class="para"><code class="code-voice">Double</code> has a precision of at least 15 decimal digits, whereas the precision of <code class="code-voice">Float</code> can be as little as 6 decimal digits. The appropriate floating-point type to use depends on the nature and range of values you need to work with in your code.
+                </p>
+                
+            </aside>
+        </div>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_473"></a>
+        <h3 class="section-name" tabindex="0">Type Safety and Type Inference</h3>
+        <p class="para">
+        Swift is a <em>type safe</em> language. A type safe language encourages you to be clear about the types of values your code can work with. If part of your code expects a <code class="code-voice">String</code>, you can’t pass it an <code class="code-voice">Int</code> by mistake.
+        </p><p class="para">
+        Because Swift is type safe, it performs <em>type checks</em> when compiling your code and flags any mismatched types as errors. This enables you to catch and fix errors as early as possible in the development process.
+        </p><p class="para">
+        Type-checking helps you avoid errors when you’re working with different types of values. However, this doesn’t mean that you have to specify the type of every constant and variable that you declare. If you don’t specify the type of value you need, Swift uses <em>type inference</em> to work out the appropriate type. Type inference enables a compiler to deduce the type of a particular expression automatically when it compiles your code, simply by examining the values you provide.
+        </p><p class="para">
+        Because of type inference, Swift requires far fewer type declarations than languages such as C or Objective-C. Constants and variables are still explicitly typed, but much of the work of specifying their type is done for you.
+        </p><p class="para">
+        Type inference is particularly useful when you declare a constant or variable with an initial value. This is often done by assigning a <em>literal value</em> (or <em>literal</em>) to the constant or variable at the point that you declare it. (A literal value is a value that appears directly in your source code, such as <code class="code-voice">42</code> and <code class="code-voice">3.14159</code> in the examples below.)
+        </p><p class="para">
+        For example, if you assign a literal value of <code class="code-voice">42</code> to a new constant without saying what type it is, Swift infers that you want the constant to be an <code class="code-voice">Int</code>, because you have initialized it with a number that looks like an integer:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">meaningOfLife</span> = <span class="m">42</span></code></li>
+                    <li><code class="code-voice"><span class="c">// meaningOfLife is inferred to be of type Int</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Likewise, if you don’t specify a type for a floating-point literal, Swift infers that you want to create a <code class="code-voice">Double</code>:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">pi</span> = <span class="m">3.14159</span></code></li>
+                    <li><code class="code-voice"><span class="c">// pi is inferred to be of type Double</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Swift always chooses <code class="code-voice">Double</code> (rather than <code class="code-voice">Float</code>) when inferring the type of floating-point numbers.
+        </p><p class="para">
+        If you combine integer and floating-point literals in an expression, a type of <code class="code-voice">Double</code> will be inferred from the context:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">anotherPi</span> = <span class="m">3</span> + <span class="m">0.14159</span></code></li>
+                    <li><code class="code-voice"><span class="c">// anotherPi is also inferred to be of type Double</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        The literal value of <code class="code-voice">3</code> has no explicit type in and of itself, and so an appropriate output type of <code class="code-voice">Double</code> is inferred from the presence of a floating-point literal as part of the addition.
+        </p>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_474"></a>
+        <h3 class="section-name" tabindex="0">Numeric Literals</h3>
+        <p class="para">
+        Integer literals can be written as:
+        </p><ul class="list-bullet">
+            <li class="item"><p class="para">
+                A <em>decimal</em> number, with no prefix
+                </p>
+            </li><li class="item"><p class="para">
+                A <em>binary</em> number, with a <code class="code-voice">0b</code> prefix
+                </p>
+            </li><li class="item"><p class="para">
+                An <em>octal</em> number, with a <code class="code-voice">0o</code> prefix
+                </p>
+            </li><li class="item"><p class="para">
+                A <em>hexadecimal</em> number, with a <code class="code-voice">0x</code> prefix
+                </p>
+            </li>
+        </ul><p class="para">
+        All of these integer literals have a decimal value of <code class="code-voice">17</code>:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">decimalInteger</span> = <span class="m">17</span></code></li>
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">binaryInteger</span> = <span class="m">0b10001</span>       <span class="c">// 17 in binary notation</span></code></li>
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">octalInteger</span> = <span class="m">0o21</span>           <span class="c">// 17 in octal notation</span></code></li>
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">hexadecimalInteger</span> = <span class="m">0x11</span>     <span class="c">// 17 in hexadecimal notation</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Floating-point literals can be decimal (with no prefix), or hexadecimal (with a <code class="code-voice">0x</code> prefix). They must always have a number (or hexadecimal number) on both sides of the decimal point. They can also have an optional <em>exponent</em>, indicated by an uppercase or lowercase <code class="code-voice">e</code> for decimal floats, or an uppercase or lowercase <code class="code-voice">p</code> for hexadecimal floats.
+        </p><p class="para">
+        For decimal numbers with an exponent of <code class="code-voice">exp</code>, the base number is multiplied by 10<sup>exp</sup>:
+        </p><ul class="list-bullet">
+            <li class="item"><p class="para">
+                <code class="code-voice">1.25e2</code> means 1.25 × 10<sup>2</sup>, or <code class="code-voice">125.0</code>.
+                </p>
+            </li><li class="item"><p class="para">
+                <code class="code-voice">1.25e-2</code> means 1.25 × 10<sup>-2</sup>, or <code class="code-voice">0.0125</code>.
+                </p>
+            </li>
+        </ul><p class="para">
+        For hexadecimal numbers with an exponent of <code class="code-voice">exp</code>, the base number is multiplied by 2<sup>exp</sup>:
+        </p><ul class="list-bullet">
+            <li class="item"><p class="para">
+                <code class="code-voice">0xFp2</code> means 15 × 2<sup>2</sup>, or <code class="code-voice">60.0</code>.
+                </p>
+            </li><li class="item"><p class="para">
+                <code class="code-voice">0xFp-2</code> means 15 × 2<sup>-2</sup>, or <code class="code-voice">3.75</code>.
+                </p>
+            </li>
+        </ul><p class="para">
+        All of these floating-point literals have a decimal value of <code class="code-voice">12.1875</code>:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">decimalDouble</span> = <span class="m">12.1875</span></code></li>
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">exponentDouble</span> = <span class="m">1.21875e1</span></code></li>
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">hexadecimalDouble</span> = <span class="m">0xC.3p0</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Numeric literals can contain extra formatting to make them easier to read. Both integers and floats can be padded with extra zeroes and can contain underscores to help with readability. Neither type of formatting affects the underlying value of the literal:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">paddedDouble</span> = <span class="m">000123.456</span></code></li>
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">oneMillion</span> = <span class="m">1_000_000</span></code></li>
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">justOverOneMillion</span> = <span class="m">1_000_000.000_000_1</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_475"></a>
+        <h3 class="section-name" tabindex="0">Numeric Type Conversion</h3>
+        <p class="para">
+        Use the <code class="code-voice">Int</code> type for all general-purpose integer constants and variables in your code, even if they are known to be non-negative. Using the default integer type in everyday situations means that integer constants and variables are immediately interoperable in your code and will match the inferred type for integer literal values.
+        </p><p class="para">
+        Use other integer types only when they are specifically needed for the task at hand, because of explicitly-sized data from an external source, or for performance, memory usage, or other necessary optimization. Using explicitly-sized types in these situations helps to catch any accidental value overflows and implicitly documents the nature of the data being used.
+        </p>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_476"></a>
+            <h3 class="section-name" tabindex="0">Integer Conversion</h3>
+            <p class="para">
+            The range of numbers that can be stored in an integer constant or variable is different for each numeric type. An <code class="code-voice">Int8</code> constant or variable can store numbers between <code class="code-voice">-128</code> and <code class="code-voice">127</code>, whereas a <code class="code-voice">UInt8</code> constant or variable can store numbers between <code class="code-voice">0</code> and <code class="code-voice">255</code>. A number that will not fit into a constant or variable of a sized integer type is reported as an error when your code is compiled:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">cannotBeNegative</span>: <span class="n"><!-- a href="" -->UInt8<!-- /a --></span> = -<span class="m">1</span></code></li>
+                        <li><code class="code-voice"><span class="c">// UInt8 cannot store negative numbers, and so this will report an error</span></code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">tooBig</span>: <span class="n"><!-- a href="" -->Int8<!-- /a --></span> = <span class="vc">Int8</span>.<span class="vc">max</span> + <span class="m">1</span></code></li>
+                        <li><code class="code-voice"><span class="c">// Int8 cannot store a number larger than its maximum value,</span></code></li>
+                        <li><code class="code-voice"><span class="c">// and so this will also report an error</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            Because each numeric type can store a different range of values, you must opt in to numeric type conversion on a case-by-case basis. This opt-in approach prevents hidden conversion errors and helps make type conversion intentions explicit in your code.
+            </p><p class="para">
+            To convert one specific number type to another, you initialize a new number of the desired type with the existing value. In the example below, the constant <code class="code-voice">twoThousand</code> is of type <code class="code-voice">UInt16</code>, whereas the constant <code class="code-voice">one</code> is of type <code class="code-voice">UInt8</code>. They cannot be added together directly, because they are not of the same type. Instead, this example calls <code class="code-voice">UInt16(one)</code> to create a new <code class="code-voice">UInt16</code> initialized with the value of <code class="code-voice">one</code>, and uses this value in place of the original:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">twoThousand</span>: <span class="n"><!-- a href="" -->UInt16<!-- /a --></span> = <span class="m">2_000</span></code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">one</span>: <span class="n"><!-- a href="" -->UInt8<!-- /a --></span> = <span class="m">1</span></code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">twoThousandAndOne</span> = <span class="vc">twoThousand</span> + <span class="vc">UInt16</span>(<span class="vc">one</span>)</code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            Because both sides of the addition are now of type <code class="code-voice">UInt16</code>, the addition is allowed. The output constant (<code class="code-voice">twoThousandAndOne</code>) is inferred to be of type <code class="code-voice">UInt16</code>, because it is the sum of two <code class="code-voice">UInt16</code> values.
+            </p><p class="para">
+            <code class="code-voice">SomeType(ofInitialValue)</code> is the default way to call the initializer of a Swift type and pass in an initial value. Behind the scenes, <code class="code-voice">UInt16</code> has an initializer that accepts a <code class="code-voice">UInt8</code> value, and so this initializer is used to make a new <code class="code-voice">UInt16</code> from an existing <code class="code-voice">UInt8</code>. You can’t pass in <em>any</em> type here, however—it has to be a type for which <code class="code-voice">UInt16</code> provides an initializer. Extending existing types to provide initializers that accept new types (including your own type definitions) is covered in <span class="x-name"><a href="Extensions.html#//apple_ref/doc/uid/TP40014097-CH24-XID_229" data-id="//apple_ref/doc/uid/TP40014097-CH24-XID_229">Extensions</a></span>.
+            </p>
+            
+        </section>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_477"></a>
+            <h3 class="section-name" tabindex="0">Integer and Floating-Point Conversion</h3>
+            <p class="para">
+            Conversions between integer and floating-point numeric types must be made explicit:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">three</span> = <span class="m">3</span></code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">pointOneFourOneFiveNine</span> = <span class="m">0.14159</span></code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">pi</span> = <span class="vc">Double</span>(<span class="vc">three</span>) + <span class="vc">pointOneFourOneFiveNine</span></code></li>
+                        <li><code class="code-voice"><span class="c">// pi equals 3.14159, and is inferred to be of type Double</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            Here, the value of the constant <code class="code-voice">three</code> is used to create a new value of type <code class="code-voice">Double</code>, so that both sides of the addition are of the same type. Without this conversion in place, the addition would not be allowed.
+            </p><p class="para">
+            The reverse is also true for floating-point to integer conversion, in that an integer type can be initialized with a <code class="code-voice">Double</code> or <code class="code-voice">Float</code> value:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">integerPi</span> = <span class="vc">Int</span>(<span class="vc">pi</span>)</code></li>
+                        <li><code class="code-voice"><span class="c">// integerPi equals 3, and is inferred to be of type Int</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            Floating-point values are always truncated when used to initialize a new integer value in this way. This means that <code class="code-voice">4.75</code> becomes <code class="code-voice">4</code>, and <code class="code-voice">-3.9</code> becomes <code class="code-voice">-3</code>.
+            </p><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_478"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">The rules for combining numeric constants and variables are different from the rules for numeric literals. The literal value <code class="code-voice">3</code> can be added directly to the literal value <code class="code-voice">0.14159</code>, because number literals do not have an explicit type in and of themselves. Their type is inferred only at the point that they are evaluated by the compiler.
+                    </p>
+                    
+                </aside>
+            </div>
+            
+        </section>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_479"></a>
+        <h3 class="section-name" tabindex="0">Type Aliases</h3>
+        <p class="para">
+        <em>Type aliases</em> define an alternative name for an existing type. You define type aliases with the <code class="code-voice">typealias</code> keyword.
+        </p><p class="para">
+        Type aliases are useful when you want to refer to an existing type by a name that is contextually more appropriate, such as when working with data of a specific size from an external source:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">typealias</span> <span class="vc">AudioSample</span> = <span class="n"><!-- a href="" -->UInt16<!-- /a --></span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Once you define a type alias, you can use the alias anywhere you might use the original name:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">var</span> <span class="vc">maxAmplitudeFound</span> = <span class="vc">AudioSample</span>.<span class="vc">min</span></code></li>
+                    <li><code class="code-voice"><span class="c">// maxAmplitudeFound is now 0</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Here, <code class="code-voice">AudioSample</code> is defined as an alias for <code class="code-voice">UInt16</code>. Because it is an alias, the call to <code class="code-voice">AudioSample.min</code> actually calls <code class="code-voice">UInt16.min</code>, which provides an initial value of <code class="code-voice">0</code> for the <code class="code-voice">maxAmplitudeFound</code> variable.
+        </p>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_480"></a>
+        <h3 class="section-name" tabindex="0">Booleans</h3>
+        <p class="para">
+        Swift has a basic <em>Boolean</em> type, called <code class="code-voice">Bool</code>. Boolean values are referred to as <em>logical</em>, because they can only ever be true or false. Swift provides two Boolean constant values, <code class="code-voice">true</code> and <code class="code-voice">false</code>:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">orangesAreOrange</span> = <span class="kt">true</span></code></li>
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">turnipsAreDelicious</span> = <span class="kt">false</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        The types of <code class="code-voice">orangesAreOrange</code> and <code class="code-voice">turnipsAreDelicious</code> have been inferred as <code class="code-voice">Bool</code> from the fact that they were initialized with Boolean literal values. As with <code class="code-voice">Int</code> and <code class="code-voice">Double</code> above, you don’t need to declare constants or variables as <code class="code-voice">Bool</code> if you set them to <code class="code-voice">true</code> or <code class="code-voice">false</code> as soon as you create them. Type inference helps make Swift code more concise and readable when it initializes constants or variables with other values whose type is already known.
+        </p><p class="para">
+        Boolean values are particularly useful when you work with conditional statements such as the <code class="code-voice">if</code> statement:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">if</span> <span class="vc">turnipsAreDelicious</span> {</code></li>
+                    <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Mmm, tasty turnips!"</span>)</code></li>
+                    <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+                    <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"Eww, turnips are horrible."</span>)</code></li>
+                    <li><code class="code-voice">}</code></li>
+                    <li><code class="code-voice"><span class="c">// prints "Eww, turnips are horrible."</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Conditional statements such as the <code class="code-voice">if</code> statement are covered in more detail in <span class="x-name"><a href="ControlFlow.html#//apple_ref/doc/uid/TP40014097-CH9-XID_191" data-id="//apple_ref/doc/uid/TP40014097-CH9-XID_191">Control Flow</a></span>.
+        </p><p class="para">
+        Swift’s type safety prevents non-Boolean values from being substituted for <code class="code-voice">Bool</code>. The following example reports a compile-time error:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">i</span> = <span class="m">1</span></code></li>
+                    <li><code class="code-voice"><span class="kt">if</span> <span class="vc">i</span> {</code></li>
+                    <li><code class="code-voice">    <span class="c">// this example will not compile, and will report an error</span></code></li>
+                    <li><code class="code-voice">}</code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        However, the alternative example below is valid:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">i</span> = <span class="m">1</span></code></li>
+                    <li><code class="code-voice"><span class="kt">if</span> <span class="vc">i</span> == <span class="m">1</span> {</code></li>
+                    <li><code class="code-voice">    <span class="c">// this example will compile successfully</span></code></li>
+                    <li><code class="code-voice">}</code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        The result of the <code class="code-voice">i == 1</code> comparison is of type <code class="code-voice">Bool</code>, and so this second example passes the type-check. Comparisons like <code class="code-voice">i == 1</code> are discussed in <span class="x-name"><a href="BasicOperators.html#//apple_ref/doc/uid/TP40014097-CH6-XID_109" data-id="//apple_ref/doc/uid/TP40014097-CH6-XID_109">Basic Operators</a></span>.
+        </p><p class="para">
+        As with other examples of type safety in Swift, this approach avoids accidental errors and ensures that the intention of a particular section of code is always clear.
+        </p>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_481"></a>
+        <h3 class="section-name" tabindex="0">Tuples</h3>
+        <p class="para">
+        <em>Tuples</em> group multiple values into a single compound value. The values within a tuple can be of any type and do not have to be of the same type as each other.
+        </p><p class="para">
+        In this example, <code class="code-voice">(404, "Not Found")</code> is a tuple that describes an <em>HTTP status code</em>. An HTTP status code is a special value returned by a web server whenever you request a web page. A status code of <code class="code-voice">404 Not Found</code> is returned if you request a webpage that doesn’t exist.
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">http404Error</span> = (<span class="m">404</span>, <span class="s">"Not Found"</span>)</code></li>
+                    <li><code class="code-voice"><span class="c">// http404Error is of type (Int, String), and equals (404, "Not Found")</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        The <code class="code-voice">(404, "Not Found")</code> tuple groups together an <code class="code-voice">Int</code> and a <code class="code-voice">String</code> to give the HTTP status code two separate values: a number and a human-readable description. It can be described as “a tuple of type <code class="code-voice">(Int, String)</code>”.
+        </p><p class="para">
+        You can create tuples from any permutation of types, and they can contain as many different types as you like. There’s nothing stopping you from having a tuple of type <code class="code-voice">(Int, Int, Int)</code>, or <code class="code-voice">(String, Bool)</code>, or indeed any other permutation you require.
+        </p><p class="para">
+        You can <em>decompose</em> a tuple’s contents into separate constants or variables, which you then access as usual:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> (<span class="vc">statusCode</span>, <span class="vc">statusMessage</span>) = <span class="vc">http404Error</span></code></li>
+                    <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The status code is </span>\(<span class="vc">statusCode</span>)<span class="s">"</span>)</code></li>
+                    <li><code class="code-voice"><span class="c">// prints "The status code is 404"</span></code></li>
+                    <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The status message is </span>\(<span class="vc">statusMessage</span>)<span class="s">"</span>)</code></li>
+                    <li><code class="code-voice"><span class="c">// prints "The status message is Not Found"</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        If you only need some of the tuple’s values, ignore parts of the tuple with an underscore (<code class="code-voice">_</code>) when you decompose the tuple:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> (<span class="vc">justTheStatusCode</span>, <span class="kt">_</span>) = <span class="vc">http404Error</span></code></li>
+                    <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The status code is </span>\(<span class="vc">justTheStatusCode</span>)<span class="s">"</span>)</code></li>
+                    <li><code class="code-voice"><span class="c">// prints "The status code is 404"</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Alternatively, access the individual element values in a tuple using index numbers starting at zero:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The status code is </span>\(<span class="vc">http404Error</span>.<span class="m">0</span>)<span class="s">"</span>)</code></li>
+                    <li><code class="code-voice"><span class="c">// prints "The status code is 404"</span></code></li>
+                    <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The status message is </span>\(<span class="vc">http404Error</span>.<span class="m">1</span>)<span class="s">"</span>)</code></li>
+                    <li><code class="code-voice"><span class="c">// prints "The status message is Not Found"</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        You can name the individual elements in a tuple when the tuple is defined:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">http200Status</span> = (<span class="vc">statusCode</span>: <span class="m">200</span>, <span class="vc">description</span>: <span class="s">"OK"</span>)</code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        If you name the elements in a tuple, you can use the element names to access the values of those elements:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The status code is </span>\(<span class="vc">http200Status</span>.<span class="vc">statusCode</span>)<span class="s">"</span>)</code></li>
+                    <li><code class="code-voice"><span class="c">// prints "The status code is 200"</span></code></li>
+                    <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"The status message is </span>\(<span class="vc">http200Status</span>.<span class="vc">description</span>)<span class="s">"</span>)</code></li>
+                    <li><code class="code-voice"><span class="c">// prints "The status message is OK"</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Tuples are particularly useful as the return values of functions. A function that tries to retrieve a web page might return the <code class="code-voice">(Int, String)</code> tuple type to describe the success or failure of the page retrieval. By returning a tuple with two distinct values, each of a different type, the function provides more useful information about its outcome than if it could only return a single value of a single type. For more information, see <span class="x-name"><a href="Functions.html#//apple_ref/doc/uid/TP40014097-CH10-XID_251" data-id="//apple_ref/doc/uid/TP40014097-CH10-XID_251">Functions with Multiple Return Values</a></span>.
+        </p><div class="note">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_482"></a>
+            <aside class="aside">
+                <p class="aside-title">Note
+                </p>
+                <p class="para">Tuples are useful for temporary groups of related values. They are not suited to the creation of complex data structures. If your data structure is likely to persist beyond a temporary scope, model it as a class or structure, rather than as a tuple. For more information, see <span class="x-name"><a href="ClassesAndStructures.html#//apple_ref/doc/uid/TP40014097-CH13-XID_135" data-id="//apple_ref/doc/uid/TP40014097-CH13-XID_135">Classes and Structures</a></span>.
+                </p>
+                
+            </aside>
+        </div>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_483"></a>
+        <h3 class="section-name" tabindex="0">Optionals</h3>
+        <p class="para">
+        You use <em>optionals</em> in situations where a value may be absent. An optional says:
+        </p><ul class="list-bullet">
+            <li class="item"><p class="para">
+                There <em>is</em> a value, and it equals <em>x</em>
+                </p>
+            </li>
+        </ul><p class="para">
+        <em>or</em>
+        </p><ul class="list-bullet">
+            <li class="item"><p class="para">
+                There <em>isn’t</em> a value at all
+                </p>
+            </li>
+        </ul><div class="note">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_484"></a>
+            <aside class="aside">
+                <p class="aside-title">Note
+                </p>
+                <p class="para">The concept of optionals doesn’t exist in C or Objective-C. The nearest thing in Objective-C is the ability to return <code class="code-voice">nil</code> from a method that would otherwise return an object, with <code class="code-voice">nil</code> meaning “the absence of a valid object.” However, this only works for objects—it doesn’t work for structures, basic C types, or enumeration values. For these types, Objective-C methods typically return a special value (such as <code class="code-voice">NSNotFound</code>) to indicate the absence of a value. This approach assumes that the method’s caller knows there is a special value to test against and remembers to check for it. Swift’s optionals let you indicate the absence of a value for <em>any type at all</em>, without the need for special constants.
+                </p>
+                
+            </aside>
+        </div><p class="para">
+        Here’s an example. Swift’s <code class="code-voice">String</code> type has a method called <code class="code-voice">toInt</code>, which tries to convert a <code class="code-voice">String</code> value into an <code class="code-voice">Int</code> value. However, not every string can be converted into an integer. The string <code class="code-voice">"123"</code> can be converted into the numeric value <code class="code-voice">123</code>, but the string <code class="code-voice">"hello, world"</code> does not have an obvious numeric value to convert to.
+        </p><p class="para">
+        The example below uses the <code class="code-voice">toInt</code> method to try to convert a <code class="code-voice">String</code> into an <code class="code-voice">Int</code>:
+        </p><section class="code-listing">
+            
+            <span class="caption"></span>
+            <div class="code-sample">
+                
+                <ul class="code-lines">
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">possibleNumber</span> = <span class="s">"123"</span></code></li>
+                    <li><code class="code-voice"><span class="kt">let</span> <span class="vc">convertedNumber</span> = <span class="vc">possibleNumber</span>.<span class="vc">toInt</span>()</code></li>
+                    <li><code class="code-voice"><span class="c">// convertedNumber is inferred to be of type "Int?", or "optional Int"</span></code></li>
+                </ul>
+                
+                
+                
+            </div>
+        </section><p class="para">
+        Because the <code class="code-voice">toInt</code> method might fail, it returns an <em>optional</em> <code class="code-voice">Int</code>, rather than an <code class="code-voice">Int</code>. An optional <code class="code-voice">Int</code> is written as <code class="code-voice">Int?</code>, not <code class="code-voice">Int</code>. The question mark indicates that the value it contains is optional, meaning that it might contain <em>some</em> <code class="code-voice">Int</code> value, or it might contain <em>no value at all</em>. (It can’t contain anything else, such as a <code class="code-voice">Bool</code> value or a <code class="code-voice">String</code> value. It’s either an <code class="code-voice">Int</code>, or it’s nothing at all.)
+        </p>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_485"></a>
+            <h3 class="section-name" tabindex="0">nil</h3>
+            <p class="para">
+            You set an optional variable to a valueless state by assigning it the special value <code class="code-voice">nil</code>:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">var</span> <span class="vc">serverResponseCode</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>? = <span class="m">404</span></code></li>
+                        <li><code class="code-voice"><span class="c">// serverResponseCode contains an actual Int value of 404</span></code></li>
+                        <li><code class="code-voice"><span class="vc">serverResponseCode</span> = <span class="kt">nil</span></code></li>
+                        <li><code class="code-voice"><span class="c">// serverResponseCode now contains no value</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_486"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para"><code class="code-voice">nil</code> cannot be used with non-optional constants and variables. If a constant or variable in your code needs to be able to cope with the absence of a value under certain conditions, always declare it as an optional value of the appropriate type.
+                    </p>
+                    
+                </aside>
+            </div><p class="para">
+            If you define an optional constant or variable without providing a default value, the constant or variable is automatically set to <code class="code-voice">nil</code> for you:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">var</span> <span class="vc">surveyAnswer</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>?</code></li>
+                        <li><code class="code-voice"><span class="c">// surveyAnswer is automatically set to nil</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_487"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">Swift’s <code class="code-voice">nil</code> is not the same as <code class="code-voice">nil</code> in Objective-C. In Objective-C, <code class="code-voice">nil</code> is a pointer to a non-existent object. In Swift, <code class="code-voice">nil</code> is not a pointer—it is the absence of a value of a certain type. Optionals of <em>any</em> type can be set to <code class="code-voice">nil</code>, not just object types.
+                    </p>
+                    
+                </aside>
+            </div>
+            
+        </section>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_488"></a>
+            <h3 class="section-name" tabindex="0">If Statements and Forced Unwrapping</h3>
+            <p class="para">
+            You can use an <code class="code-voice">if</code> statement to find out whether an optional contains a value by comparing the optional against <code class="code-voice">nil</code>. You perform this comparison with the “equal to” operator (<code class="code-voice">==</code>) or the “not equal to” operator (<code class="code-voice">!=</code>).
+            </p><p class="para">
+            If an optional has a value, it is considered to be “not equal to” <code class="code-voice">nil</code>:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">if</span> <span class="vc">convertedNumber</span> != <span class="kt">nil</span> {</code></li>
+                        <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"convertedNumber contains some integer value."</span>)</code></li>
+                        <li><code class="code-voice">}</code></li>
+                        <li><code class="code-voice"><span class="c">// prints "convertedNumber contains some integer value."</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            Once you’re sure that the optional <em>does</em> contain a value, you can access its underlying value by adding an exclamation mark (<code class="code-voice">!</code>) to the end of the optional’s name. The exclamation mark effectively says, “I know that this optional definitely has a value; please use it.” This is known as <em>forced unwrapping</em> of the optional’s value:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">if</span> <span class="vc">convertedNumber</span> != <span class="kt">nil</span> {</code></li>
+                        <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"convertedNumber has an integer value of </span>\(<span class="vc">convertedNumber</span>!)<span class="s">."</span>)</code></li>
+                        <li><code class="code-voice">}</code></li>
+                        <li><code class="code-voice"><span class="c">// prints "convertedNumber has an integer value of 123."</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            For more on the <code class="code-voice">if</code> statement, see <span class="x-name"><a href="ControlFlow.html#//apple_ref/doc/uid/TP40014097-CH9-XID_191" data-id="//apple_ref/doc/uid/TP40014097-CH9-XID_191">Control Flow</a></span>.
+            </p><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_489"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">Trying to use <code class="code-voice">!</code> to access a non-existent optional value triggers a runtime error. Always make sure that an optional contains a non-<code class="code-voice">nil</code> value before using <code class="code-voice">!</code> to force-unwrap its value.
+                    </p>
+                    
+                </aside>
+            </div>
+            
+        </section>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_490"></a>
+            <h3 class="section-name" tabindex="0">Optional Binding</h3>
+            <p class="para">
+            You use <em>optional binding</em> to find out whether an optional contains a value, and if so, to make that value available as a temporary constant or variable. Optional binding can be used with <code class="code-voice">if</code> and <code class="code-voice">while</code> statements to check for a value inside an optional, and to extract that value into a constant or variable, as part of a single action. <code class="code-voice">if</code> and <code class="code-voice">while</code> statements are described in more detail in <span class="x-name"><a href="ControlFlow.html#//apple_ref/doc/uid/TP40014097-CH9-XID_191" data-id="//apple_ref/doc/uid/TP40014097-CH9-XID_191">Control Flow</a></span>.
+            </p><p class="para">
+            Write optional bindings for the <code class="code-voice">if</code> statement as follows:
+            </p><span class="caption"></span>
+            <div class="code-outline">
+                <ul class="code-outline-lines">
+                    <li><pre class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <em class="variable-text">constantName</em> = <em class="variable-text">someOptional</em> {</pre></li><li><pre class="code-voice">    <em class="variable-text">statements</em></pre></li><li><pre class="code-voice">}</pre></li>
+                </ul>
+            </div><p class="para">
+            You can rewrite the <code class="code-voice">possibleNumber</code> example from above to use optional binding rather than forced unwrapping:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">actualNumber</span> = <span class="vc">possibleNumber</span>.<span class="vc">toInt</span>() {</code></li>
+                        <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">possibleNumber</span>)<span class="s"> has an integer value of </span>\(<span class="vc">actualNumber</span>)<span class="s">"</span>)</code></li>
+                        <li><code class="code-voice">} <span class="kt">else</span> {</code></li>
+                        <li><code class="code-voice">    <span class="vc">println</span>(<span class="s">"</span>\(<span class="vc">possibleNumber</span>)<span class="s"> could not be converted to an integer"</span>)</code></li>
+                        <li><code class="code-voice">}</code></li>
+                        <li><code class="code-voice"><span class="c">// prints "123 has an integer value of 123"</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            This can be read as:
+            </p><p class="para">
+            “If the optional <code class="code-voice">Int</code> returned by <code class="code-voice">possibleNumber.toInt</code> contains a value, set a new constant called <code class="code-voice">actualNumber</code> to the value contained in the optional.”
+            </p><p class="para">
+            If the conversion is successful, the <code class="code-voice">actualNumber</code> constant becomes available for use within the first branch of the <code class="code-voice">if</code> statement. It has already been initialized with the value contained <em>within</em> the optional, and so there is no need to use the <code class="code-voice">!</code> suffix to access its value. In this example, <code class="code-voice">actualNumber</code> is simply used to print the result of the conversion.
+            </p><p class="para">
+            You can use both constants and variables with optional binding. If you wanted to manipulate the value of <code class="code-voice">actualNumber</code> within the first branch of the <code class="code-voice">if</code> statement, you could write <code class="code-voice">if var actualNumber</code> instead, and the value contained within the optional would be made available as a variable rather than a constant.
+            </p>
+            
+        </section>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_491"></a>
+            <h3 class="section-name" tabindex="0">Implicitly Unwrapped Optionals</h3>
+            <p class="para">
+            As described above, optionals indicate that a constant or variable is allowed to have “no value”. Optionals can be checked with an <code class="code-voice">if</code> statement to see if a value exists, and can be conditionally unwrapped with optional binding to access the optional’s value if it does exist.
+            </p><p class="para">
+            Sometimes it is clear from a program’s structure that an optional will <em>always</em> have a value, after that value is first set. In these cases, it is useful to remove the need to check and unwrap the optional’s value every time it is accessed, because it can be safely assumed to have a value all of the time.
+            </p><p class="para">
+            These kinds of optionals are defined as <em>implicitly unwrapped optionals</em>. You write an implicitly unwrapped optional by placing an exclamation mark (<code class="code-voice">String!</code>) rather than a question mark (<code class="code-voice">String?</code>) after the type that you want to make optional.
+            </p><p class="para">
+            Implicitly unwrapped optionals are useful when an optional’s value is confirmed to exist immediately after the optional is first defined and can definitely be assumed to exist at every point thereafter. The primary use of implicitly unwrapped optionals in Swift is during class initialization, as described in <span class="x-name"><a href="AutomaticReferenceCounting.html#//apple_ref/doc/uid/TP40014097-CH20-XID_99" data-id="//apple_ref/doc/uid/TP40014097-CH20-XID_99">Unowned References and Implicitly Unwrapped Optional Properties</a></span>.
+            </p><p class="para">
+            An implicitly unwrapped optional is a normal optional behind the scenes, but can also be used like a nonoptional value, without the need to unwrap the optional value each time it is accessed. The following example shows the difference in behavior between an optional string and an implicitly unwrapped optional string when accessing their wrapped value as an explicit <code class="code-voice">String</code>:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">possibleString</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>? = <span class="s">"An optional string."</span></code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">forcedString</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span> = <span class="vc">possibleString</span>! <span class="c">// requires an exclamation mark</span></code></li>
+                        <li><code class="code-voice"> </code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">assumedString</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span>! = <span class="s">"An implicitly unwrapped optional string."</span></code></li>
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">implicitString</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span> = <span class="vc">assumedString</span> <span class="c">// no need for an exclamation mark</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            You can think of an implicitly unwrapped optional as giving permission for the optional to be unwrapped automatically whenever it is used. Rather than placing an exclamation mark after the optional’s name each time you use it, you place an exclamation mark after the optional’s type when you declare it.
+            </p><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_492"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">If you try to access an implicitly unwrapped optional when it does not contain a value, you will trigger a runtime error. The result is exactly the same as if you place an exclamation mark after a normal optional that does not contain a value.
+                    </p>
+                    
+                </aside>
+            </div><p class="para">
+            You can still treat an implicitly unwrapped optional like a normal optional, to check if it contains a value:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">if</span> <span class="vc">assumedString</span> != <span class="kt">nil</span> {</code></li>
+                        <li><code class="code-voice">    <span class="vc">println</span>(<span class="vc">assumedString</span>)</code></li>
+                        <li><code class="code-voice">}</code></li>
+                        <li><code class="code-voice"><span class="c">// prints "An implicitly unwrapped optional string."</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            You can also use an implicitly unwrapped optional with optional binding, to check and unwrap its value in a single statement:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">if</span> <span class="kt">let</span> <span class="vc">definiteString</span> = <span class="vc">assumedString</span> {</code></li>
+                        <li><code class="code-voice">    <span class="vc">println</span>(<span class="vc">definiteString</span>)</code></li>
+                        <li><code class="code-voice">}</code></li>
+                        <li><code class="code-voice"><span class="c">// prints "An implicitly unwrapped optional string."</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_493"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">Implicitly unwrapped optionals should not be used when there is a possibility of a variable becoming <code class="code-voice">nil</code> at a later point. Always use a normal optional type if you need to check for a <code class="code-voice">nil</code> value during the lifetime of a variable.
+                    </p>
+                    
+                </aside>
+            </div>
+            
+        </section>
+        
+    </section>
+    <section class="section">
+        <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_494"></a>
+        <h3 class="section-name" tabindex="0">Assertions</h3>
+        <p class="para">
+        Optionals enable you to check for values that may or may not exist, and to write code that copes gracefully with the absence of a value. In some cases, however, it is simply not possible for your code to continue execution if a value does not exist, or if a provided value does not satisfy certain conditions. In these situations, you can trigger an <em>assertion</em> in your code to end code execution and to provide an opportunity to debug the cause of the absent or invalid value.
+        </p>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_495"></a>
+            <h3 class="section-name" tabindex="0">Debugging with Assertions</h3>
+            <p class="para">
+            An assertion is a runtime check that a logical condition definitely evaluates to <code class="code-voice">true</code>. Literally put, an assertion “asserts” that a condition is true. You use an assertion to make sure that an essential condition is satisfied before executing any further code. If the condition evaluates to <code class="code-voice">true</code>, code execution continues as usual; if the condition evaluates to <code class="code-voice">false</code>, code execution ends, and your app is terminated.
+            </p><p class="para">
+            If your code triggers an assertion while running in a debug environment, such as when you build and run an app in Xcode, you can see exactly where the invalid state occurred and query the state of your app at the time that the assertion was triggered. An assertion also lets you provide a suitable debug message as to the nature of the assert.
+            </p><p class="para">
+            You write an assertion by calling the global <code class="code-voice">assert</code> function. You pass the <code class="code-voice">assert</code> function an expression that evaluates to <code class="code-voice">true</code> or <code class="code-voice">false</code> and a message that should be displayed if the result of the condition is <code class="code-voice">false</code>:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="kt">let</span> <span class="vc">age</span> = -<span class="m">3</span></code></li>
+                        <li><code class="code-voice"><span class="vc">assert</span>(<span class="vc">age</span> &gt;= <span class="m">0</span>, <span class="s">"A person's age cannot be less than zero"</span>)</code></li>
+                        <li><code class="code-voice"><span class="c">// this causes the assertion to trigger, because age is not &gt;= 0</span></code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section><p class="para">
+            In this example, code execution will continue only if <code class="code-voice">age &gt;= 0</code> evaluates to <code class="code-voice">true</code>, that is, if the value of <code class="code-voice">age</code> is non-negative. If the value of <code class="code-voice">age</code> <em>is</em> negative, as in the code above, then <code class="code-voice">age &gt;= 0</code> evaluates to <code class="code-voice">false</code>, and the assertion is triggered, terminating the application.
+            </p><p class="para">
+            The assertion message can be omitted if desired, as in the following example:
+            </p><section class="code-listing">
+                
+                <span class="caption"></span>
+                <div class="code-sample">
+                    
+                    <ul class="code-lines">
+                        <li><code class="code-voice"><span class="vc">assert</span>(<span class="vc">age</span> &gt;= <span class="m">0</span>)</code></li>
+                    </ul>
+                    
+                    
+                    
+                </div>
+            </section>
+            
+        </section>
+        <section class="section">
+            <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_496"></a>
+            <h3 class="section-name" tabindex="0">When to Use Assertions</h3>
+            <p class="para">
+            Use an assertion whenever a condition has the potential to be false, but must <em>definitely</em> be true in order for your code to continue execution. Suitable scenarios for an assertion check include:
+            </p><ul class="list-bullet">
+                <li class="item"><p class="para">
+                    An integer subscript index is passed to a custom subscript implementation, but the subscript index value could be too low or too high.
+                    </p>
+                </li><li class="item"><p class="para">
+                    A value is passed to a function, but an invalid value means that the function cannot fulfill its task.
+                    </p>
+                </li><li class="item"><p class="para">
+                    An optional value is currently <code class="code-voice">nil</code>, but a non-<code class="code-voice">nil</code> value is essential for subsequent code to execute successfully.
+                    </p>
+                </li>
+            </ul><p class="para">
+            See also <span class="x-name"><a href="Subscripts.html#//apple_ref/doc/uid/TP40014097-CH16-XID_448" data-id="//apple_ref/doc/uid/TP40014097-CH16-XID_448">Subscripts</a></span> and <span class="x-name"><a href="Functions.html#//apple_ref/doc/uid/TP40014097-CH10-XID_243" data-id="//apple_ref/doc/uid/TP40014097-CH10-XID_243">Functions</a></span>.
+            </p><div class="note">
+                <a name="//apple_ref/doc/uid/TP40014097-CH5-XID_497"></a>
+                <aside class="aside">
+                    <p class="aside-title">Note
+                    </p>
+                    <p class="para">Assertions cause your app to terminate and are not a substitute for designing your code in such a way that invalid conditions are unlikely to arise. Nonetheless, in situations where invalid conditions are possible, an assertion is an effective way to ensure that such conditions are highlighted and noticed during development, before your app is published.
+                    </p>
+                    
+                </aside>
+            </div>
+            
+        </section>
+        
+    </section>
+    
+  	
+ 	<section id="next_previous" class="">
+        <p class="previous-link"><a href="GuidedTour.html#//apple_ref/doc/uid/TP40014097-CH2-XID_1" data-id="//apple_ref/doc/uid/TP40014097-CH2-XID_1">A Swift Tour</a></p>
+        <p class="next-link"><a href="BasicOperators.html#//apple_ref/doc/uid/TP40014097-CH6-XID_109" data-id="//apple_ref/doc/uid/TP40014097-CH6-XID_109">Basic Operators</a></p>
+        <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+        </p>
+    </section>
+</article>

@@ -42,11 +42,36 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BookTests.fs" />
     <Compile Include="StatementTests.fs" />
     <Compile Include="ExpressionTests.fs" />
     <Compile Include="CompilerTests.fs" />
-    <Compile Include="SwiftBookTests.fs" />
     <Compile Include="FileTests.fs" />
+    <Compile Include="ASwiftTourTests.fs" />
+    <Compile Include="TheBasicsTests.fs" />
+    <Compile Include="BasicOperatorsTests.fs" />
+    <Compile Include="AccessControlTests.fs" />
+    <Compile Include="AdvancedOperatorsTests.fs" />
+    <Compile Include="AutomaticReferenceCountingTests.fs" />
+    <Compile Include="ClassesAndStructuresTests.fs" />
+    <Compile Include="ClosuresTests.fs" />
+    <Compile Include="CollectionTypesTests.fs" />
+    <Compile Include="ControlFlowTests.fs" />
+    <Compile Include="DeinitializationTests.fs" />
+    <Compile Include="EnumerationsTests.fs" />
+    <Compile Include="ExtensionsTests.fs" />
+    <Compile Include="FunctionsTests.fs" />
+    <Compile Include="GenericsTests.fs" />
+    <Compile Include="InheritanceTests.fs" />
+    <Compile Include="InitializationTests.fs" />
+    <Compile Include="MethodsTests.fs" />
+    <Compile Include="NestedTypesTests.fs" />
+    <Compile Include="OptionalChainingTests.fs" />
+    <Compile Include="PropertiesTests.fs" />
+    <Compile Include="ProtocolsTests.fs" />
+    <Compile Include="StringsAndCharactersTests.fs" />
+    <Compile Include="SubscriptsTests.fs" />
+    <Compile Include="TypeCastingTests.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>

@@ -1,0 +1,166 @@
+<article class="chapter">
+  <a name="//apple_ref/doc/uid/TP40014097-CH23"></a><a name="//apple_ref/doc/uid/TP40014097-CH23-XID_353"></a>
+  <div class="pixel-line"></div>
+  <h2 class="chapter-name chapter-name-short">Nested Types</h2>
+
+
+      <section id="mini_toc" class="hideInXcode" role="navigation">
+	<div id="mini_toc_button">
+  	<p>On This Page</p>
+  </div>
+  <ul class="list-bullet">
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH23-XID_354">
+	  				Nested Types in Action
+	  			</a>
+  			</p>
+  		</li>
+  		<li class="item">
+  			<p class="para">
+	  			<a href="#//apple_ref/doc/uid/TP40014097-CH23-XID_355">
+	  				Referring to Nested Types
+	  			</a>
+  			</p>
+  		</li>
+	</ul>
+</section>
+
+  
+  	<section class="section">
+  		<p class="para">
+  Enumerations are often created to support a specific class or structure’s functionality. Similarly, it can be convenient to define utility classes and structures purely for use within the context of a more complex type. To accomplish this, Swift enables you to define <em>nested types</em>, whereby you nest supporting enumerations, classes, and structures within the definition of the type they support.
+</p>
+<p class="para">
+  To nest a type within another type, write its definition within the outer braces of the type it supports. Types can be nested to as many levels as are required.
+</p>
+
+		</section> 
+
+
+  <section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH23-XID_354"></a>
+  <h3 class="section-name" tabindex="0">Nested Types in Action</h3>
+  <p class="para">
+  The example below defines a structure called <code class="code-voice">BlackjackCard</code>, which models a playing card as used in the game of Blackjack. The <code class="code-voice">BlackJack</code> structure contains two nested enumeration types called <code class="code-voice">Suit</code> and <code class="code-voice">Rank</code>.
+</p><p class="para">
+  In Blackjack, the Ace cards have a value of either one or eleven. This feature is represented by a structure called <code class="code-voice">Values</code>, which is nested within the <code class="code-voice">Rank</code> enumeration:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">struct</span> <span class="vc">BlackjackCard</span> {</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="c">// nested Suit enumeration</span></code></li>
+          <li><code class="code-voice">    <span class="kt">enum</span> <span class="vc">Suit</span>: <span class="n"><!-- a href="" -->Character<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> <span class="vc">Spades</span> = <span class="s">"♠"</span>, <span class="vc">Hearts</span> = <span class="s">"♡"</span>, <span class="vc">Diamonds</span> = <span class="s">"♢"</span>, <span class="vc">Clubs</span> = <span class="s">"♣"</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="c">// nested Rank enumeration</span></code></li>
+          <li><code class="code-voice">    <span class="kt">enum</span> <span class="vc">Rank</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> <span class="vc">Two</span> = <span class="m">2</span>, <span class="vc">Three</span>, <span class="vc">Four</span>, <span class="vc">Five</span>, <span class="vc">Six</span>, <span class="vc">Seven</span>, <span class="vc">Eight</span>, <span class="vc">Nine</span>, <span class="vc">Ten</span></code></li>
+          <li><code class="code-voice">        <span class="kt">case</span> <span class="vc">Jack</span>, <span class="vc">Queen</span>, <span class="vc">King</span>, <span class="vc">Ace</span></code></li>
+          <li><code class="code-voice">        <span class="kt">struct</span> <span class="vc">Values</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">let</span> <span class="vc">first</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>, <span class="vc">second</span>: <span class="n"><!-- a href="" -->Int<!-- /a --></span>?</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">        <span class="kt">var</span> <span class="vc">values</span>: <span class="n"><!-- a href="" -->Values<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">switch</span> <span class="kt">self</span> {</code></li>
+          <li><code class="code-voice">            <span class="kt">case</span> .<span class="vc">Ace</span>:</code></li>
+          <li><code class="code-voice">                <span class="kt">return</span> <span class="vc">Values</span>(<span class="vc">first</span>: <span class="m">1</span>, <span class="vc">second</span>: <span class="m">11</span>)</code></li>
+          <li><code class="code-voice">            <span class="kt">case</span> .<span class="vc">Jack</span>, .<span class="vc">Queen</span>, .<span class="vc">King</span>:</code></li>
+          <li><code class="code-voice">                <span class="kt">return</span> <span class="vc">Values</span>(<span class="vc">first</span>: <span class="m">10</span>, <span class="vc">second</span>: <span class="kt">nil</span>)</code></li>
+          <li><code class="code-voice">            <span class="kt">default</span>:</code></li>
+          <li><code class="code-voice">                <span class="kt">return</span> <span class="vc">Values</span>(<span class="vc">first</span>: <span class="kt">self</span>.<span class="vc">toRaw</span>(), <span class="vc">second</span>: <span class="kt">nil</span>)</code></li>
+          <li><code class="code-voice">                }</code></li>
+          <li><code class="code-voice">        }</code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">    </code></li>
+          <li><code class="code-voice">    <span class="c">// BlackjackCard properties and methods</span></code></li>
+          <li><code class="code-voice">    <span class="kt">let</span> <span class="vc">rank</span>: <span class="n"><!-- a href="" -->Rank<!-- /a --></span>, <span class="vc">suit</span>: <span class="n"><!-- a href="" -->Suit<!-- /a --></span></code></li>
+          <li><code class="code-voice">    <span class="kt">var</span> <span class="vc">description</span>: <span class="n"><!-- a href="" -->String<!-- /a --></span> {</code></li>
+          <li><code class="code-voice">        <span class="kt">var</span> <span class="vc">output</span> = <span class="s">"suit is </span>\(<span class="vc">suit</span>.<span class="vc">toRaw</span>())<span class="s">,"</span></code></li>
+          <li><code class="code-voice">            <span class="vc">output</span> += <span class="s">" value is </span>\(<span class="vc">rank</span>.<span class="vc">values</span>.<span class="vc">first</span>)<span class="s">"</span></code></li>
+          <li><code class="code-voice">            <span class="kt">if</span> <span class="kt">let</span> <span class="vc">second</span> = <span class="vc">rank</span>.<span class="vc">values</span>.<span class="vc">second</span> {</code></li>
+          <li><code class="code-voice">                <span class="vc">output</span> += <span class="s">" or </span>\(<span class="vc">second</span>)<span class="s">"</span></code></li>
+          <li><code class="code-voice">            }</code></li>
+          <li><code class="code-voice">            <span class="kt">return</span> <span class="vc">output</span></code></li>
+          <li><code class="code-voice">    }</code></li>
+          <li><code class="code-voice">}</code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  The <code class="code-voice">Suit</code> enumeration describes the four common playing card suits, together with a raw <code class="code-voice">Character</code> value to represent their symbol.
+</p><p class="para">
+  The <code class="code-voice">Rank</code> enumeration describes the thirteen possible playing card ranks, together with a raw <code class="code-voice">Int</code> value to represent their face value. (This raw <code class="code-voice">Int</code> value is not used for the Jack, Queen, King, and Ace cards.)
+</p><p class="para">
+  As mentioned above, the <code class="code-voice">Rank</code> enumeration defines a further nested structure of its own, called <code class="code-voice">Values</code>. This structure encapsulates the fact that most cards have one value, but the Ace card has two values. The <code class="code-voice">Values</code> structure defines two properties to represent this:
+</p><ul class="list-bullet">
+  <li class="item"><p class="para">
+  <code class="code-voice">first</code>, of type <code class="code-voice">Int</code>
+</p>
+</li><li class="item"><p class="para">
+  <code class="code-voice">second</code>, of type <code class="code-voice">Int?</code>, or “optional <code class="code-voice">Int</code>”
+</p>
+</li>
+</ul><p class="para">
+  <code class="code-voice">Rank</code> also defines a computed property, <code class="code-voice">values</code>, which returns an instance of the <code class="code-voice">Values</code> structure. This computed property considers the rank of the card and initializes a new <code class="code-voice">Values</code> instance with appropriate values based on its rank. It uses special values for <code class="code-voice">Jack</code>, <code class="code-voice">Queen</code>, <code class="code-voice">King</code>, and <code class="code-voice">Ace</code>. For the numeric cards, it uses the rank’s raw <code class="code-voice">Int</code> value.
+</p><p class="para">
+  The <code class="code-voice">BlackjackCard</code> structure itself has two properties—<code class="code-voice">rank</code> and <code class="code-voice">suit</code>. It also defines a computed property called <code class="code-voice">description</code>, which uses the values stored in <code class="code-voice">rank</code> and <code class="code-voice">suit</code> to build a description of the name and value of the card. The <code class="code-voice">description</code> property uses optional binding to check whether there is a second value to display, and if so, inserts additional description detail for that second value.
+</p><p class="para">
+  Because <code class="code-voice">BlackjackCard</code> is a structure with no custom initializers, it has an implicit memberwise initializer, as described in <span class="x-name"><a href="Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_320" data-id="//apple_ref/doc/uid/TP40014097-CH18-XID_320">Memberwise Initializers for Structure Types</a></span>. You can use this initializer to initialize a new constant called <code class="code-voice">theAceOfSpades</code>:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">theAceOfSpades</span> = <span class="vc">BlackjackCard</span>(<span class="vc">rank</span>: .<span class="vc">Ace</span>, <span class="vc">suit</span>: .<span class="vc">Spades</span>)</code></li>
+          <li><code class="code-voice"><span class="vc">println</span>(<span class="s">"theAceOfSpades: </span>\(<span class="vc">theAceOfSpades</span>.<span class="vc">description</span>)<span class="s">"</span>)</code></li>
+          <li><code class="code-voice"><span class="c">// prints "theAceOfSpades: suit is ♠, value is 1 or 11"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  Even though <code class="code-voice">Rank</code> and <code class="code-voice">Suit</code> are nested within <code class="code-voice">BlackjackCard</code>, their type can be inferred from context, and so the initialization of this instance is able to refer to the enumeration members by their member names (<code class="code-voice">.Ace</code> and <code class="code-voice">.Spades</code>) alone. In the example above, the <code class="code-voice">description</code> property correctly reports that the Ace of Spades has a value of <code class="code-voice">1</code> or <code class="code-voice">11</code>.
+</p>
+  
+</section>
+<section class="section">
+  <a name="//apple_ref/doc/uid/TP40014097-CH23-XID_355"></a>
+  <h3 class="section-name" tabindex="0">Referring to Nested Types</h3>
+  <p class="para">
+  To use a nested type outside of its definition context, prefix its name with the name of the type it is nested within:
+</p><section class="code-listing">
+  
+  <span class="caption"></span>
+  <div class="code-sample">
+
+      <ul class="code-lines">
+          <li><code class="code-voice"><span class="kt">let</span> <span class="vc">heartsSymbol</span> = <span class="vc">BlackjackCard</span>.<span class="vc">Suit</span>.<span class="vc">Hearts</span>.<span class="vc">toRaw</span>()</code></li>
+          <li><code class="code-voice"><span class="c">// heartsSymbol is "♡"</span></code></li>
+      </ul>
+
+
+
+  </div>
+</section><p class="para">
+  For the example above, this enables the names of <code class="code-voice">Suit</code>, <code class="code-voice">Rank</code>, and <code class="code-voice">Values</code> to be kept deliberately short, because their names are naturally qualified by the context in which they are defined.
+</p>
+  
+</section>
+
+  	
+ 	<section id="next_previous" class="">
+    		<p class="previous-link"><a href="TypeCasting.html#//apple_ref/doc/uid/TP40014097-CH22-XID_498" data-id="//apple_ref/doc/uid/TP40014097-CH22-XID_498">Type Casting</a></p>
+  			<p class="next-link"><a href="Extensions.html#//apple_ref/doc/uid/TP40014097-CH24-XID_229" data-id="//apple_ref/doc/uid/TP40014097-CH24-XID_229">Extensions</a></p>
+  <p class="copyright">Copyright © 2014 Apple Inc. All rights reserved. <a class="link" href="http://www.apple.com/legal/terms/site.html" target="_blank" rel="external">Terms of Use</a>   |  <a class="link" href="http://www.apple.com/privacy/" target="_blank" rel="external">Privacy Policy</a>  |  Updated: 2014-08-14
+  </p>
+  </section>
+</article>
