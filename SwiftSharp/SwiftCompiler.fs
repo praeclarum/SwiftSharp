@@ -11,6 +11,12 @@ open SwiftParser
 open IKVM.Reflection
 open IKVM.Reflection.Emit
 
+let notSupported x = failwith (sprintf "Not supported: %A" x)
+
+let omg msg x = failwith (sprintf msg x)
+
+let pass msg x = failwith (sprintf msg x)
+
 type Config =
     {
         OutputPath: string
@@ -19,7 +25,16 @@ type Config =
 
 type ClrType = IKVM.Reflection.Type
 
-type DefinedClrType = TypeBuilder * (GenericTypeParameterBuilder array)
+type DefinedMembers = ResizeArray<MemberInfo>
+
+type DefinedType =
+    {
+        Builder : TypeBuilder
+        GenericParameters : GenericTypeParameterBuilder array
+        Members : DefinedMembers
+    }
+    with
+        static member Create (t, gps) = { Builder = t; GenericParameters = gps; Members = new DefinedMembers () }
 
 type TypeId = (string * int) list
 
@@ -38,7 +53,48 @@ let rec clrToId (clrType : ClrType) : TypeId =
     else
         [(name, g)]
 
-type TypeMap = Dictionary<TypeId, ClrType>
+type TypeRef =
+    | ClrTypeRef of ClrType
+    | DefinedTypeRef of DefinedType
+    with
+        member this.Members : MemberInfo seq =
+            match this with
+            | ClrTypeRef t -> t.GetMembers () :> MemberInfo seq
+            | DefinedTypeRef t -> t.Members :> MemberInfo seq
+        member this.GetMember (name) =
+            match this with
+            | ClrTypeRef t -> t.GetMember (name)
+            | DefinedTypeRef t -> t.Members |> Seq.filter (fun x -> x.Name = name) |> Seq.toArray
+        member this.Methods : MethodInfo seq =
+            match this with
+            | ClrTypeRef t -> t.GetMethods () |> Array.toSeq
+            | DefinedTypeRef t -> t.Members |> Seq.choose (function | :? MethodInfo as m -> Some m | _ -> None)
+        member this.Constructors : ConstructorInfo seq =
+            match this with
+            | ClrTypeRef t -> t.GetConstructors () |> Array.toSeq
+            | DefinedTypeRef t -> t.Members |> Seq.choose (function | :? ConstructorInfo as c -> Some c | _ -> None)
+        member this.Name =
+            match this with
+            | ClrTypeRef t -> t.Name
+            | DefinedTypeRef t -> t.Builder.Name
+        member this.FullName =
+            match this with
+            | ClrTypeRef t -> t.FullName
+            | DefinedTypeRef t -> t.Builder.FullName
+        member this.ClrType =
+            match this with
+            | ClrTypeRef t -> t
+            | DefinedTypeRef t -> t.Builder :> ClrType
+        member this.MakeGenericType (targs : TypeRef array) =
+            match this with
+            | ClrTypeRef t -> ClrTypeRef (t.MakeGenericType (targs |> Array.map (fun x -> x.ClrType)))
+            | DefinedTypeRef t -> ClrTypeRef (t.Builder.MakeGenericType (targs |> Array.map (fun x -> x.ClrType)))
+        member this.IsAssignableFrom (other : TypeRef) =
+            match this with
+            | ClrTypeRef t -> t.IsAssignableFrom (other.ClrType)
+            | _ -> omg "IsAssignableFrom not implemented for %A" (this, other)
+
+type TypeMap = Dictionary<TypeId, TypeRef>
 
 type Env (config) =
     let dir = System.IO.Path.GetDirectoryName (config.OutputPath)
@@ -75,12 +131,15 @@ type Env (config) =
         |> List.iter (fun a ->
             modl.__AddAssemblyReference (a.GetName (), a))
 
-    let getRegisteredName (t : ClrType) =
-        match registerAttributeType with
-        | Some r ->
-            match t.__GetCustomAttributes (r, true) |> Seq.toList with
-            | [] -> None
-            | x :: _ -> Some (x.ConstructorArguments.[0].Value.ToString ())
+    let getRegisteredName (tr : TypeRef) =
+        match tr with
+        | ClrTypeRef t ->
+            match registerAttributeType with
+            | Some r ->
+                match t.__GetCustomAttributes (r, true) |> Seq.toList with
+                | [] -> None
+                | x :: _ -> Some (x.ConstructorArguments.[0].Value.ToString ())
+            | _ -> None
         | _ -> None
 
     //
@@ -100,8 +159,9 @@ type Env (config) =
                         namespaces.Add (k, x)
                         x
                 if t.IsPublic then
-                    ns.Add (clrToId t, t)
-                    Some (ns, t)
+                    let tr = ClrTypeRef t
+                    ns.Add (clrToId t, tr)
+                    Some (ns, tr)
                 else None)
             types |> Array.iter (fun (ns, t) ->                
                 match getRegisteredName t with
@@ -111,12 +171,12 @@ type Env (config) =
                         ns.Add (rid, t)
                 | _ -> ()))
 
-    let definedTypes = new Dictionary<TypeId, DefinedClrType> ()
+    let definedTypes = new TypeMap ()
 
     let coreTypes = new TypeMap ()
 
     let learnType id t =
-        coreTypes.[[id]] <- t
+        coreTypes.[[id]] <- ClrTypeRef t
 
     do
         learnType ("AnyObject", 0) objectType
@@ -133,31 +193,39 @@ type Env (config) =
                 (("System.String", "hasPrefix"), "StartsWith")
             ]
 
+    member this.Assembly = asm
+
+    member this.CoreTypes = coreTypes
+    member this.VoidType = ClrTypeRef voidType
+    member this.ObjectType = ClrTypeRef objectType
+    member this.StringType = ClrTypeRef stringType
+    member this.ExportAttributeType = exportAttributeType
+
     member this.GetMemberReplacement (fullTypeName, methodName) =
         match methodReplacements.TryFind (fullTypeName, methodName) with
         | Some n -> n
         | _ -> methodName
 
-    member this.Assembly = asm
-
-    member this.CoreTypes = coreTypes
-    member this.VoidType = voidType
-    member this.ObjectType = objectType
-    member this.StringType = stringType
-    member this.ExportAttributeType = exportAttributeType
+    member this.FindGlobalMethods (methodName : string) : MethodInfo list =
+        match methodName with
+        | "println" ->
+            match objectType.Assembly.GetType ("System.Console") with
+            | null -> []
+            | t -> [t.GetMethod ("WriteLine", [|objectType|])]
+        | _ -> []
 
     member this.DefinedTypes = definedTypes
 
-    member this.DefineType name generics attribs (parent : ClrType) =
-        let t = modl.DefineType (defaultNamespace + "." + name, attribs, parent)
+    member this.DefineType name generics attribs (parent : TypeRef) =
+        let t = modl.DefineType (defaultNamespace + "." + name, attribs, parent.ClrType)
         let g = 
             match generics with
             | [] -> [||]
             | _ -> t.DefineGenericParameters (generics |> List.toArray)
         let id = [(name, g.Length)]
-        let d = (t, g)
-        definedTypes.[id] <- d
-        (t, g)
+        let d = DefinedType.Create (t, g)
+        definedTypes.[id] <- DefinedTypeRef d
+        d
 
     member this.GetNamespace (parts) =
         match namespaces.TryGetValue (parts) with
@@ -168,6 +236,7 @@ type Env (config) =
             | (false, _) -> failwith (sprintf "Cannot find namespace %A" parts)
 
     member this.GetOperatorPrecedence op = failwith (sprintf "Unknown operator %s" op)
+
 
 type TranslationUnit (env : Env, stmts : Statement list) =
     let typeAliases = new TypeMap ()
@@ -183,12 +252,12 @@ type TranslationUnit (env : Env, stmts : Statement list) =
     member this.Env = env
     member this.Statements = stmts
 
-    member private this.LookupKnownType id =
+    member private this.LookupKnownType id : TypeRef option =
         match typeAliases.TryGetValue id with
         | (true, t) -> Some t
         | _ ->
             match env.DefinedTypes.TryGetValue id with
-            | (true, (t, g)) -> Some (t :> ClrType)
+            | (true, t) -> Some t
             | _ ->
                 match importedTypes.TryGetValue id with
                 | (true, t) -> Some t
@@ -204,7 +273,7 @@ type TranslationUnit (env : Env, stmts : Statement list) =
         typeAliases.[[(name, 0)]] <- clrType
         clrType
 
-    member this.FindClrType (SwiftType es : SwiftType) =
+    member this.FindClrType (SwiftType es : SwiftType) : TypeRef option =
         // TODO: This ignores nested types
         let e = es.Head
         let id = e |> swiftToId
@@ -229,17 +298,11 @@ type TranslationUnit (env : Env, stmts : Statement list) =
         | Some x -> this.GetClrType x
         | _ -> env.VoidType
 
-    member this.InferType (expr) =
+    member this.InferType (expr) : TypeRef =
         match expr with
         | _ -> failwith (sprintf "Cannot infer type of: %A" expr)
 
-let notSupported x = failwith (sprintf "Not supported: %A" x)
-
-let omg msg x = failwith (sprintf msg x)
-
-let pass msg x = failwith (sprintf msg x)
-
-let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodName : string) (ps : (ParameterBuilder * ClrType) list) (body : Statement list) (il : ILGenerator) =
+let compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : string) (ps : (ParameterBuilder * TypeRef) list) (body : Statement list) (il : ILGenerator) =
 
     let cid = ref 1
     let locals = ref []
@@ -255,10 +318,10 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
         | Variable name -> tu.FindClrType (name)
         | _ -> None
 
-    let resolveOverload name xs args getAttrs =
+    let resolveOverload xs args getAttrs =
         match tu.Env.ExportAttributeType with
         | Some ex ->
-            let mats = xs |> Array.choose (fun x -> 
+            let mats = xs |> Seq.choose (fun x -> 
                 match getAttrs x ex |> Seq.toList with
                 | [e : CustomAttributeData] when e.ConstructorArguments.Count = 1 -> 
                     let n = e.ConstructorArguments.[0].Value.ToString ()
@@ -284,82 +347,80 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
             | None -> omg "I can't find a ctor %A" (mats, args)
         | _ -> omg "I don't know how to choose an overload of init %A" (xs, args)
 
-    let findMethod (typ : ClrType) methodName (args : Argument list) =
-        let name = tu.Env.GetMemberReplacement (typ.FullName, methodName)
-        match typ.GetMethods () |> Array.filter (fun x -> x.Name = name && (x.GetParameters ()).Length = args.Length) with
-        | [||] -> None
-        | [|x|] -> Some x
-        | xs -> resolveOverload name xs args (fun x ex -> x.__GetCustomAttributes (ex, true))
+    let matchMethod (methods : MethodInfo seq) (args : Argument list) =
+        match methods |> Seq.filter (fun x -> (x.GetParameters ()).Length = args.Length) |> Seq.toList with
+        | [] -> None
+        | [x] -> Some x
+        | xs -> resolveOverload xs args (fun x ex -> x.__GetCustomAttributes (ex, true))
 
-    let findCtor (typ : ClrType) (args : Argument list) =
-        match typ.GetConstructors () |> Array.filter (fun x -> (x.GetParameters ()).Length = args.Length) with
-        | [||] -> None
-        | [|x|] -> Some x
-        | xs -> resolveOverload "init" xs args (fun x ex -> x.__GetCustomAttributes (ex, true))
+    let findMethod (typ : TypeRef) methodName (args : Argument list) =
+        let name = tu.Env.GetMemberReplacement (typ.FullName, methodName)
+        matchMethod (typ.Methods |> Seq.filter (fun x -> x.Name = name)) args
 
     let findGlobalMethod methodName (args : Argument list) =
-        match methodName with
-        | "println" ->
-            match tu.Env.ObjectType.Assembly.GetType ("System.Console") with
-            | null -> None
-            | t ->
-                match t.GetMethod ("WriteLine", [|tu.Env.StringType|]) with
-                | null -> None
-                | m -> Some m
-        | _ -> None
+        matchMethod (tu.Env.FindGlobalMethods (methodName)) args
 
-    let canAssignType (sourceType : ClrType, destType : ClrType) =
+    let findCtor (typ : TypeRef) (args : Argument list) =
+        match typ.Constructors |> Seq.filter (fun x -> (x.GetParameters ()).Length = args.Length) |> Seq.toList with
+        | [] -> None
+        | [x] -> Some x
+        | xs -> resolveOverload xs args (fun x ex -> x.__GetCustomAttributes (ex, true))
+
+    let canAssignType (sourceType : TypeRef, destType : TypeRef) =
         destType.IsAssignableFrom (sourceType)
 
-    let typesCompatible (sourceTypes : ClrType seq, destTypes : ClrType seq) =
+    let typesCompatible (sourceTypes : TypeRef seq, destTypes : TypeRef seq) =
         sourceTypes |> Seq.zip destTypes |> Seq.forall canAssignType
 
-    let findMethodWithParamTypes (typ : ClrType) name (argTypes : ClrType array) =
-        match typ.GetMethods () |> Array.filter (fun x ->
+    let findMethodWithParamTypes (typ : TypeRef) name (argTypes : TypeRef list) =
+        match typ.Methods |> Seq.filter (fun x ->
             let ps = x.GetParameters ()
             x.Name = name &&
                 ps.Length = argTypes.Length &&
-                typesCompatible (argTypes, ps |> Seq.map (fun x -> x.ParameterType))) with
-        | [||] -> None
-        | [|x|] -> Some x
+                typesCompatible (argTypes, ps |> Seq.map (fun x -> ClrTypeRef x.ParameterType))) |> Seq.toList with
+        | [] -> None
+        | [x] -> Some x
         | xs -> omg "Cannot determine overload %A" (typ, name, argTypes, xs)
 
-    let rec findBinaryOp (typ : ClrType) opName arg : MethodInfo option =
+    let rec findBinaryOp (typ : TypeRef) opName arg : MethodInfo option =
         let n =
             match opName with
             | "+" -> "op_Addition"
             | _ -> "op_" + opName
-        match typ.GetMethods () |> Array.filter (fun x -> x.Name = n) with
-        | [|x|] -> Some x
-        | [||] ->
+        match typ.Methods |> Seq.filter (fun x -> x.Name = n) |> Seq.toList with
+        | [x] -> Some x
+        | [] ->
             match typ.FullName, opName with
-            | "System.String", "+" -> findMethodWithParamTypes typ "Concat" [|typ; typeof arg|]
+            | "System.String", "+" -> findMethodWithParamTypes typ "Concat" [typ; typeof arg]
             | _ -> omg "I don't know the operator %A" (typ, opName)
         | xs -> omg "I don't know how to overload op %A" (opName, n, xs)
 
-    and typeof e =
+    and typeof e : TypeRef =
         match e with
         | Str _ -> tu.Env.StringType
         | FlatBinary _ -> flatten e tu.Env.GetOperatorPrecedence |> typeof
         | Binary (_, TernaryConditionalBinary (e, _)) -> typeof e
         | Variable name ->
             match !locals |> List.tryFind (fun (n,_) -> n = name) with
-            | Some (_, loc) -> loc.LocalType
+            | Some (_, loc) -> ClrTypeRef loc.LocalType
             | None ->
                 match ps |> List.tryFind (fun (x, _) -> x.Name = name) with
-                | Some (_,t) -> t
+                | Some (_, t) -> t
                 | _ -> omg "Can't find the type of variable %s" name
         | Funcall (NamedType x, args) -> x
         | Funcall (Member (Some (NamedType t), name), args) ->
             match findMethod t name args with
-            | Some x -> x.ReturnType
+            | Some x -> ClrTypeRef x.ReturnType
             | _ -> omg "Could not find method on type %A" (t, name, args)
         | _ -> failwith (sprintf "Don't know the type of %A" e)
 
     let rec apply f args =
-        let emitCall meth =
+        let emitCall (meth : MethodInfo) =
             args |> List.iter (snd >> eval)
-            il.EmitCall (OpCodes.Callvirt, meth, [||])
+            if meth.Attributes.HasFlag (MethodAttributes.Virtual) then
+                il.EmitCall (OpCodes.Callvirt, meth, ClrType.EmptyTypes)
+            else
+                il.EmitCall (OpCodes.Call, meth, ClrType.EmptyTypes)
         match f with
         | Member (Some o, name) ->
             let ot = typeof o
@@ -409,9 +470,7 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
         | Closure (head, body) ->
             let ctypeName = sprintf "%sClosure%d" methodName !cid
             cid := !cid + 1
-            let nt = typ.DefineNestedType (ctypeName)
-            nt.CreateType () |> ignore
-            pass "Closure, closure %A" head
+            pass "Closures, closures!! %A" head
         | Funcall ((NamedType t), args) ->
             match findCtor t args with
             | None -> omg "Couldn't find constructor for %A" args
@@ -425,7 +484,7 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
                 il.EmitCall (OpCodes.Callvirt, meth, [||])
             | _ -> omg "Could not find method on type %A" (t, name, args)
         | Funcall (Variable name as f, args) ->
-            match findMethod typ name args with
+            match findMethod (DefinedTypeRef typ) name args with
             | Some meth ->
                 args |> List.iter (snd >> eval)
                 il.EmitCall (OpCodes.Callvirt, meth, [||])
@@ -436,8 +495,8 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
     let assign left right =
         match left with
         | Member (Some (Variable "self"), name) ->
-            match typ.GetMember (name) with
-            | null | [||] -> failwith (sprintf "Can't find member %A" name)
+            match (DefinedTypeRef typ).GetMember (name) with
+            | [||] -> failwith (sprintf "Can't find member %A" name)
             | [|:? FieldBuilder as field|] ->
                 eval right
                 il.Emit (OpCodes.Ldloc_0);
@@ -451,17 +510,22 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
         | ExpressionStatement e ->
             match (flatten e tu.Env.GetOperatorPrecedence) with
             | Binary (left, OpBinary ("=", right)) -> assign left right
-            | x -> eval x
+            | x ->
+                let h = il.__StackHeight
+                eval x
+                if il.__StackHeight > h then
+                    il.Emit (OpCodes.Pop)
         | DeclarationStatement (ConstantDeclaration [(IdentifierPattern (name, None), Some e)]) ->
-            let loc = declareLocal name (typeof e)
+            let loc = declareLocal name (typeof e).ClrType
             loc.SetLocalSymInfo (name)
             eval e
             il.Emit (OpCodes.Stloc, loc.LocalIndex)
         | x -> failwith (sprintf "Don't know how to compile statement %A" x)
 
     body |> List.iter run
+    il.Emit (OpCodes.Ret)
 
-let declareField (tu : TranslationUnit) (typ : DefinedClrType) decl =
+let declareField (tu : TranslationUnit) (typ : DefinedType) decl =
 
     let getType optType optInit =
         match optType with
@@ -476,13 +540,12 @@ let declareField (tu : TranslationUnit) (typ : DefinedClrType) decl =
             let attribs = FieldAttributes.Public
             let builders = specs |> List.map (function
                 | (IdentifierPattern (name, ot), oi) ->
-                    let tt = fst typ
-                    tt.DefineField (name, getType ot oi, attribs)
+                    typ.Builder.DefineField (name, (getType ot oi).ClrType, attribs)
                 | x -> notSupported x)                
             Some (fun () -> ())
         | _ -> None
 
-let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
+let declareMethod (tu : TranslationUnit) (typ : DefinedType) decl =
     match decl with
         | FunctionDeclaration (dspecs, name : string, parameters: Parameter list list, res, body) ->
             if parameters.Length > 1 then failwith "Curried function declarations not supported"
@@ -497,7 +560,7 @@ let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
                     | _ -> tu.Env.ObjectType)
                 |> Seq.toArray
             let attribs = MethodAttributes.Public
-            let builder = (fst typ).DefineMethod (name, attribs, returnType, paramTypes)
+            let builder = typ.Builder.DefineMethod (name, attribs, returnType.ClrType, paramTypes |> Array.map (fun x -> x.ClrType))
             let ps = parameters.Head |> List.mapi (fun i (_, _, ploc, _, _) -> builder.DefineParameter (i + 1, ParameterAttributes.None, ploc))
             let psts = (List.zip ps (paramTypes |> Array.toList))
             Some (fun () -> compileMethod tu typ name psts body (builder.GetILGenerator ()))
@@ -509,32 +572,33 @@ let declareMethod (tu : TranslationUnit) (typ : DefinedClrType) decl =
                     | _ -> tu.Env.ObjectType)
                 |> Seq.toArray
             let attribs = MethodAttributes.Public
-            let builder = (fst typ).DefineConstructor (attribs, CallingConventions.Standard, paramTypes)
+            let builder = typ.Builder.DefineConstructor (attribs, CallingConventions.Standard, paramTypes |> Array.map (fun x -> x.ClrType))
             let ps = parameters |> List.mapi (fun i (_, _, ploc, _, _) -> builder.DefineParameter (i + 1, ParameterAttributes.None, ploc))
             let psts = (List.zip ps (paramTypes |> Array.toList))
             Some (fun () -> compileMethod tu typ "init" psts body (builder.GetILGenerator ()))
         | _ -> None
 
-type DeclaredType = DefinedClrType * (Declaration list)
+type DeclaredType = DefinedType * (Declaration list)
 
 let declareType (tu : TranslationUnit) stmt : DeclaredType list =
     match stmt with
-    | DeclarationStatement (ClassDeclaration (name, generics, inheritance, decls) as d) -> [(tu.DefineType name generics TypeAttributes.Public null, decls)]
+    | DeclarationStatement (ClassDeclaration (name, generics, inheritance, decls) as d) ->
+        [((tu.DefineType name generics TypeAttributes.Public tu.Env.ObjectType), decls)]
     | DeclarationStatement (UnionEnumDeclaration (name, generics, inheritance, cases) as d) ->
-        let tb, gbs = tu.DefineType name generics (TypeAttributes.Public ||| TypeAttributes.Abstract) null
+        let d = tu.DefineType name generics (TypeAttributes.Public ||| TypeAttributes.Abstract) tu.Env.ObjectType
         let cbs : DeclaredType list = cases |> List.collect (fun ccases ->
             ccases |> List.map (fun (cn, oct) ->
                 let tattribs = TypeAttributes.Class ||| TypeAttributes.Public
                 let fattribs = FieldAttributes.Public
-                let cb, cgbs = tu.DefineType (name + cn) [] tattribs (tb :> ClrType)
+                let cd = tu.DefineType (name + cn) [] tattribs (DefinedTypeRef d)
                 match oct with
                 | Some (SwiftType [("Tuple", ts)]) ->
                     ts |> List.iteri (fun i tt ->
-                        let fb = cb.DefineField (sprintf "Item%d" (i+1), tu.GetClrType (tt), fattribs)
+                        let fb = cd.Builder.DefineField (sprintf "Item%d" (i+1), (tu.GetClrType (tt)).ClrType, fattribs)
                         ())
                 | _ -> ()
-                ((cb, cgbs), [])))
-        ((tb, gbs), []) :: cbs
+                (cd, [])))
+        (d, []) :: cbs
     | DeclarationStatement (TypealiasDeclaration (name, typ)) ->
         let ct = tu.DefineTypeAlias (name, typ)
         []
@@ -578,24 +642,35 @@ and compile asts config =
 
     // Create the top level type
     let tattribs = TypeAttributes.Public
-    let topLevelType = env.DefineType "TopLevel" [] tattribs env.ObjectType
+    let topLevelType = env.DefineType "Globals" [] tattribs env.ObjectType
     let topLevelExe = tus |> List.map (fun x -> (x, x.Statements |> List.filter isTopLevelStatement))
     let topLevelCompilers = topLevelExe |> List.mapi (fun i (tu, body) ->
         let name = sprintf "Initialize%d" i
-        let attribs = MethodAttributes.Public
-        let builder = (fst topLevelType).DefineMethod (name, attribs, env.VoidType, [||])
-        fun () -> compileMethod tu topLevelType name [] body (builder.GetILGenerator ()))
+        let attribs = MethodAttributes.Public ||| MethodAttributes.Static
+        let builder = topLevelType.Builder.DefineMethod (name, attribs, env.VoidType.ClrType, [||])
+        (builder, fun () -> compileMethod tu topLevelType name [] body (builder.GetILGenerator ())))
 
-    // Bake the types
-    let types =
-        env.DefinedTypes.Values
-        |> Seq.map (fun (tb, gbs) -> if tb.IsCreated () then tb :> ClrType else tb.CreateType ())
-        |> Seq.toArray
+    if config.OutputPath.EndsWith (".exe") then
+        let name = sprintf "Main"
+        let attribs = MethodAttributes.Public ||| MethodAttributes.Static ||| MethodAttributes.HideBySig
+        let builder = topLevelType.Builder.DefineMethod (name, attribs, env.VoidType.ClrType, [||])
+        let il = builder.GetILGenerator ()
+        for (b, c) in topLevelCompilers do
+            il.EmitCall (OpCodes.Call, b, ClrType.EmptyTypes)
+        il.Emit (OpCodes.Ret)
+        env.Assembly.SetEntryPoint (builder)
 
     // Fourth pass: Compile code, finally
     for fc in fieldCompilers do fc ()
     for mc in methodCompilers do mc ()
-    for mc in topLevelCompilers do mc ()
+    for mc in topLevelCompilers do (snd mc) ()
+
+    // Bake the types
+    let types =
+        env.DefinedTypes.Values
+        |> Seq.iter (function
+            | DefinedTypeRef t -> if not (t.Builder.IsCreated ()) then t.Builder.CreateType () |> ignore
+            | _ -> ())
 
     // Save it
     env.Assembly
