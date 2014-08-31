@@ -13,7 +13,6 @@ type CompilerTests () =
     let compileFile path =
         let config =
             {
-                InputUrls = [Path.GetFullPath ("TestFiles/" + path + ".swift")]
                 OutputPath = Path.GetFullPath ("TestFiles/" + path + ".dll")
                 References =
                     [
@@ -21,10 +20,11 @@ type CompilerTests () =
                         "/Developer/MonoTouch/usr/lib/mono/2.1/monotouch.dll"
                     ]
             }
-        compile config
+        compileUrls [Path.GetFullPath ("TestFiles/" + path + ".swift")] config
 
     [<Test>]
     member x.SODAClient() =
-        let r = (compileFile "SODAClient")
+        let a = (compileFile "SODAClient")
+        let r = a.GetTypes ()
         let lastType = r.[r.Length - 1]
         Assert.AreEqual ("SODAClient", lastType.Name)

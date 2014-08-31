@@ -6,75 +6,60 @@ type ProtocolsTests () =
     inherit BookTests ()
 
     [<Test>]
-    member this.Sample1() =
-        let code = """
-protocol SomeProtocol {
+    member this.Protocols01() =
+        let code = """protocol SomeProtocol {
     // protocol definition goes here
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols01", code)
 
     [<Test>]
-    member this.Sample2() =
-        let code = """
-struct SomeStructure: FirstProtocol, AnotherProtocol {
+    member this.Protocols02() =
+        let code = """struct SomeStructure: FirstProtocol, AnotherProtocol {
     // structure definition goes here
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols02", code)
 
     [<Test>]
-    member this.Sample3() =
-        let code = """
-class SomeClass: SomeSuperclass, FirstProtocol, AnotherProtocol {
+    member this.Protocols03() =
+        let code = """class SomeClass: SomeSuperclass, FirstProtocol, AnotherProtocol {
     // class definition goes here
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols03", code)
 
     [<Test>]
-    member this.Sample4() =
-        let code = """
-protocol SomeProtocol {
+    member this.Protocols04() =
+        let code = """protocol SomeProtocol {
     var mustBeSettable: Int { get set }
     var doesNotNeedToBeSettable: Int { get }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols04", code)
 
     [<Test>]
-    member this.Sample5() =
-        let code = """
-protocol AnotherProtocol {
+    member this.Protocols05() =
+        let code = """protocol AnotherProtocol {
     class var someTypeProperty: Int { get set }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols05", code)
 
     [<Test>]
-    member this.Sample6() =
-        let code = """
-protocol FullyNamed {
+    member this.Protocols06() =
+        let code = """protocol FullyNamed {
     var fullName: String { get }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols06", code)
 
     [<Test>]
-    member this.Sample7() =
-        let code = """
-struct Person: FullyNamed {
+    member this.Protocols07() =
+        let code = """struct Person: FullyNamed {
     var fullName: String
 }
 let john = Person(fullName: "John Appleseed")
-// john.fullName is "John Appleseed"
-        """
-        this.Test (code)
+// john.fullName is "John Appleseed" """
+        this.Test ("Protocols07", code)
 
     [<Test>]
-    member this.Sample8() =
-        let code = """
-class Starship: FullyNamed {
+    member this.Protocols08() =
+        let code = """class Starship: FullyNamed {
     var prefix: String?
     var name: String
     init(name: String, prefix: String? = nil) {
@@ -86,32 +71,26 @@ class Starship: FullyNamed {
     }
 }
 var ncc1701 = Starship(name: "Enterprise", prefix: "USS")
-// ncc1701.fullName is "USS Enterprise"
-        """
-        this.Test (code)
+// ncc1701.fullName is "USS Enterprise" """
+        this.Test ("Protocols08", code)
 
     [<Test>]
-    member this.Sample9() =
-        let code = """
-protocol SomeProtocol {
+    member this.Protocols09() =
+        let code = """protocol SomeProtocol {
     class func someTypeMethod()
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols09", code)
 
     [<Test>]
-    member this.Sample10() =
-        let code = """
-protocol RandomNumberGenerator {
+    member this.Protocols10() =
+        let code = """protocol RandomNumberGenerator {
     func random() -> Double
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols10", code)
 
     [<Test>]
-    member this.Sample11() =
-        let code = """
-class LinearCongruentialGenerator: RandomNumberGenerator {
+    member this.Protocols11() =
+        let code = """class LinearCongruentialGenerator: RandomNumberGenerator {
     var lastRandom = 42.0
     let m = 139968.0
     let a = 3877.0
@@ -125,23 +104,19 @@ let generator = LinearCongruentialGenerator()
 println("Here's a random number: \(generator.random())")
 // prints "Here's a random number: 0.37464991998171"
 println("And another one: \(generator.random())")
-// prints "And another one: 0.729023776863283"
-        """
-        this.Test (code)
+// prints "And another one: 0.729023776863283" """
+        this.Test ("Protocols11", code)
 
     [<Test>]
-    member this.Sample12() =
-        let code = """
-protocol Togglable {
+    member this.Protocols12() =
+        let code = """protocol Togglable {
     mutating func toggle()
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols12", code)
 
     [<Test>]
-    member this.Sample13() =
-        let code = """
-enum OnOffSwitch: Togglable {
+    member this.Protocols13() =
+        let code = """enum OnOffSwitch: Togglable {
     case Off, On
     mutating func toggle() {
         switch self {
@@ -154,34 +129,28 @@ enum OnOffSwitch: Togglable {
 }
 var lightSwitch = OnOffSwitch.Off
 lightSwitch.toggle()
-// lightSwitch is now equal to .On
-        """
-        this.Test (code)
+// lightSwitch is now equal to .On """
+        this.Test ("Protocols13", code)
 
     [<Test>]
-    member this.Sample14() =
-        let code = """
-protocol SomeProtocol {
+    member this.Protocols14() =
+        let code = """protocol SomeProtocol {
     init(someParameter: Int)
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols14", code)
 
     [<Test>]
-    member this.Sample15() =
-        let code = """
-class SomeClass: SomeProtocol {
+    member this.Protocols15() =
+        let code = """class SomeClass: SomeProtocol {
     required init(someParameter: Int) {
         // initializer implementation goes here
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols15", code)
 
     [<Test>]
-    member this.Sample16() =
-        let code = """
-protocol SomeProtocol {
+    member this.Protocols16() =
+        let code = """protocol SomeProtocol {
     init()
 }
  
@@ -196,14 +165,12 @@ class SomeSubClass: SomeSuperClass, SomeProtocol {
     required override init() {
         // initializer implementation goes here
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols16", code)
 
     [<Test>]
-    member this.Sample17() =
-        let code = """
-class Dice {
+    member this.Protocols17() =
+        let code = """class Dice {
     let sides: Int
     let generator: RandomNumberGenerator
     init(sides: Int, generator: RandomNumberGenerator) {
@@ -213,14 +180,12 @@ class Dice {
     func roll() -> Int {
         return Int(generator.random() * Double(sides)) + 1
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols17", code)
 
     [<Test>]
-    member this.Sample18() =
-        let code = """
-var d6 = Dice(sides: 6, generator: LinearCongruentialGenerator())
+    member this.Protocols18() =
+        let code = """var d6 = Dice(sides: 6, generator: LinearCongruentialGenerator())
 for _ in 1...5 {
     println("Random dice roll is \(d6.roll())")
 }
@@ -228,14 +193,12 @@ for _ in 1...5 {
 // Random dice roll is 5
 // Random dice roll is 4
 // Random dice roll is 5
-// Random dice roll is 4
-        """
-        this.Test (code)
+// Random dice roll is 4 """
+        this.Test ("Protocols18", code)
 
     [<Test>]
-    member this.Sample19() =
-        let code = """
-protocol DiceGame {
+    member this.Protocols19() =
+        let code = """protocol DiceGame {
     var dice: Dice { get }
     func play()
 }
@@ -243,14 +206,12 @@ protocol DiceGameDelegate {
     func gameDidStart(game: DiceGame)
     func game(game: DiceGame, didStartNewTurnWithDiceRoll diceRoll: Int)
     func gameDidEnd(game: DiceGame)
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols19", code)
 
     [<Test>]
-    member this.Sample20() =
-        let code = """
-class SnakesAndLadders: DiceGame {
+    member this.Protocols20() =
+        let code = """class SnakesAndLadders: DiceGame {
     let finalSquare = 25
     let dice = Dice(sides: 6, generator: LinearCongruentialGenerator())
     var square = 0
@@ -279,14 +240,12 @@ class SnakesAndLadders: DiceGame {
         }
         delegate?.gameDidEnd(self)
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols20", code)
 
     [<Test>]
-    member this.Sample21() =
-        let code = """
-class DiceGameTracker: DiceGameDelegate {
+    member this.Protocols21() =
+        let code = """class DiceGameTracker: DiceGameDelegate {
     var numberOfTurns = 0
     func gameDidStart(game: DiceGame) {
         numberOfTurns = 0
@@ -302,14 +261,12 @@ class DiceGameTracker: DiceGameDelegate {
     func gameDidEnd(game: DiceGame) {
         println("The game lasted for \(numberOfTurns) turns")
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols21", code)
 
     [<Test>]
-    member this.Sample22() =
-        let code = """
-let tracker = DiceGameTracker()
+    member this.Protocols22() =
+        let code = """let tracker = DiceGameTracker()
 let game = SnakesAndLadders()
 game.delegate = tracker
 game.play()
@@ -319,116 +276,94 @@ game.play()
 // Rolled a 5
 // Rolled a 4
 // Rolled a 5
-// The game lasted for 4 turns
-        """
-        this.Test (code)
+// The game lasted for 4 turns """
+        this.Test ("Protocols22", code)
 
     [<Test>]
-    member this.Sample23() =
-        let code = """
-protocol TextRepresentable {
+    member this.Protocols23() =
+        let code = """protocol TextRepresentable {
     func asText() -> String
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols23", code)
 
     [<Test>]
-    member this.Sample24() =
-        let code = """
-extension Dice: TextRepresentable {
+    member this.Protocols24() =
+        let code = """extension Dice: TextRepresentable {
     func asText() -> String {
         return "A \(sides)-sided dice"
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols24", code)
 
     [<Test>]
-    member this.Sample25() =
-        let code = """
-let d12 = Dice(sides: 12, generator: LinearCongruentialGenerator())
+    member this.Protocols25() =
+        let code = """let d12 = Dice(sides: 12, generator: LinearCongruentialGenerator())
 println(d12.asText())
-// prints "A 12-sided dice"
-        """
-        this.Test (code)
+// prints "A 12-sided dice" """
+        this.Test ("Protocols25", code)
 
     [<Test>]
-    member this.Sample26() =
-        let code = """
-extension SnakesAndLadders: TextRepresentable {
+    member this.Protocols26() =
+        let code = """extension SnakesAndLadders: TextRepresentable {
     func asText() -> String {
         return "A game of Snakes and Ladders with \(finalSquare) squares"
     }
 }
 println(game.asText())
-// prints "A game of Snakes and Ladders with 25 squares"
-        """
-        this.Test (code)
+// prints "A game of Snakes and Ladders with 25 squares" """
+        this.Test ("Protocols26", code)
 
     [<Test>]
-    member this.Sample27() =
-        let code = """
-struct Hamster {
+    member this.Protocols27() =
+        let code = """struct Hamster {
     var name: String
     func asText() -> String {
         return "A hamster named \(name)"
     }
 }
-extension Hamster: TextRepresentable {}
-        """
-        this.Test (code)
+extension Hamster: TextRepresentable {} """
+        this.Test ("Protocols27", code)
 
     [<Test>]
-    member this.Sample28() =
-        let code = """
-let simonTheHamster = Hamster(name: "Simon")
+    member this.Protocols28() =
+        let code = """let simonTheHamster = Hamster(name: "Simon")
 let somethingTextRepresentable: TextRepresentable = simonTheHamster
 println(somethingTextRepresentable.asText())
-// prints "A hamster named Simon"
-        """
-        this.Test (code)
+// prints "A hamster named Simon" """
+        this.Test ("Protocols28", code)
 
     [<Test>]
-    member this.Sample29() =
-        let code = """
-let things: [TextRepresentable] = [game, d12, simonTheHamster]
-        """
-        this.Test (code)
+    member this.Protocols29() =
+        let code = """let things: [TextRepresentable] = [game, d12, simonTheHamster] """
+        this.Test ("Protocols29", code)
 
     [<Test>]
-    member this.Sample30() =
-        let code = """
-for thing in things {
+    member this.Protocols30() =
+        let code = """for thing in things {
     println(thing.asText())
 }
 // A game of Snakes and Ladders with 25 squares
 // A 12-sided dice
-// A hamster named Simon
-        """
-        this.Test (code)
+// A hamster named Simon """
+        this.Test ("Protocols30", code)
 
     [<Test>]
-    member this.Sample31() =
-        let code = """
-protocol InheritingProtocol: SomeProtocol, AnotherProtocol {
+    member this.Protocols31() =
+        let code = """protocol InheritingProtocol: SomeProtocol, AnotherProtocol {
     // protocol definition goes here
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols31", code)
 
     [<Test>]
-    member this.Sample32() =
-        let code = """
-protocol PrettyTextRepresentable: TextRepresentable {
+    member this.Protocols32() =
+        let code = """protocol PrettyTextRepresentable: TextRepresentable {
     func asPrettyText() -> String
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols32", code)
 
     [<Test>]
-    member this.Sample33() =
-        let code = """
-extension SnakesAndLadders: PrettyTextRepresentable {
+    member this.Protocols33() =
+        let code = """extension SnakesAndLadders: PrettyTextRepresentable {
     func asPrettyText() -> String {
         var output = asText() + ":\n"
         for index in 1...finalSquare {
@@ -443,32 +378,26 @@ extension SnakesAndLadders: PrettyTextRepresentable {
         }
         return output
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols33", code)
 
     [<Test>]
-    member this.Sample34() =
-        let code = """
-println(game.asPrettyText())
+    member this.Protocols34() =
+        let code = """println(game.asPrettyText())
 // A game of Snakes and Ladders with 25 squares:
-// ○ ○ ▲ ○ ○ ▲ ○ ○ ▲ ▲ ○ ○ ○ ▼ ○ ○ ○ ○ ▼ ○ ○ ▼ ○ ▼ ○
-        """
-        this.Test (code)
+// ○ ○ ▲ ○ ○ ▲ ○ ○ ▲ ▲ ○ ○ ○ ▼ ○ ○ ○ ○ ▼ ○ ○ ▼ ○ ▼ ○ """
+        this.Test ("Protocols34", code)
 
     [<Test>]
-    member this.Sample35() =
-        let code = """
-protocol SomeClassOnlyProtocol: class, SomeInheritedProtocol {
+    member this.Protocols35() =
+        let code = """protocol SomeClassOnlyProtocol: class, SomeInheritedProtocol {
     // class-only protocol definition goes here
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols35", code)
 
     [<Test>]
-    member this.Sample36() =
-        let code = """
-protocol Named {
+    member this.Protocols36() =
+        let code = """protocol Named {
     var name: String { get }
 }
 protocol Aged {
@@ -483,23 +412,19 @@ func wishHappyBirthday(celebrator: protocol<Named, Aged>) {
 }
 let birthdayPerson = Person(name: "Malcolm", age: 21)
 wishHappyBirthday(birthdayPerson)
-// prints "Happy birthday Malcolm - you're 21!"
-        """
-        this.Test (code)
+// prints "Happy birthday Malcolm - you're 21!" """
+        this.Test ("Protocols36", code)
 
     [<Test>]
-    member this.Sample37() =
-        let code = """
-@objc protocol HasArea {
+    member this.Protocols37() =
+        let code = """@objc protocol HasArea {
     var area: Double { get }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols37", code)
 
     [<Test>]
-    member this.Sample38() =
-        let code = """
-class Circle: HasArea {
+    member this.Protocols38() =
+        let code = """class Circle: HasArea {
     let pi = 3.1415927
     var radius: Double
     var area: Double { return pi * radius * radius }
@@ -508,35 +433,29 @@ class Circle: HasArea {
 class Country: HasArea {
     var area: Double
     init(area: Double) { self.area = area }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols38", code)
 
     [<Test>]
-    member this.Sample39() =
-        let code = """
-class Animal {
+    member this.Protocols39() =
+        let code = """class Animal {
     var legs: Int
     init(legs: Int) { self.legs = legs }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols39", code)
 
     [<Test>]
-    member this.Sample40() =
-        let code = """
-let objects: [AnyObject] = [
+    member this.Protocols40() =
+        let code = """let objects: [AnyObject] = [
     Circle(radius: 2.0),
     Country(area: 243_610),
     Animal(legs: 4)
-]
-        """
-        this.Test (code)
+] """
+        this.Test ("Protocols40", code)
 
     [<Test>]
-    member this.Sample41() =
-        let code = """
-for object in objects {
+    member this.Protocols41() =
+        let code = """for object in objects {
     if let objectWithArea = object as? HasArea {
         println("Area is \(objectWithArea.area)")
     } else {
@@ -545,24 +464,20 @@ for object in objects {
 }
 // Area is 12.5663708
 // Area is 243610.0
-// Something that doesn't have an area
-        """
-        this.Test (code)
+// Something that doesn't have an area """
+        this.Test ("Protocols41", code)
 
     [<Test>]
-    member this.Sample42() =
-        let code = """
-@objc protocol CounterDataSource {
+    member this.Protocols42() =
+        let code = """@objc protocol CounterDataSource {
     optional func incrementForCount(count: Int) -> Int
     optional var fixedIncrement: Int { get }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols42", code)
 
     [<Test>]
-    member this.Sample43() =
-        let code = """
-@objc class Counter {
+    member this.Protocols43() =
+        let code = """@objc class Counter {
     var count = 0
     var dataSource: CounterDataSource?
     func increment() {
@@ -572,23 +487,19 @@ for object in objects {
             count += amount
         }
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols43", code)
 
     [<Test>]
-    member this.Sample44() =
-        let code = """
-class ThreeSource: CounterDataSource {
+    member this.Protocols44() =
+        let code = """class ThreeSource: CounterDataSource {
     let fixedIncrement = 3
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols44", code)
 
     [<Test>]
-    member this.Sample45() =
-        let code = """
-var counter = Counter()
+    member this.Protocols45() =
+        let code = """var counter = Counter()
 counter.dataSource = ThreeSource()
 for _ in 1...4 {
     counter.increment()
@@ -597,14 +508,12 @@ for _ in 1...4 {
 // 3
 // 6
 // 9
-// 12
-        """
-        this.Test (code)
+// 12 """
+        this.Test ("Protocols45", code)
 
     [<Test>]
-    member this.Sample46() =
-        let code = """
-class TowardsZeroSource: CounterDataSource {
+    member this.Protocols46() =
+        let code = """class TowardsZeroSource: CounterDataSource {
     func incrementForCount(count: Int) -> Int {
         if count == 0 {
             return 0
@@ -614,14 +523,12 @@ class TowardsZeroSource: CounterDataSource {
             return -1
         }
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Protocols46", code)
 
     [<Test>]
-    member this.Sample47() =
-        let code = """
-counter.count = -4
+    member this.Protocols47() =
+        let code = """counter.count = -4
 counter.dataSource = TowardsZeroSource()
 for _ in 1...5 {
     counter.increment()
@@ -631,7 +538,6 @@ for _ in 1...5 {
 // -2
 // -1
 // 0
-// 0
-        """
-        this.Test (code)
+// 0 """
+        this.Test ("Protocols47", code)
 

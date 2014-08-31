@@ -10,9 +10,19 @@ open SwiftSharp.SwiftCompiler
 
 type BookTests () =
 
-    member this.Test (code) =
+    member this.Test (name : string, code : string) =
         let ast = 
             match parseCode code with
             | Some x -> x
-            | x -> failwith (sprintf "%A" x)
+            | _ -> failwith (sprintf "Parse returned nothing for %A" code)
         Assert.Greater (ast.Length, 0)
+        let config =
+            {
+                OutputPath = name + ".exe"
+                References = [ typeof<String>.Assembly.Location ]
+            }
+        let asm = compile [ast] config
+        let types = asm.GetTypes ()
+        Assert.Greater (types.Length, 0)
+
+        asm.Save (config.OutputPath)

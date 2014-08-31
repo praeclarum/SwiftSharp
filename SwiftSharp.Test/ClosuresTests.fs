@@ -6,71 +6,54 @@ type ClosuresTests () =
     inherit BookTests ()
 
     [<Test>]
-    member this.Sample1() =
-        let code = """
-let names = ["Chris", "Alex", "Ewa", "Barry", "Daniella"]
-        """
-        this.Test (code)
+    member this.Closures01() =
+        let code = """let names = ["Chris", "Alex", "Ewa", "Barry", "Daniella"] """
+        this.Test ("Closures01", code)
 
     [<Test>]
-    member this.Sample2() =
-        let code = """
-func backwards(s1: String, s2: String) -> Bool {
+    member this.Closures02() =
+        let code = """func backwards(s1: String, s2: String) -> Bool {
     return s1 > s2
 }
 var reversed = sorted(names, backwards)
-// reversed is equal to ["Ewa", "Daniella", "Chris", "Barry", "Alex"]
-        """
-        this.Test (code)
+// reversed is equal to ["Ewa", "Daniella", "Chris", "Barry", "Alex"] """
+        this.Test ("Closures02", code)
 
     [<Test>]
-    member this.Sample3() =
-        let code = """
-reversed = sorted(names, { (s1: String, s2: String) -> Bool in
+    member this.Closures03() =
+        let code = """reversed = sorted(names, { (s1: String, s2: String) -> Bool in
     return s1 > s2
-})
-        """
-        this.Test (code)
+}) """
+        this.Test ("Closures03", code)
 
     [<Test>]
-    member this.Sample4() =
-        let code = """
-reversed = sorted(names, { (s1: String, s2: String) -> Bool in return s1 > s2 } )
-        """
-        this.Test (code)
+    member this.Closures04() =
+        let code = """reversed = sorted(names, { (s1: String, s2: String) -> Bool in return s1 > s2 } ) """
+        this.Test ("Closures04", code)
 
     [<Test>]
-    member this.Sample5() =
-        let code = """
-reversed = sorted(names, { s1, s2 in return s1 > s2 } )
-        """
-        this.Test (code)
+    member this.Closures05() =
+        let code = """reversed = sorted(names, { s1, s2 in return s1 > s2 } ) """
+        this.Test ("Closures05", code)
 
     [<Test>]
-    member this.Sample6() =
-        let code = """
-reversed = sorted(names, { s1, s2 in s1 > s2 } )
-        """
-        this.Test (code)
+    member this.Closures06() =
+        let code = """reversed = sorted(names, { s1, s2 in s1 > s2 } ) """
+        this.Test ("Closures06", code)
 
     [<Test>]
-    member this.Sample7() =
-        let code = """
-reversed = sorted(names, { $0 > $1 } )
-        """
-        this.Test (code)
+    member this.Closures07() =
+        let code = """reversed = sorted(names, { $0 > $1 } ) """
+        this.Test ("Closures07", code)
 
     [<Test>]
-    member this.Sample8() =
-        let code = """
-reversed = sorted(names, >)
-        """
-        this.Test (code)
+    member this.Closures08() =
+        let code = """reversed = sorted(names, >) """
+        this.Test ("Closures08", code)
 
     [<Test>]
-    member this.Sample9() =
-        let code = """
-func someFunctionThatTakesAClosure(closure: () -> ()) {
+    member this.Closures09() =
+        let code = """func someFunctionThatTakesAClosure(closure: () -> ()) {
     // function body goes here
 }
  
@@ -84,32 +67,26 @@ someFunctionThatTakesAClosure({
  
 someFunctionThatTakesAClosure() {
     // trailing closure's body goes here
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Closures09", code)
 
     [<Test>]
-    member this.Sample10() =
-        let code = """
-reversed = sorted(names) { $0 > $1 }
-        """
-        this.Test (code)
+    member this.Closures10() =
+        let code = """reversed = sorted(names) { $0 > $1 } """
+        this.Test ("Closures10", code)
 
     [<Test>]
-    member this.Sample11() =
-        let code = """
-let digitNames = [
+    member this.Closures11() =
+        let code = """let digitNames = [
     0: "Zero", 1: "One", 2: "Two",   3: "Three", 4: "Four",
     5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine"
 ]
-let numbers = [16, 58, 510]
-        """
-        this.Test (code)
+let numbers = [16, 58, 510] """
+        this.Test ("Closures11", code)
 
     [<Test>]
-    member this.Sample12() =
-        let code = """
-let strings = numbers.map {
+    member this.Closures12() =
+        let code = """let strings = numbers.map {
     (var number) -> String in
     var output = ""
     while number > 0 {
@@ -119,76 +96,61 @@ let strings = numbers.map {
     return output
 }
 // strings is inferred to be of type [String]
-// its value is ["OneSix", "FiveEight", "FiveOneZero"]
-        """
-        this.Test (code)
+// its value is ["OneSix", "FiveEight", "FiveOneZero"] """
+        this.Test ("Closures12", code)
 
     [<Test>]
-    member this.Sample13() =
-        let code = """
-func makeIncrementor(forIncrement amount: Int) -> () -> Int {
+    member this.Closures13() =
+        let code = """func makeIncrementor(forIncrement amount: Int) -> () -> Int {
     var runningTotal = 0
     func incrementor() -> Int {
         runningTotal += amount
         return runningTotal
     }
     return incrementor
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Closures13", code)
 
     [<Test>]
-    member this.Sample14() =
-        let code = """
-func incrementor() -> Int {
+    member this.Closures14() =
+        let code = """func incrementor() -> Int {
     runningTotal += amount
     return runningTotal
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Closures14", code)
 
     [<Test>]
-    member this.Sample15() =
-        let code = """
-let incrementByTen = makeIncrementor(forIncrement: 10)
-        """
-        this.Test (code)
+    member this.Closures15() =
+        let code = """let incrementByTen = makeIncrementor(forIncrement: 10) """
+        this.Test ("Closures15", code)
 
     [<Test>]
-    member this.Sample16() =
-        let code = """
-incrementByTen()
+    member this.Closures16() =
+        let code = """incrementByTen()
 // returns a value of 10
 incrementByTen()
 // returns a value of 20
 incrementByTen()
-// returns a value of 30
-        """
-        this.Test (code)
+// returns a value of 30 """
+        this.Test ("Closures16", code)
 
     [<Test>]
-    member this.Sample17() =
-        let code = """
-let incrementBySeven = makeIncrementor(forIncrement: 7)
+    member this.Closures17() =
+        let code = """let incrementBySeven = makeIncrementor(forIncrement: 7)
 incrementBySeven()
-// returns a value of 7
-        """
-        this.Test (code)
+// returns a value of 7 """
+        this.Test ("Closures17", code)
 
     [<Test>]
-    member this.Sample18() =
-        let code = """
-incrementByTen()
-// returns a value of 40
-        """
-        this.Test (code)
+    member this.Closures18() =
+        let code = """incrementByTen()
+// returns a value of 40 """
+        this.Test ("Closures18", code)
 
     [<Test>]
-    member this.Sample19() =
-        let code = """
-let alsoIncrementByTen = incrementByTen
+    member this.Closures19() =
+        let code = """let alsoIncrementByTen = incrementByTen
 alsoIncrementByTen()
-// returns a value of 50
-        """
-        this.Test (code)
+// returns a value of 50 """
+        this.Test ("Closures19", code)
 

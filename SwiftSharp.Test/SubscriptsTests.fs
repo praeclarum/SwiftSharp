@@ -6,32 +6,27 @@ type SubscriptsTests () =
     inherit BookTests ()
 
     [<Test>]
-    member this.Sample1() =
-        let code = """
-subscript(index: Int) -> Int {
+    member this.Subscripts01() =
+        let code = """subscript(index: Int) -> Int {
     get {
         // return an appropriate subscript value here
     }
     set(newValue) {
         // perform a suitable setting action here
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Subscripts01", code)
 
     [<Test>]
-    member this.Sample2() =
-        let code = """
-subscript(index: Int) -> Int {
+    member this.Subscripts02() =
+        let code = """subscript(index: Int) -> Int {
     // return an appropriate subscript value here
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Subscripts02", code)
 
     [<Test>]
-    member this.Sample3() =
-        let code = """
-struct TimesTable {
+    member this.Subscripts03() =
+        let code = """struct TimesTable {
     let multiplier: Int
     subscript(index: Int) -> Int {
         return multiplier * index
@@ -39,22 +34,18 @@ struct TimesTable {
 }
 let threeTimesTable = TimesTable(multiplier: 3)
 println("six times three is \(threeTimesTable[6])")
-// prints "six times three is 18"
-        """
-        this.Test (code)
+// prints "six times three is 18" """
+        this.Test ("Subscripts03", code)
 
     [<Test>]
-    member this.Sample4() =
-        let code = """
-var numberOfLegs = ["spider": 8, "ant": 6, "cat": 4]
-numberOfLegs["bird"] = 2
-        """
-        this.Test (code)
+    member this.Subscripts04() =
+        let code = """var numberOfLegs = ["spider": 8, "ant": 6, "cat": 4]
+numberOfLegs["bird"] = 2 """
+        this.Test ("Subscripts04", code)
 
     [<Test>]
-    member this.Sample5() =
-        let code = """
-struct Matrix {
+    member this.Subscripts05() =
+        let code = """struct Matrix {
     let rows: Int, columns: Int
     var grid: [Double]
     init(rows: Int, columns: Int) {
@@ -75,39 +66,30 @@ struct Matrix {
             grid[(row * columns) + column] = newValue
         }
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Subscripts05", code)
 
     [<Test>]
-    member this.Sample6() =
-        let code = """
-var matrix = Matrix(rows: 2, columns: 2)
-        """
-        this.Test (code)
+    member this.Subscripts06() =
+        let code = """var matrix = Matrix(rows: 2, columns: 2) """
+        this.Test ("Subscripts06", code)
 
     [<Test>]
-    member this.Sample7() =
-        let code = """
-matrix[0, 1] = 1.5
-matrix[1, 0] = 3.2
-        """
-        this.Test (code)
+    member this.Subscripts07() =
+        let code = """matrix[0, 1] = 1.5
+matrix[1, 0] = 3.2 """
+        this.Test ("Subscripts07", code)
 
     [<Test>]
-    member this.Sample8() =
-        let code = """
-func indexIsValidForRow(row: Int, column: Int) -> Bool {
+    member this.Subscripts08() =
+        let code = """func indexIsValidForRow(row: Int, column: Int) -> Bool {
     return row >= 0 && row < rows && column >= 0 && column < columns
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("Subscripts08", code)
 
     [<Test>]
-    member this.Sample9() =
-        let code = """
-let someValue = matrix[2, 2]
-// this triggers an assert, because [2, 2] is outside of the matrix bounds
-        """
-        this.Test (code)
+    member this.Subscripts09() =
+        let code = """let someValue = matrix[2, 2]
+// this triggers an assert, because [2, 2] is outside of the matrix bounds """
+        this.Test ("Subscripts09", code)
 

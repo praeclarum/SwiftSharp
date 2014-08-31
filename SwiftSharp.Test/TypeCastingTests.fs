@@ -6,21 +6,18 @@ type TypeCastingTests () =
     inherit BookTests ()
 
     [<Test>]
-    member this.Sample1() =
-        let code = """
-class MediaItem {
+    member this.TypeCasting01() =
+        let code = """class MediaItem {
     var name: String
     init(name: String) {
         self.name = name
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("TypeCasting01", code)
 
     [<Test>]
-    member this.Sample2() =
-        let code = """
-class Movie: MediaItem {
+    member this.TypeCasting02() =
+        let code = """class Movie: MediaItem {
     var director: String
     init(name: String, director: String) {
         self.director = director
@@ -34,28 +31,24 @@ class Song: MediaItem {
         self.artist = artist
         super.init(name: name)
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("TypeCasting02", code)
 
     [<Test>]
-    member this.Sample3() =
-        let code = """
-let library = [
+    member this.TypeCasting03() =
+        let code = """let library = [
     Movie(name: "Casablanca", director: "Michael Curtiz"),
     Song(name: "Blue Suede Shoes", artist: "Elvis Presley"),
     Movie(name: "Citizen Kane", director: "Orson Welles"),
     Song(name: "The One And Only", artist: "Chesney Hawkes"),
     Song(name: "Never Gonna Give You Up", artist: "Rick Astley")
 ]
-// the type of "library" is inferred to be [MediaItem]
-        """
-        this.Test (code)
+// the type of "library" is inferred to be [MediaItem] """
+        this.Test ("TypeCasting03", code)
 
     [<Test>]
-    member this.Sample4() =
-        let code = """
-var movieCount = 0
+    member this.TypeCasting04() =
+        let code = """var movieCount = 0
 var songCount = 0
  
 for item in library {
@@ -67,14 +60,12 @@ for item in library {
 }
  
 println("Media library contains \(movieCount) movies and \(songCount) songs")
-// prints "Media library contains 2 movies and 3 songs"
-        """
-        this.Test (code)
+// prints "Media library contains 2 movies and 3 songs" """
+        this.Test ("TypeCasting04", code)
 
     [<Test>]
-    member this.Sample5() =
-        let code = """
-for item in library {
+    member this.TypeCasting05() =
+        let code = """for item in library {
     if let movie = item as? Movie {
         println("Movie: '\(movie.name)', dir. \(movie.director)")
     } else if let song = item as? Song {
@@ -86,50 +77,42 @@ for item in library {
 // Song: 'Blue Suede Shoes', by Elvis Presley
 // Movie: 'Citizen Kane', dir. Orson Welles
 // Song: 'The One And Only', by Chesney Hawkes
-// Song: 'Never Gonna Give You Up', by Rick Astley
-        """
-        this.Test (code)
+// Song: 'Never Gonna Give You Up', by Rick Astley """
+        this.Test ("TypeCasting05", code)
 
     [<Test>]
-    member this.Sample6() =
-        let code = """
-let someObjects: [AnyObject] = [
+    member this.TypeCasting06() =
+        let code = """let someObjects: [AnyObject] = [
     Movie(name: "2001: A Space Odyssey", director: "Stanley Kubrick"),
     Movie(name: "Moon", director: "Duncan Jones"),
     Movie(name: "Alien", director: "Ridley Scott")
-]
-        """
-        this.Test (code)
+] """
+        this.Test ("TypeCasting06", code)
 
     [<Test>]
-    member this.Sample7() =
-        let code = """
-for object in someObjects {
+    member this.TypeCasting07() =
+        let code = """for object in someObjects {
     let movie = object as Movie
     println("Movie: '\(movie.name)', dir. \(movie.director)")
 }
 // Movie: '2001: A Space Odyssey', dir. Stanley Kubrick
 // Movie: 'Moon', dir. Duncan Jones
-// Movie: 'Alien', dir. Ridley Scott
-        """
-        this.Test (code)
+// Movie: 'Alien', dir. Ridley Scott """
+        this.Test ("TypeCasting07", code)
 
     [<Test>]
-    member this.Sample8() =
-        let code = """
-for movie in someObjects as [Movie] {
+    member this.TypeCasting08() =
+        let code = """for movie in someObjects as [Movie] {
     println("Movie: '\(movie.name)', dir. \(movie.director)")
 }
 // Movie: '2001: A Space Odyssey', dir. Stanley Kubrick
 // Movie: 'Moon', dir. Duncan Jones
-// Movie: 'Alien', dir. Ridley Scott
-        """
-        this.Test (code)
+// Movie: 'Alien', dir. Ridley Scott """
+        this.Test ("TypeCasting08", code)
 
     [<Test>]
-    member this.Sample9() =
-        let code = """
-var things = [Any]()
+    member this.TypeCasting09() =
+        let code = """var things = [Any]()
  
 things.append(0)
 things.append(0.0)
@@ -137,14 +120,12 @@ things.append(42)
 things.append(3.14159)
 things.append("hello")
 things.append((3.0, 5.0))
-things.append(Movie(name: "Ghostbusters", director: "Ivan Reitman"))
-        """
-        this.Test (code)
+things.append(Movie(name: "Ghostbusters", director: "Ivan Reitman")) """
+        this.Test ("TypeCasting09", code)
 
     [<Test>]
-    member this.Sample10() =
-        let code = """
-for thing in things {
+    member this.TypeCasting10() =
+        let code = """for thing in things {
     switch thing {
     case 0 as Int:
         println("zero as an Int")
@@ -173,7 +154,6 @@ for thing in things {
 // a positive double value of 3.14159
 // a string value of "hello"
 // an (x, y) point at 3.0, 5.0
-// a movie called 'Ghostbusters', dir. Ivan Reitman
-        """
-        this.Test (code)
+// a movie called 'Ghostbusters', dir. Ivan Reitman """
+        this.Test ("TypeCasting10", code)
 

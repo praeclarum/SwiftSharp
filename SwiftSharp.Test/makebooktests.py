@@ -15,18 +15,21 @@ def writeText (f, c):
 		for sc in c.childNodes: writeText(f, sc)
 
 def writeCode (f, ul):
+	head = u""
 	for li in [x for x in ul.childNodes if x.nodeType == ul.ELEMENT_NODE and x.tagName == "li"]:
+		write(f, head)
 		for code in [x for x in li.childNodes if x.nodeType == ul.ELEMENT_NODE and x.tagName == "code"]:
 			writeText (f, code)
-		write(f, "\n")
+		head = u"\n"
+		
 
-def writeTest (f, id, codeLines):
+def writeTest (f, name, id, codeLines):
 	write(f, u"    [<Test>]\n")
-	write(f, u"    member this.Sample%d() =\n" % id)
-	write(f, u"        let code = \"\"\"\n")
+	write(f, u"    member this.%s%.2d() =\n" % (name, id))
+	write(f, u"        let code = \"\"\"")
 	writeCode (f, codeLines)
-	write(f, u"        \"\"\"\n")
-	write(f, u"        this.Test (code)\n\n")
+	write(f, u" \"\"\"\n")
+	write(f, u"        this.Test (\"%s%.2d\", code)\n\n" % (name, id))
 
 def writeTestFixture(name):
 	print name
@@ -43,7 +46,7 @@ def writeTestFixture(name):
 	id = 1
 	for e in divs:
 		if e.hasAttribute ("class") and e.attributes["class"].value == "code-lines":
-			writeTest (f, id, e)
+			writeTest (f, name, id, e)
 			id = id + 1
 	f.close ()
 

@@ -13,7 +13,6 @@ open IKVM.Reflection.Emit
 
 type Config =
     {
-        InputUrls: string list
         OutputPath: string
         References: string list
     }
@@ -238,7 +237,7 @@ let notSupported x = failwith (sprintf "Not supported: %A" x)
 
 let omg msg x = failwith (sprintf msg x)
 
-let pass msg x = (sprintf msg x) |> ignore
+let pass msg x = failwith (sprintf msg x)
 
 let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodName : string) (ps : (ParameterBuilder * ClrType) list) (body : Statement list) (il : ILGenerator) =
 
@@ -298,6 +297,17 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
         | [|x|] -> Some x
         | xs -> resolveOverload "init" xs args (fun x ex -> x.__GetCustomAttributes (ex, true))
 
+    let findGlobalMethod methodName (args : Argument list) =
+        match methodName with
+        | "println" ->
+            match tu.Env.ObjectType.Assembly.GetType ("System.Console") with
+            | null -> None
+            | t ->
+                match t.GetMethod ("WriteLine", [|tu.Env.StringType|]) with
+                | null -> None
+                | m -> Some m
+        | _ -> None
+
     let canAssignType (sourceType : ClrType, destType : ClrType) =
         destType.IsAssignableFrom (sourceType)
 
@@ -347,15 +357,21 @@ let compileMethod (tu : TranslationUnit) ((typ, gps) : DefinedClrType) (methodNa
         | _ -> failwith (sprintf "Don't know the type of %A" e)
 
     let rec apply f args =
+        let emitCall meth =
+            args |> List.iter (snd >> eval)
+            il.EmitCall (OpCodes.Callvirt, meth, [||])
         match f with
         | Member (Some o, name) ->
             let ot = typeof o
             match findMethod ot name args with
             | Some meth ->
-                args |> List.iter (snd >> eval)
                 eval o
-                il.EmitCall (OpCodes.Callvirt, meth, [||])
+                emitCall meth
             | _ -> omg "Cannot find method %A" (ot, name)
+        | Variable name ->
+            match findGlobalMethod name args with
+            | Some meth -> emitCall meth
+            | _ -> omg "Cannot find function %A" name
         | _ -> omg "Don't know how to apply %A" f
 
     and eval e =
@@ -524,12 +540,26 @@ let declareType (tu : TranslationUnit) stmt : DeclaredType list =
         []
     | _ -> []
 
+let isTopLevelStatement stmt =
+    match stmt with
+    | DeclarationStatement (ConstantDeclaration _) -> true
+    | ReturnStatement _
+    | DeclarationStatement _ -> false
+    | ExpressionStatement _
+    | IfStatement _
+    | SwitchStatement _
+    | ForInStatement _ -> true
 
-let compile config =
+
+let rec compileUrls inputUrls config =
+    let asts = inputUrls |> List.choose parseFile
+    compile asts config
+
+and compile asts config =
     let env = new Env (config)
 
-    // Parse each translation unit
-    let tus = config.InputUrls |> List.choose parseFile |> List.map (fun x -> new TranslationUnit (env, x))
+    // Create translation units for each AST
+    let tus = asts |> List.map (fun x -> new TranslationUnit (env, x))
 
     // First pass: Declare the types
     let typeDecls = tus |> List.map (fun x -> (x, x.Statements |> List.collect (declareType x)))
@@ -546,6 +576,16 @@ let compile config =
             tdecls |> List.collect (fun (typ, decls) ->
                 decls |> List.choose (declareField tu typ)))
 
+    // Create the top level type
+    let tattribs = TypeAttributes.Public
+    let topLevelType = env.DefineType "TopLevel" [] tattribs env.ObjectType
+    let topLevelExe = tus |> List.map (fun x -> (x, x.Statements |> List.filter isTopLevelStatement))
+    let topLevelCompilers = topLevelExe |> List.mapi (fun i (tu, body) ->
+        let name = sprintf "Initialize%d" i
+        let attribs = MethodAttributes.Public
+        let builder = (fst topLevelType).DefineMethod (name, attribs, env.VoidType, [||])
+        fun () -> compileMethod tu topLevelType name [] body (builder.GetILGenerator ()))
+
     // Bake the types
     let types =
         env.DefinedTypes.Values
@@ -555,20 +595,19 @@ let compile config =
     // Fourth pass: Compile code, finally
     for fc in fieldCompilers do fc ()
     for mc in methodCompilers do mc ()
+    for mc in topLevelCompilers do mc ()
 
     // Save it
-    env.Assembly.Save (config.OutputPath)
-    types
+    env.Assembly
 
 
 let compileFile file =
     let config =
         {
-            InputUrls = [file]
             OutputPath = System.IO.Path.ChangeExtension (file, ".dll")
             References = [ typeof<String>.Assembly.Location ]
         }
-    compile config
+    compileUrls [file] config
 
 //compileFile "/Users/fak/Dropbox/Projects/SwiftSharp/SwiftSharp.Test/TestFiles/SODAClient.swift"
 

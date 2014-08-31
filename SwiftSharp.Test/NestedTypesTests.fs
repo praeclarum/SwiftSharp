@@ -6,9 +6,8 @@ type NestedTypesTests () =
     inherit BookTests ()
 
     [<Test>]
-    member this.Sample1() =
-        let code = """
-struct BlackjackCard {
+    member this.NestedTypes01() =
+        let code = """struct BlackjackCard {
     
     // nested Suit enumeration
     enum Suit: Character {
@@ -44,24 +43,19 @@ struct BlackjackCard {
             }
             return output
     }
-}
-        """
-        this.Test (code)
+} """
+        this.Test ("NestedTypes01", code)
 
     [<Test>]
-    member this.Sample2() =
-        let code = """
-let theAceOfSpades = BlackjackCard(rank: .Ace, suit: .Spades)
+    member this.NestedTypes02() =
+        let code = """let theAceOfSpades = BlackjackCard(rank: .Ace, suit: .Spades)
 println("theAceOfSpades: \(theAceOfSpades.description)")
-// prints "theAceOfSpades: suit is ♠, value is 1 or 11"
-        """
-        this.Test (code)
+// prints "theAceOfSpades: suit is ♠, value is 1 or 11" """
+        this.Test ("NestedTypes02", code)
 
     [<Test>]
-    member this.Sample3() =
-        let code = """
-let heartsSymbol = BlackjackCard.Suit.Hearts.toRaw()
-// heartsSymbol is "♡"
-        """
-        this.Test (code)
+    member this.NestedTypes03() =
+        let code = """let heartsSymbol = BlackjackCard.Suit.Hearts.toRaw()
+// heartsSymbol is "♡" """
+        this.Test ("NestedTypes03", code)
 
