@@ -1,6 +1,6 @@
 # SwiftSharp
 
-SwiftSharp is an open source [Swift](https://developer.apple.com/swift) .NET compiler.
+SwiftSharp is an open source [Swift](https://developer.apple.com/swift) compiler for .NET.
 
 ## Status
 
