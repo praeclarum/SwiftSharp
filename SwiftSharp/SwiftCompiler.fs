@@ -312,9 +312,10 @@ type TranslationUnit (env : Env, stmts : Statement list) =
         match expr with
         | _ -> failwith (sprintf "Cannot infer type of: %A" expr)
 
-let compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : string) (ps : (ParameterBuilder * TypeRef) list) (body : Statement list) (il : ILGenerator) =
+let cid = ref 1
 
-    let cid = ref 1
+let rec compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : string) (ps : (ParameterBuilder * TypeRef) list) (body : Statement list) (il : ILGenerator) =
+
     let locals = ref []
 
     let declareLocal name (tr : TypeRef) =
@@ -435,6 +436,38 @@ let compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : strin
         else
             il.EmitCall (OpCodes.Call, meth, ClrType.EmptyTypes)
 
+    and compileClosure (parameters : Parameter list, res : FunctionResult option) body (expectedType : TypeRef) =
+        // Create the class
+        let cname = sprintf "%sClosure%d" methodName !cid
+        cid := !cid + 1
+        let tattribs = TypeAttributes.Class ||| TypeAttributes.NotPublic
+        let ctype = tu.DefineType (cname) [] tattribs tu.Env.ObjectType
+
+        // Create the method
+        let returnType =
+            match res with
+            | Some (resAttrs, resType) -> tu.GetClrType (resType)
+            | None -> tu.Env.VoidType
+        let paramTypes =
+            parameters
+            |> Seq.mapi (fun i x ->
+                match x with
+                | (a,e,l,Some t,d) -> tu.GetClrType (t)
+                | _ -> tu.Env.ObjectType)
+               
+            |> Seq.toArray
+        let attribs = MethodAttributes.Public
+        let mname = "Run"
+        let builder = typ.Builder.DefineMethod (mname, attribs, returnType.ClrType, paramTypes |> Array.map (fun x -> x.ClrType))
+        typ.Members.Add (builder)
+        let ps = parameters |> List.mapi (fun i (_, _, ploc, _, _) -> builder.DefineParameter (i + 1, ParameterAttributes.None, ploc))
+        let psts = (List.zip ps (paramTypes |> Array.toList))
+
+        // Compile the method
+        compileMethod tu ctype mname psts body (builder.GetILGenerator ())
+//        builder
+        omg "Eval Closures, closures!! %A" (parameters, expectedType, body)
+
     and apply f args =
         match f with
         | Member (Some o, name) ->
@@ -474,7 +507,7 @@ let compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : strin
                 il.Emit (OpCodes.Dup)
                 eval keyType (fst ch)
                 eval valType (snd ch)
-                il.EmitCall (OpCodes.Call, add, ClrType.EmptyTypes)
+                il.EmitCall (OpCodes.Callvirt, add, ClrType.EmptyTypes)
 
         | DoubleExpr n -> il.Emit (OpCodes.Ldc_R8, n)
         | IntExpr n -> il.Emit (OpCodes.Ldc_I4, n)
@@ -509,9 +542,9 @@ let compileMethod (tu : TranslationUnit) (typ : DefinedType) (methodName : strin
                 | ("System.String", "+") -> omg "Don't know how to add string %A" (xt, op)
                 | _ -> omg "Cannot find operator %A for eval" (xt, x, op, y)
         | Closure (head, body) ->
-            let ctypeName = sprintf "%sClosure%d" methodName !cid
-            cid := !cid + 1
-            omg "Eval Closures, closures!! %A" head
+            match head with
+            | Some x -> compileClosure x body expectedType
+            | _ -> omg "Closure doesn't have a head %A" e
         | Funcall ((NamedType t), args) ->
             match findCtor t args with
             | None -> omg "Couldn't find constructor for %A" args
